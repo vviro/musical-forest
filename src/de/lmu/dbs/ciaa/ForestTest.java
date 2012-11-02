@@ -57,6 +57,19 @@ import de.lmu.dbs.ciaa.util.*;
  * - profile buffer (google code) für dateiformat, statt serialization
  * 
  * 
+ * ////////////
+ * Ergebnisse
+ * - profiling: feature ist nicht mehr hotspot 1, sondern 2 (screenshot profiler)
+ * - sparse matrix -> halb so schnell, wenig ersparnis -> raus
+ * - Trove: Es gibt keine primitiven listen im programm...also keine Anwendung
+ * - Bitwise Classification: Uneffectiv (3x so langsam!); also:  
+ * 		-> 2x Boolean array: nicht gut (2.2 mal soviel Laufzeit, heap overflow)
+ * 			-> da müss ma nochmal schauen, der Overhead ist nicht so groß, ich glaub es passt so 
+ * ///////////
+ * 
+ * 
+ * - testdata: performances vom vladimir
+ * 
  * @author Thomas Weber
  *
  */
