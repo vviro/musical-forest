@@ -43,8 +43,13 @@ import de.lmu.dbs.ciaa.util.*;
  * 15: "-" FeatureHarmonic2
  * 16: 1/6/1.0/20/6 FeatureHarmonic2
  * 17: 1/4/1.0/20/6 FeatureHarmonic2
+ * 18: "-" max
+ * 19: "-" (add im feature) max
  * 
  * TODO *************************************************************************************
+ * 
+ * Random generator is sick?
+ * 
  * 
  * Forest:
  * 		- Log vom CQT
@@ -81,7 +86,7 @@ public class ForestTest {
 
 		// Forest params
 		int forestSize = 1; // Number of trees
-		String forestFile = "testdataResults/forest_oob17"; // file for forest parameters
+		String forestFile = "testdataResults/forest_oob19_max"; // file for forest parameters
 		boolean load = false;  // Instead of growing it, load the forest from file. If false, the forest will grow and be saved to the file.
 		
 		// Tree params
@@ -186,7 +191,7 @@ public class ForestTest {
 			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length, 1);
 			Scale scale = new LogScale(10);
 			img.add(dataOobD, new Color(255,150,0), scale);
-			img.add(dataForest, Color.GREEN, scale, 0.1);
+			img.add(dataForest, Color.GREEN, scale, 0.8);
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
 
