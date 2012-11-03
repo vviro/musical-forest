@@ -53,33 +53,19 @@ import de.lmu.dbs.ciaa.util.*;
  * 		- Information gain threshold?
  * 		- Mehrere verschiedene feaure-typen? 
  * 			- f0-feature
- * 			- noteOn-feature
+ * 			- noteOn-feature (basiert auf fuzzy attacks)
  * 			- ...?
  * 
- * Appl. Design:
+ * Application Design:
  * 		- profile buffer (google code) für dateiformat, statt serialization
  * 
  * Optimierung:
- * 		- Multithread? 
+ * 		- Multithread!
+ * 			- Make the application distributable
  * 		- lookup table für feature.evaluate?
  * 
  * Testdaten:
- * 		- Performances von vladimir
- * 
- * Ergebnisse
- * - profiling: feature ist nicht mehr hotspot 1, sondern 2 (screenshot profiler)
- * - sparse matrix -> halb so schnell, wenig ersparnis -> raus
- * - Trove: Es gibt keine primitiven listen im programm...also keine Anwendung
- * - Bitwise Classification: Uneffectiv (3x so langsam!); also:  
- * 		-> 2x Boolean array: nicht gut (2.2 mal soviel Laufzeit, heap overflow)
- * 			-> da müss ma nochmal schauen, der Overhead ist nicht so groß, ich glaub es passt so 
- * 
- * - Feature selection: Factory-like
- * - FeatureHarmonic:
- * 		- Harmonics for generating Y parameters
- * 		- Better overflow behaviour (frequencies above fMax etc.) 
- * 
- * 
+ * 		- Performances von Vladimir
  * 
  * 
  * @author Thomas Weber

@@ -8,7 +8,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
  * Feature implementation for music analysis.
- * Uses overtone structures and note length statistics. 
+ * Uses overtone structures. 
  * 
  * @author Thomas Weber
  *
