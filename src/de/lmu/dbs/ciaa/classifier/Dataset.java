@@ -78,7 +78,7 @@ public class Dataset {
 	 * @param step the frame width in audio samples 
 	 * @throws Exception
 	 */
-	public Dataset(File spectrumFile, File midiFile, double[] frequencies, int step) throws Exception {
+	public Dataset(final File spectrumFile, final File midiFile, final double[] frequencies, final int step) throws Exception {
 		if (!spectrumFile.exists() || !spectrumFile.isFile()) {
 			throw new Exception("ERROR: " + spectrumFile.getAbsolutePath() + " does not exist or is no file");
 		}
@@ -117,7 +117,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception
 	 */
-	public byte[][] getSpectrum(int x, int frames) throws Exception {
+	public byte[][] getSpectrum(final int x, final int frames) throws Exception {
 		if (!loaded) load();
 		byte[][] ret = new byte[frames][];
 		for (int i=0; i<frames; i++) {
@@ -133,7 +133,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public byte[][][] divideSpectrum(int frames) throws Exception {
+	public byte[][][] divideSpectrum(final int frames) throws Exception {
 		if (!loaded) load();
 		int chunks = spectrum.length/frames;
 		byte[][][] ret = new byte[chunks][][];
@@ -151,7 +151,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<int[]> getRelevant(int threshold, double maxFreq) throws Exception {
+	public List<int[]> getRelevant(final int threshold, final double maxFreq) throws Exception {
 		if (!loaded) load();
 		List<int[]> ret = new ArrayList<int[]>();
 		int maxBin = getFrequencyBin(maxFreq);
@@ -179,7 +179,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<int[]> getRelevant(int x, int frames, int threshold, double maxFreq) throws Exception {
+	public List<int[]> getRelevant(final int x, final int frames, final int threshold, final double maxFreq) throws Exception {
 		if (!loaded) load();
 		List<int[]> ret = new ArrayList<int[]>();
 		byte[][] chunk = getSpectrum(x, frames);
@@ -202,7 +202,7 @@ public class Dataset {
 	 * @param freq
 	 * @return
 	 */
-	public int getFrequencyBin(double freq) {
+	public int getFrequencyBin(final double freq) {
 		int f=0;
 		while (freq > frequencies[f] && f < frequencies.length-1) {
 			f++;
@@ -265,7 +265,7 @@ public class Dataset {
 	 * @param depth
 	 * @return
 	 */
-	public byte[][] getClassificationArray(int depth) {
+	public byte[][] getClassificationArray(final int depth) {
 		if (classification.size() <= depth) {
 			for(int i=0; i<=depth; i++) {
 				byte[][] n = new byte[spectrum.length][frequencies.length];
@@ -287,7 +287,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public void selectRandomValues(int depth, int valuesPerFrame, long[] array) throws Exception {
+	public void selectRandomValues(final int depth, final int valuesPerFrame, long[] array) throws Exception {
 		if (!loaded) load();
 		// Throw all out of bag
 		byte[][] d = getClassificationArray(depth);
@@ -319,7 +319,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public long[] getRandomValuesArray(int valuesPerFrame) throws Exception {
+	public long[] getRandomValuesArray(final int valuesPerFrame) throws Exception {
 		if (!loaded) load();
 		return new long[valuesPerFrame*spectrum.length];
 	}
@@ -334,7 +334,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<Dataset> loadDatasets(String spectrumFolder, String spectrumPostfix, String midiFolder, String midiPostfix, double[] frequencies, int step) throws Exception {
+	public static List<Dataset> loadDatasets(final String spectrumFolder, final String spectrumPostfix, final String midiFolder, final String midiPostfix, final double[] frequencies, final int step) throws Exception {
 		List<Dataset> ret = new ArrayList<Dataset>();
 		List<File> spectrumFiles = getDirList(spectrumFolder, spectrumPostfix);
 		for(int i=0; i<spectrumFiles.size(); i++) {
@@ -352,7 +352,7 @@ public class Dataset {
 	 * @param postfix file extension for example
 	 * @return
 	 */
-	public static List<File> getDirList(String folder, String postfix) {
+	public static List<File> getDirList(final String folder, final String postfix) {
 		File dir = new File(folder);
 		FilenameFilter filter = new PostfixFilenameFilter(postfix);
 		return Arrays.asList(dir.listFiles(filter));

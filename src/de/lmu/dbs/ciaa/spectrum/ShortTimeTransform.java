@@ -18,7 +18,7 @@ public interface ShortTimeTransform {
      * @param buff_in
      * @param buff_out holds complex representation of each coeff (real and imaginary)
      */
-	public void calc(double[] buff_in, double[] buff_out);
+	public void calc(final double[] buff_in, final double[] buff_out);
 
 	/**
      * Take a buff_in of plain audio samples and calculate the transformation coeffs,
@@ -27,7 +27,7 @@ public interface ShortTimeTransform {
      * @param buff_in
      * @param buff_out 
      */
-	public void calcMagnitude(double[] buff_in, double[] buff_out);
+	public void calcMagnitude(final double[] buff_in, final double[] buff_out);
 
 	/**
 	 * Returns the window length

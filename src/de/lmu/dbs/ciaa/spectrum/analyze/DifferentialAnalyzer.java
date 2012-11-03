@@ -15,7 +15,7 @@ public class DifferentialAnalyzer {
 	 *        negative values (for evaluation use)
 	 * @return
 	 */
-	public double[] getDifferential(double[] in, boolean shiftByMaximum) {
+	public double[] getDifferential(final double[] in, final boolean shiftByMaximum) {
 		double[] ret = new double[in.length];
 		double min = Double.MAX_VALUE; 
 		for(int i=0; i<in.length-1; i++) {
@@ -40,7 +40,7 @@ public class DifferentialAnalyzer {
 	 *        value. Use a value <= 0.0 if no filtering is wanted.
 	 * @return sample array (peaks)
 	 */
-	public double[] getPeaks(double[] in) {
+	public double[] getPeaks(final double[] in) {
 		double[] ret = new double[in.length];
 		int dir = 1;
 		for(int i=0; i<in.length-1; i++) {

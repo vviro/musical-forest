@@ -58,7 +58,7 @@ public class MIDIRandomGenerator {
 	 * @param numOfNotes number of random notes to be rendered
 	 * @throws Exception 
 	 */
-	public MIDIRandomGenerator(long length, int bpm, int numOfNotes) throws Exception {
+	public MIDIRandomGenerator(final long length, final int bpm, final int numOfNotes) throws Exception {
 		if (length <= 0) {
 			throw new Exception("Invalid length: " + length);
 		}
@@ -78,7 +78,7 @@ public class MIDIRandomGenerator {
 	 * @param bpm beats per minute
 	 * @throws Exception
 	 */
-	public MIDIRandomGenerator(long length, int bpm) throws Exception {
+	public MIDIRandomGenerator(final long length, final int bpm) throws Exception {
 		if (length <= 0) {
 			throw new Exception("Invalid length: " + length);
 		}
@@ -99,7 +99,7 @@ public class MIDIRandomGenerator {
 	 * @param maxDuration highest duration (milliseconds)
 	 * @throws Exception 
 	 */
-	public void setRanges(int minNote, int maxNote, int minDuration, int maxDuration) throws Exception {
+	public void setRanges(final int minNote, final int maxNote, final int minDuration, final int maxDuration) throws Exception {
 		if (minNote < MIDI.MIN_NOTE_NUMBER) {
 			throw new Exception("Invalid midi note number: " + minNote);
 		}
@@ -129,7 +129,7 @@ public class MIDIRandomGenerator {
 	 * @param midiFilePostfix
 	 * @throws Exception 
 	 */
-	public void process(int numOfFiles, String midiFilePrefix, String midiFilePostfix) throws Exception {	
+	public void process(final int numOfFiles, final String midiFilePrefix, final String midiFilePostfix) throws Exception {	
 		MIDIAdapter ma = new MIDIAdapter(bpm); 
 		long ticks = (long)(length / ma.getTickLength()); // Num of ticks
 		for(int it=0; it<numOfFiles; it++) {

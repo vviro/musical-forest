@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.*;
+import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
- * TODO:
- * 	- Information gain threshold
+ * Generated data: ************************************************************************
  * 
  * Forests:
  * 0: 1/4/0.3/1/1 - Feature bei Ausreisser: Exceptions (Ignore bzw. rec. Right)
@@ -36,28 +36,36 @@ import de.lmu.dbs.ciaa.util.*;
  * 8: 1/6/1.0/2/2 wieder ohne sparse
  * 9: "-" mit bool classification -> gescheitert
  * 10: 1/6/1.0/20/6 ohne bool, nur so
- * 11: 3/6/1.0/20/6
+ * 11: ?
+ * 12: 1/4/1.0/20/6 mit Harmonic feature
+ * 13: "-" (20 statt 10 harmonics)
+ * 14: "-" Ausreisser besser behandelt, normalisierte probabilities
+ * 15: "-" FeatureHarmonic2
+ * 16: 1/6/1.0/20/6 FeatureHarmonic2
+ * 17: 1/4/1.0/20/6 FeatureHarmonic2
  * 
+ * TODO *************************************************************************************
  * 
+ * Forest:
+ * 		- Log vom CQT
+ * 		- peaks als zweite infoquelle für u/v-Punkte?
+ * 		- notenlänge verteilung
+ * 		- Information gain threshold?
+ * 		- Mehrere verschiedene feaure-typen? 
+ * 			- f0-feature
+ * 			- noteOn-feature
+ * 			- ...?
  * 
- * - Log vom CQT
- * - node prbabilities: store count (norm)
- * - featuzre generation: obertöne
- * - notenlänge verteilung
- * - Ausreisser bei Featurefunktion: What to do?
+ * Appl. Design:
+ * 		- profile buffer (google code) für dateiformat, statt serialization
  * 
- * - Mehrere verschiedene feaure-typen? 
- * 		- f0-feature
- * 		- noteOn-feature?
+ * Optimierung:
+ * 		- Multithread? 
+ * 		- lookup table für feature.evaluate?
  * 
+ * Testdaten:
+ * 		- Performances von vladimir
  * 
- * - Multithread? 
- * - lookup table für feature.evaluate?
- * 
- * - profile buffer (google code) für dateiformat, statt serialization
- * 
- * 
- * ////////////
  * Ergebnisse
  * - profiling: feature ist nicht mehr hotspot 1, sondern 2 (screenshot profiler)
  * - sparse matrix -> halb so schnell, wenig ersparnis -> raus
@@ -65,10 +73,14 @@ import de.lmu.dbs.ciaa.util.*;
  * - Bitwise Classification: Uneffectiv (3x so langsam!); also:  
  * 		-> 2x Boolean array: nicht gut (2.2 mal soviel Laufzeit, heap overflow)
  * 			-> da müss ma nochmal schauen, der Overhead ist nicht so groß, ich glaub es passt so 
- * ///////////
+ * 
+ * - Feature selection: Factory-like
+ * - FeatureHarmonic:
+ * 		- Harmonics for generating Y parameters
+ * 		- Better overflow behaviour (frequencies above fMax etc.) 
  * 
  * 
- * - testdata: performances vom vladimir
+ * 
  * 
  * @author Thomas Weber
  *
@@ -83,37 +95,37 @@ public class ForestTest {
 
 		// Forest params
 		int forestSize = 1; // Number of trees
+		String forestFile = "testdataResults/forest_oob17"; // file for forest parameters
+		boolean load = false;  // Instead of growing it, load the forest from file. If false, the forest will grow and be saved to the file.
 		
 		// Tree params
 		int maxDepth = 4; // 4 Max. tree depth
 		params.percentageOfRandomValuesPerFrame = 1.0; // 0.5 Percentage of values per frame to be picked to train the trees
 		params.numOfRandomFeatures = 20; // 2 Num of random generated feature sets to train each tree node
-		params.thresholdCandidatesPerFeature = 6; // 1 Num of thresholds randomly tried for each random feature set 
+		params.thresholdCandidatesPerFeature = 6; // 1 Num of thresholds randomly tried for each random feature set
+		params.featureFactory = new FeatureHarmonic2(); // Factory feature instance. Here you can decide which feature type to use in the forest.
+		params.fMin = 80.0;
+		params.fMax = 10000.0;
+		params.binsPerOctave = 48.0;
 
-		params.xMin = -2;
+		// Feature parameters
+		params.xMin = -20;
 		params.xMax = 2;
-		params.yMin = -150;
-		params.yMax = 150;
-		params.thresholdMax = 60;
-		
-		String forestFile = "testdata/forest_oob11"; // file for forest parameters
-		boolean load = false;  // Instead of growing it, load the forest from file. If false, the forest will grow and be saved to the file.
+		//params.yMin = -150;
+		//params.yMax = 150;
+		params.thresholdMax = Byte.MAX_VALUE;
 		
 		// MISC params
 		String freqFileName = "testdata/frequencies"; // File holding the spectrum frequencies
 		String testFile = "WaveFiles/Test8_Mix.wav";
 		
-		// OOB Test params
+		// Test params (for CQT transformation)
 		int step = 256; // Samples per frame
-		double fmin = 80.0;
-		double fmax = 10000.0;
-		double binsPerOctave = 48.0;
 		double threshold = 0.05;
 		double spread = 1.0;
 		double divideFFT = 4.0;
 		String cqtBufferLocation = "cqtbuff/";
 
-		
 		try {
 			// Create profiling tool
 			RuntimeMeasure m = new RuntimeMeasure(System.out);
@@ -161,7 +173,7 @@ public class ForestTest {
 			Sample src = new WaveSample(new File(testFile));
 			m.measure("Loaded sample");
 
-			Transform transformation = new ConstantQTransform((double)src.getSampleRate(), fmin, fmax, binsPerOctave, threshold, spread, divideFFT, cqtBufferLocation);
+			Transform transformation = new ConstantQTransform((double)src.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, threshold, spread, divideFFT, cqtBufferLocation);
 			
 			m.measure("Initialized transformation");
 			out("--> Window size: " + transformation.getWindowSize());
@@ -175,7 +187,7 @@ public class ForestTest {
 			byte[][] dataOob = ArrayUtils.toByteArray(dataOobD);
 			m.measure("Finished transformation");
 			
-			long[][] dataForest = new long[dataOob.length][params.frequencies.length];
+			float[][] dataForest = new float[dataOob.length][params.frequencies.length];
 			for(int x=0; x<dataOob.length; x++) {
 				for(int y=0; y<params.frequencies.length; y++) {
 					dataForest[x][y] = forest.classify(dataOob, x, y);
@@ -183,17 +195,6 @@ public class ForestTest {
 			}
 			m.measure("Finished testing forest");
 			
-			/*
-			// TMP: Test with one image
-			byte[][] data = sampler.get(1).getSpectrum();
-			long[][] dataForest = new long[data.length][params.frequencies.length];
-			for(int x=0; x<data.length; x++) {
-				for(int y=0; y<params.frequencies.length; y++) {
-					dataForest[x][y] = forest.classify(data, x, y);
-				}
-			}
-			m.measure("Finished testing random forest");
-*/
 			// Save image
 			String forestImgFile = forestFile + ".png";
 			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length, 1);

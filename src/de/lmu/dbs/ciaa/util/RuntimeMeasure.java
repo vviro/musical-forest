@@ -32,7 +32,7 @@ public class RuntimeMeasure {
 	 * 
 	 * @param out
 	 */
-	public RuntimeMeasure(PrintStream out) {
+	public RuntimeMeasure(final PrintStream out) {
 		this.last = System.currentTimeMillis();
 		this.out = out;
 	}
@@ -57,7 +57,7 @@ public class RuntimeMeasure {
 	 * @param message
 	 * @return milliseconds
 	 */
-	public long measure(String message) {
+	public long measure(final String message) {
 		long now = System.currentTimeMillis();
 		long diff = now - last;
 		if (message != null && out != null) {

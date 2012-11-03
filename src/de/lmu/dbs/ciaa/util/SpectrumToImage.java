@@ -51,6 +51,72 @@ public class SpectrumToImage {
 	 * @throws Exception 
 	 * @throws IOException
 	 */
+	public float add(final float[][] data, final Color color) throws Exception {
+		return add(data, color, null, -1);
+	}
+
+	/**
+	 * Adds a data array to PNG to visualize it. Values in data have to be positive, and are 
+	 * drawn normalized, meaning that the highest value always gets the highest color representation.
+	 * 
+	 * @param data
+	 * @param color if not null, this color is scaled over black background. If null, a special HSB spectrum is used by default.
+	 * @param scale a scaling function object or null if no scaling is wanted
+	 * @return the maximum sample value
+	 * @throws Exception 
+	 * @throws IOException
+	 */
+	public float add(final float[][] data, final Color color, final Scale scale) throws Exception {
+		return add(data, color, scale, -1);
+	}
+
+	/**
+	 * Adds a data array to PNG to visualize it. Values in data have to be positive, and are 
+	 * drawn normalized, meaning that the highest value always gets the highest color representation.
+	 * 
+	 * @param data
+	 * @param color if not null, this color is scaled over black background. If null, a special HSB spectrum is used by default.
+	 * @param scale a scaling function object or null if no scaling is wanted
+	 * @param threshold below or equal to this no value will be drawn. Use a negative value if all values should be drawn, i.e. -1
+	 * @return the maximum sample value
+	 * @throws Exception 
+	 * @throws IOException
+	 */
+	public float add(final float[][] data, final Color color, final Scale scale, final double threshold) throws Exception {
+	    // Get maximum
+		float max = Float.MIN_VALUE;
+	    for(int i=0; i<data.length; i++) {
+		    for(int j=0; j<data[i].length; j++) {
+		    	if (data[i][j] > max) max = data[i][j];
+		    }
+		}
+	    // Draw image
+	    for(int i=0; i<width; i++) {
+	    	for(int j=0; j<height; j++) {
+	    		if (data[i][j] < 0) throw new Exception("Negative value detected: data[" + i + "][" + j + "] = " + data[i][j]);
+    			double norm = (scale == null) ? data[i][j]/max : scale.apply(data[i][j]/max);
+    			if (norm <= threshold) continue;
+	    		if (color == null) {
+	    			g2d.setColor(getColor(norm));
+	    		} else {
+	    			g2d.setColor(new Color((int)(color.getRed()*norm), (int)(color.getGreen()*norm), (int)(color.getBlue()*norm)));
+	    		}
+			    g2d.drawLine(i,height*yspread-j*yspread,i,height*yspread-j*yspread-yspread+1);
+	    	}
+	    }
+	    return max;
+	}
+
+	/**
+	 * Adds a data array to PNG to visualize it. Values in data have to be positive, and are 
+	 * drawn normalized, meaning that the highest value always gets the highest color representation.
+	 * 
+	 * @param data
+	 * @param color if not null, this color is scaled over black background. If null, a special HSB spectrum is used by default.
+	 * @return the maximum sample value
+	 * @throws Exception 
+	 * @throws IOException
+	 */
 	public double add(final double[][] data, final Color color) throws Exception {
 		return add(data, color, null, -1);
 	}

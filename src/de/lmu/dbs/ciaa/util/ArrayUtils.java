@@ -17,7 +17,7 @@ public class ArrayUtils {
 	 * @param scale
 	 * @throws Exception
 	 */
-	public static void scale(double[][] data, Scale scale) throws Exception {
+	public static void scale(final double[][] data, final Scale scale) throws Exception {
 	    for(int i=0; i<data.length; i++) {
 		    for(int j=0; j<data[i].length; j++) {
 		    	data[i][j] = scale.apply(data[i][j]);
@@ -40,7 +40,7 @@ public class ArrayUtils {
 	 * @param in
 	 * @param ceil
 	 */
-	public static void normalize(double[][] data, double ceil) {
+	public static void normalize(double[][] data, final double ceil) {
 	    // Get maximum
 	    double max = Double.MIN_VALUE;
 	    for(int i=0; i<data.length; i++) {
@@ -124,7 +124,7 @@ public class ArrayUtils {
 	 * @param in
 	 * @param threshold
 	 */
-	public static void gate(int[] in, int threshold) {
+	public static void gate(int[] in, final int threshold) {
 		for (int i=0; i<in.length; i++) {
 			if (in[i] < threshold) in[i] = 0;
 		}
@@ -136,7 +136,7 @@ public class ArrayUtils {
 	 * @param in
 	 * @param threshold
 	 */
-	public static void gate(double[][] in, double threshold) {
+	public static void gate(double[][] in, final double threshold) {
 		for (int i=0; i<in.length; i++) {
 			for (int j=0; j<in[i].length; j++) {
 				if (in[i][j] < threshold) in[i][j] = 0;
@@ -151,7 +151,7 @@ public class ArrayUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static long byteArrayToLong(byte[] data) throws Exception {
+	public static long byteArrayToLong(final byte[] data) throws Exception {
 		if (data == null || data.length != 8) {
 			throw new Exception("Byte array to long conversion takes exactly 8 bytes, not " + data.length);
 		}
@@ -176,7 +176,7 @@ public class ArrayUtils {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static byte[] longToByteArray(long l, int arrayLength) throws Exception {
+	public static byte[] longToByteArray(final long l, final int arrayLength) throws Exception {
 		if (arrayLength > 8) {
 			throw new Exception("Cannot convert to byte array longer than 8: " + arrayLength);
 		}
@@ -198,7 +198,7 @@ public class ArrayUtils {
 	 * @param in
 	 * @return bytes as 2 digit hex representation, separated by space.
 	 */
-	public static String byteArrayToString(byte[] in) {
+	public static String byteArrayToString(final byte[] in) {
 		return byteArrayToString(in, in.length);
 	}
 
@@ -209,7 +209,7 @@ public class ArrayUtils {
 	 * @param len the amount of bytes to be calculated (default is in.length) 
 	 * @return bytes as 2 digit hex representation, separated by space.
 	 */
-	public static String byteArrayToString(byte[] in, int len) {
+	public static String byteArrayToString(final byte[] in, final int len) {
 		String ret = "";
 		for(int i=0; i<len; i++) {
 			ret+=String.format("%02X", in[i]) + " ";
@@ -223,7 +223,7 @@ public class ArrayUtils {
 	 * @param in
 	 * @return the int[][] array
 	 */
-	public static int[][] toIntArray(double[][] in) {
+	public static int[][] toIntArray(final double[][] in) {
 		int[][] ret = new int[in.length][in[0].length];
 	    for(int i=0; i<in.length; i++) {
 		    for(int j=0; j<in[i].length; j++) {
@@ -239,7 +239,7 @@ public class ArrayUtils {
 	 * @param in
 	 * @return the byte[][] array
 	 */
-	public static byte[][] toByteArray(double[][] in) {
+	public static byte[][] toByteArray(final double[][] in) {
 		byte[][] ret = new byte[in.length][in[0].length];
 	    for(int i=0; i<in.length; i++) {
 		    for(int j=0; j<in[i].length; j++) {

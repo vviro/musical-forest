@@ -79,7 +79,7 @@ public class MIDI {
 	 * @param file
 	 * @throws Exception
 	 */
-	public MIDI(File file) throws Exception {
+	public MIDI(final File file) throws Exception {
 		sequence = MidiSystem.getSequence(file);
 		if (sequence == null) {
 			throw new Exception("No sequence data could be extracted from file " + file.getAbsolutePath());
@@ -100,7 +100,7 @@ public class MIDI {
 	 * 
 	 * @throws Exception 
 	 */
-	public MIDI(int bpm) throws Exception {
+	public MIDI(final int bpm) throws Exception {
 		// Create sequence and initial track
 		sequence = new Sequence(javax.sound.midi.Sequence.PPQ, ticksPerQuarter);
 		sequence.createTrack();
@@ -121,7 +121,7 @@ public class MIDI {
 	 * @param data data array (containing only the data bytes, no status/length etc.)
 	 * @throws Exception
 	 */
-	public void setMetaMessage(long tick, byte cmd, byte[] data) throws Exception {
+	public void setMetaMessage(final long tick, final byte cmd, final byte[] data) throws Exception {
 		setMetaMessage(tick, cmd, data, 0);
 	}
 	
@@ -134,7 +134,7 @@ public class MIDI {
 	 * @param track the track number to add the message
 	 * @throws Exception
 	 */
-	public void setMetaMessage(long tick, byte cmd, byte[] data, int track) throws Exception {
+	public void setMetaMessage(final long tick, final byte cmd, final byte[] data, final int track) throws Exception {
 		if (track >= tracks.length) {
 			throw new Exception("MIDI Track " + track + " does not exist");
 		}
@@ -155,7 +155,7 @@ public class MIDI {
 	 * @param velocity velocity of the note
 	 * @throws Exception
 	 */
-	public void setNote(long tick, long duration, String noteName, int velocity) throws Exception {
+	public void setNote(final long tick, final long duration, final String noteName, final int velocity) throws Exception {
 		setNote(tick, duration, noteName, velocity, 0);
 	}
 
@@ -170,7 +170,7 @@ public class MIDI {
 	 * @param track track to write to
 	 * @throws Exception
 	 */
-	public void setNote(long tick, long duration, String noteName, int velocity, int track) throws Exception {
+	public void setNote(final long tick, final long duration, final String noteName, final int velocity, final int track) throws Exception {
 		int note = 0;
 		try {
 			note = midiRef.getNoteNumber(noteName);
@@ -189,7 +189,7 @@ public class MIDI {
 	 * @param velocity velocity of the note
 	 * @throws Exception
 	 */
-	public void setNote(long tick, long duration, int note, int velocity) throws Exception {
+	public void setNote(final long tick, final long duration, final int note, final int velocity) throws Exception {
 		setNote(tick, duration, note, velocity, 0);
 	}
 
@@ -204,7 +204,7 @@ public class MIDI {
 	 * @param track track to write to
 	 * @throws Exception
 	 */
-	public void setNote(long tick, long duration, int note, int velocity, int track) throws Exception {
+	public void setNote(final long tick, final long duration, final int note, final int velocity, final int track) throws Exception {
 		if (track >= tracks.length) {
 			throw new Exception("MIDI Track " + track + " does not exist");
 		}
@@ -266,7 +266,7 @@ public class MIDI {
 	 * @param maxDuration highest duration
 	 * @throws Exception
 	 */
-	public void generateRandomNotesPoly(int track, long length, int notesCount, int minNote, int maxNote, long minDuration, long maxDuration) throws Exception {
+	public void generateRandomNotesPoly(final int track, final long length, final int notesCount, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
 		for(int i=0; i<notesCount; i++) { 
 			int note = RandomUtils.randomInt(minNote, maxNote);
 			long duration = RandomUtils.randomLong(minDuration, maxDuration);
@@ -288,7 +288,7 @@ public class MIDI {
 	 * @throws Exception
 	 * @return number of created notes
 	 */
-	public int generateRandomNotesMono(int track, long length, int minNote, int maxNote, long minDuration, long maxDuration) throws Exception {
+	public int generateRandomNotesMono(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
 		int ret = 0;
 		long pos = 0;
 		while(pos < length-1) {
@@ -318,7 +318,7 @@ public class MIDI {
 	 * @param header i.e. {0xFF, 0x51, 0x03} for tempo change events
 	 * @return
 	 */
-	protected boolean checkMessageType(byte[] message, byte[] header) {
+	protected boolean checkMessageType(final byte[] message, final byte[] header) {
 		return checkMessageType(message, header, false);
 	}
 
@@ -331,7 +331,7 @@ public class MIDI {
 	 *                     (only the first half of the first header byte is used)
 	 * @return
 	 */
-	protected boolean checkMessageType(byte[] message, byte[] header, boolean multiChannel) {
+	protected boolean checkMessageType(final byte[] message, final byte[] header, final boolean multiChannel) {
 		for(int i=0; i<header.length && i<message.length; i++) {
 			if (multiChannel && i==0) {
 				if (message[i] >> 4 != header[i] >> 4) return false;
@@ -352,7 +352,7 @@ public class MIDI {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected long getMessageDataAsLong(byte[] message, int msgLength, byte[] header) throws Exception {
+	protected long getMessageDataAsLong(final byte[] message, final int msgLength, final byte[] header) throws Exception {
 		byte[] bb = new byte[8];
 		int ind=7;
 		for(int i=msgLength-1; i>=header.length; i--) {
@@ -383,7 +383,7 @@ public class MIDI {
 	 * @param tpq
 	 * @return
 	 */
-	public static double tpqToBpm(long tpq) {
+	public static double tpqToBpm(final long tpq) {
 		return (double)MICROSECONDS_PER_MINUTE / tpq; 
 	}
 	
@@ -393,7 +393,7 @@ public class MIDI {
 	 * @param bpm
 	 * @return
 	 */
-	public static long bpmToTpq(double bpm) {
+	public static long bpmToTpq(final double bpm) {
 		return (long)((double)MICROSECONDS_PER_MINUTE / bpm);
 	}
 	
@@ -406,7 +406,7 @@ public class MIDI {
 	 * 
 	 * @param out
 	 */
-	public void printSequenceInfo(PrintStream out) {
+	public void printSequenceInfo(final PrintStream out) {
 		out.println("MIDI Sequence info:");
 		out.println("--> Length: " + sequence.getTickLength() + " ticks" );
 		out.println("--> Duration: " + sequence.getMicrosecondLength() + " microseconds (" + (double)sequence.getMicrosecondLength()/1000000 + " seconds)");
@@ -423,7 +423,7 @@ public class MIDI {
 	 * 
 	 * @param out
 	 */
-	public void printTracks(PrintStream out) {
+	public void printTracks(final PrintStream out) {
 		out.println("MIDI Track info:");
 		out.println("--> Number of tracks: " + tracks.length);
 		for (int i=0; i<tracks.length; i++) {

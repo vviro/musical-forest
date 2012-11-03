@@ -20,7 +20,7 @@ public class F0Detector {
 	/**
 	 * 
 	 */
-	public F0Detector(double[] frequencies, int amountOvertones) {
+	public F0Detector(final double[] frequencies, final int amountOvertones) {
 		this.frequencies = frequencies;
 	}
 	
@@ -31,7 +31,7 @@ public class F0Detector {
 	 * @param voices number of iterations (number of f0s being detected)
 	 * @return
 	 */
-	public double[] getF0Poly(double[] in, int voices) {
+	public double[] getF0Poly(final double[] in, final int voices) {
 		double threshold = 0.4;
 		double[] data = new double[in.length];
 		for(int i=0; i<in.length; i++) {
@@ -67,7 +67,7 @@ public class F0Detector {
 	 *        detection (see DifferentialAnalyzer.getPeak method), normalized to [0,1]
 	 * @return {0: the index of f0, or -1 if none, 1: magnitude of the index}
 	 */
-	public double[] getF0(double[] in) {
+	public double[] getF0(final double[] in) {
 		double threshold = 0.1;
 		double[] mag = new double[in.length];
 		int bin;
@@ -99,7 +99,7 @@ public class F0Detector {
 	 * @param freq
 	 * @return
 	 */
-	private int getBin(double freq) {
+	private int getBin(final double freq) {
 		for(int i=0; i<frequencies.length; i++) {
 			if (frequencies[i] >= freq) 
 				return i;

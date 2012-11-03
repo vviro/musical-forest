@@ -149,7 +149,7 @@ public class FeatureVisualizer {
 				m.measure("Finished basic f0 detection");
 			}
 			
-			Feature f = new Feature2();
+			Feature f = new FeatureKinect();
 			ArrayUtils.normalize(data, Byte.MAX_VALUE-1);
 			byte[][] byteData = new byte[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {

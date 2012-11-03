@@ -59,7 +59,7 @@ public class RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	public long classify(byte[][] data, int x, int y) throws Exception {
+	public float classify(final byte[][] data, final int x, final int y) throws Exception {
 		return classifyRec(data, tree, x, y);
 	}
 	
@@ -73,7 +73,7 @@ public class RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected long classifyRec(byte[][] data, Node node, int x, int y) throws Exception {
+	protected float classifyRec(final byte[][] data, final Node node, final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
 			//System.out.println("Leaf");
 			return node.probabilities[y];
@@ -96,7 +96,7 @@ public class RandomTree {
 	 * @param b
 	 * @return
 	 */
-	protected double getEntropy(long a, long b) {
+	protected double getEntropy(final long a, final long b) {
 		long all = a+b;
 		if(all <= 0) return 0;
 		double pa = (double)a/all;
@@ -146,7 +146,7 @@ public class RandomTree {
 		}
 		
 		// Get random feature parameter sets
-		List<Feature> paramSet = FeatureKinect5.getRandomFeatureSet(params);
+		List<Feature> paramSet = params.featureFactory.getRandomFeatureSet(params);
 		int numOfFeatures = paramSet.size();
 
 		long[] silenceLeft = new long[paramSet.size()];
@@ -264,9 +264,10 @@ public class RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected int[] calculateLeaf(Sampler<Dataset> sampler, int mode, int depth) throws Exception {
-		int[] ret = new int[params.frequencies.length];
-		int maxP = Integer.MIN_VALUE;
+	protected float[] calculateLeaf(final Sampler<Dataset> sampler, final int mode, final int depth) throws Exception {
+		float[] ret = new float[params.frequencies.length];
+		float maxP = Float.MIN_VALUE;
+		// Collect inverse
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] midi = dataset.getMidi();
@@ -275,7 +276,7 @@ public class RandomTree {
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) { 
-						if (midi[x][y] == 0) { ///////////////////////////////// Inverse!
+						if (midi[x][y] == 0) { // Inverse
 							// f0 is (not) present
 							ret[y]++;
 							if (ret[y] > maxP) maxP = ret[y];
@@ -284,10 +285,10 @@ public class RandomTree {
 				}
 			}
 		}
-		/*for(int i=0; i<node.probabilities.length; i++) {
-			if (node.probabilities[i] > 0) System.out.println("i: " + node.probabilities[i]);
+		// Invert back and normalize
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = (maxP - ret[i]) / maxP; 
 		}
-		//*/
 		return ret;
 	}
 	
@@ -297,7 +298,7 @@ public class RandomTree {
 	 * @param file
 	 * @throws Exception
 	 */
-	public void save(String filename) throws Exception {
+	public void save(final String filename) throws Exception {
 		FileOutputStream fout = new FileOutputStream(filename);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);   
 		oos.writeObject(tree);
@@ -311,7 +312,7 @@ public class RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	public static RandomTree load(String filename) throws Exception {
+	public static RandomTree load(final String filename) throws Exception {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
 		RandomTree ret = new RandomTree();

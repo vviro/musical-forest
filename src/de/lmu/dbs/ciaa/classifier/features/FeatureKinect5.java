@@ -25,12 +25,12 @@ public class FeatureKinect5 extends Feature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureKinect5(int xMin, int xMax, int yMin, int yMax, int thresholdMax) {
-		this.uX = RandomUtils.randomInt(xMin, xMax);
-		this.uY = RandomUtils.randomInt(yMin, yMax);
-		this.vX = RandomUtils.randomInt(xMin, xMax);
-		this.vY = RandomUtils.randomInt(yMin, yMax);
-		this.threshold = RandomUtils.randomInt(thresholdMax);
+	public FeatureKinect5(final RandomTreeParameters params) {
+		this.uX = RandomUtils.randomInt(params.xMin, params.xMax);
+		this.uY = RandomUtils.randomInt(params.yMin, params.yMax);
+		this.vX = RandomUtils.randomInt(params.xMin, params.xMax);
+		this.vY = RandomUtils.randomInt(params.yMin, params.yMax);
+		this.threshold = RandomUtils.randomInt(params.thresholdMax);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class FeatureKinect5 extends Feature {
 	 * another FeatureKinect instance.
 	 * 
 	 */
-	public FeatureKinect5(FeatureKinect5 f, int thresholdMax) {
+	public FeatureKinect5(final FeatureKinect5 f, final int thresholdMax) {
 		this.uX = f.uX;
 		this.uY = f.uY;
 		this.vX = f.vX;
@@ -47,15 +47,21 @@ public class FeatureKinect5 extends Feature {
 	}
 
 	/**
+	 * 
+	 */
+	public FeatureKinect5() {
+	}
+	
+	/**
 	 * Returns num feature parameter instances, each randomly generated.
 	 * 
 	 * @param num
 	 * @return
 	 */
-	public static List<Feature> getRandomFeatureSet(RandomTreeParameters params) {
+	public List<Feature> getRandomFeatureSet(final RandomTreeParameters params) {
 		List<Feature> ret = new ArrayList<Feature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureKinect5 n = new FeatureKinect5(params.xMin, params.xMax, params.yMin, params.yMax, params.thresholdMax);
+			FeatureKinect5 n = new FeatureKinect5(params);
 			ret.add(n);
 			for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new FeatureKinect5(n, params.thresholdMax));

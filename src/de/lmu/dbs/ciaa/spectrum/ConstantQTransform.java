@@ -34,7 +34,7 @@ public class ConstantQTransform extends Transform {
 	 * @param binsPerOctave bands per octave to examine
 	 * @throws Exception
 	 */
-	public ConstantQTransform(double sampleRate, double fmin, double fmax, double binsPerOctave) throws Exception {
+	public ConstantQTransform(final double sampleRate, final double fmin, final double fmax, final double binsPerOctave) throws Exception {
 		this(sampleRate, fmin, fmax, binsPerOctave, 0.001, 1.0, 1.0, null);
 	}
 
@@ -49,7 +49,7 @@ public class ConstantQTransform extends Transform {
 	 * @param spread
 	 * @throws Exception
 	 */
-	public ConstantQTransform(double sampleRate, double fmin, double fmax, double binsPerOctave, double threshold, double spread) throws Exception {
+	public ConstantQTransform(final double sampleRate, final double fmin, final double fmax, final double binsPerOctave, final double threshold, final double spread) throws Exception {
 		this(sampleRate, fmin, fmax, binsPerOctave, threshold, spread, 1.0, null);
 	}
 
@@ -65,7 +65,7 @@ public class ConstantQTransform extends Transform {
 	 * @param divideFFT divide FFT window to increase performance
 	 * @throws Exception
 	 */
-	public ConstantQTransform(double sampleRate, double fmin, double fmax, double binsPerOctave, double threshold, double spread, double divideFFT) throws Exception {
+	public ConstantQTransform(final double sampleRate, final double fmin, final double fmax, final double binsPerOctave, final double threshold, final double spread, final double divideFFT) throws Exception {
 		this(sampleRate, fmin, fmax, binsPerOctave, threshold, spread, divideFFT, null);
 	}
 
@@ -82,7 +82,7 @@ public class ConstantQTransform extends Transform {
 	 * @param bufferLocation folder where the kernel buffer files are stored
 	 * @throws Exception
 	 */
-	public ConstantQTransform(double sampleRate, double fmin, double fmax, double binsPerOctave, double threshold, double spread, double divideFFT, String bufferLocation) throws Exception {
+	public ConstantQTransform(final double sampleRate, final double fmin, final double fmax, final double binsPerOctave, final double threshold, final double spread, final double divideFFT, final String bufferLocation) throws Exception {
 		stcqt = new ShortTimeConstantQTransform(sampleRate, fmin, fmax, binsPerOctave, threshold, spread, divideFFT, bufferLocation);
 		windowSize = stcqt.getWindowSize();
 		bins = stcqt.getNumberOfOutputBands();

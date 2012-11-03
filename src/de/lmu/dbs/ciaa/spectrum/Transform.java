@@ -58,7 +58,7 @@ public abstract class Transform {
 	 * @param max maximum permitted value
 	 * @return amount of interpolated samples
 	 */
-	public int limit(double[][] in, double max) {
+	public int limit(final double[][] in, final double max) {
 		int ret = 0;
 		for(int i=0; i<in.length; i++) {
 			for(int j=0; j<in[i].length; j++) {

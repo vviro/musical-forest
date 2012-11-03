@@ -22,7 +22,7 @@ public class RandomForest {
 	 * @param numTrees
 	 * @throws Exception 
 	 */
-	public RandomForest(int numTrees, RandomTreeParameters params) throws Exception {
+	public RandomForest(final int numTrees, final RandomTreeParameters params) throws Exception {
 		// Generate trees
 		this.trees = new ArrayList<RandomTree>();
 		for(int i=0; i<numTrees; i++) {
@@ -46,7 +46,7 @@ public class RandomForest {
 	 * @param sampler data provider
 	 * @throws Exception
 	 */
-	public void grow(Sampler<Dataset> sampler, int maxDepth) throws Exception {
+	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).grow(sampler.getSample(), maxDepth);
 		}
@@ -62,12 +62,12 @@ public class RandomForest {
 	 * @return
 	 * @throws Exception 
 	 */
-	public long classify(byte[][] data, int x, int y) throws Exception {
-		long ret = 0;
+	public float classify(final byte[][] data, final int x, final int y) throws Exception {
+		float ret = 0;
 		for(int i=0; i<trees.size(); i++) {
 			ret += trees.get(i).classify(data, x, y);
 		}
-		return ret;
+		return ret / trees.size();
 	}
 	
 	/**
@@ -76,7 +76,7 @@ public class RandomForest {
 	 * @param file
 	 * @throws Exception 
 	 */
-	public void save(String filename) throws Exception {
+	public void save(final String filename) throws Exception {
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).save(filename + "_tree" + i);
 		}
@@ -90,7 +90,7 @@ public class RandomForest {
 	 * @return
 	 * @throws Exception
 	 */
-	public static RandomForest load(String filename, int numTrees) throws Exception {
+	public static RandomForest load(final String filename, final int numTrees) throws Exception {
 		RandomForest f = new RandomForest();
 		for(int i=0; i<numTrees; i++) {
 			f.trees.add(RandomTree.load(filename + "_tree" + i));

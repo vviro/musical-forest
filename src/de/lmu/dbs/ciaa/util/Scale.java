@@ -15,6 +15,6 @@ public interface Scale {
 	 * @return also range between [0,1]
 	 * @throws Exception 
 	 */
-	public double apply(double sample) throws Exception;
+	public double apply(final double sample) throws Exception;
 	
 }

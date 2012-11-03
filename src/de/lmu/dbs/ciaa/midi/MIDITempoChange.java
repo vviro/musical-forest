@@ -23,7 +23,7 @@ public class MIDITempoChange {
 	 * @param tick
 	 * @param microsPerQuarter
 	 */
-	public MIDITempoChange(long tick, long microsPerQuarter) {
+	public MIDITempoChange(final long tick, final long microsPerQuarter) {
 		this.tick = tick;
 		this.microsPerQuarter = microsPerQuarter;
 	}
@@ -42,7 +42,7 @@ public class MIDITempoChange {
 	 * 
 	 * @param microsPerQuarter
 	 */
-	public void setMicrosPerQuarter(long microsPerQuarter) {
+	public void setMicrosPerQuarter(final long microsPerQuarter) {
 		this.microsPerQuarter = microsPerQuarter;
 	}
 
@@ -60,7 +60,7 @@ public class MIDITempoChange {
 	 * 
 	 * @param tick
 	 */
-	public void setTick(long tick) {
+	public void setTick(final long tick) {
 		this.tick = tick;
 	}
 }

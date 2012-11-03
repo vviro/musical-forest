@@ -30,7 +30,7 @@ public class LogScale implements Scale {
 	 *  
 	 * @param width
 	 */
-	public LogScale(double width) {
+	public LogScale(final double width) {
 		this.width = width;
 		this.factor = 1/Math.log10(1+width);
 	}
@@ -42,7 +42,7 @@ public class LogScale implements Scale {
 	 * @return also range between [0,1]
 	 * @throws Exception 
 	 */
-	public double apply(double sample) throws Exception {
+	public double apply(final double sample) throws Exception {
 		if (sample > 1 || sample < 0) {
 			throw new Exception("Value has to be in range [0,1]");
 		}

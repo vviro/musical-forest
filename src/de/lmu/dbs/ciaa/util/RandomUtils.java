@@ -14,7 +14,7 @@ public class RandomUtils {
 	 * @param max
 	 * @return
 	 */
-	public static int randomInt(int max) {
+	public static int randomInt(final int max) {
 		return randomInt(0, max);
 	}
 	
@@ -24,7 +24,7 @@ public class RandomUtils {
 	 * @param max
 	 * @return
 	 */
-	public static int randomInt(int min, int max) {
+	public static int randomInt(final int min, final int max) {
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 
@@ -34,7 +34,7 @@ public class RandomUtils {
 	 * @param max
 	 * @return
 	 */
-	public static long randomLong(long max) {
+	public static long randomLong(final long max) {
 		return randomLong(0, max);
 	}
 	
@@ -44,7 +44,7 @@ public class RandomUtils {
 	 * @param max
 	 * @return
 	 */
-	public static long randomLong(long min, long max) {
+	public static long randomLong(final long min, final long max) {
 		return min + (long)(Math.random() * ((max - min) + 1));
 	}
 

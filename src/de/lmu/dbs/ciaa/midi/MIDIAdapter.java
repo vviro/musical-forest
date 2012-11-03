@@ -20,7 +20,7 @@ public class MIDIAdapter extends MIDI {
 	 * @param file
 	 * @throws Exception
 	 */
-	public MIDIAdapter(File file) throws Exception {
+	public MIDIAdapter(final File file) throws Exception {
 		super(file);
 	}
 	
@@ -30,7 +30,7 @@ public class MIDIAdapter extends MIDI {
 	 * @param bpm beats per minute
 	 * @throws Exception
 	 */
-	public MIDIAdapter(int bpm) throws Exception {
+	public MIDIAdapter(final int bpm) throws Exception {
 		super(bpm);
 	}
 
@@ -48,7 +48,7 @@ public class MIDIAdapter extends MIDI {
 	 * @return
 	 * @throws Exception 
 	 */
-	public byte[][] toDataArray(int frames, long duration, double[] freqs) throws Exception {
+	public byte[][] toDataArray(final int frames, final long duration, final double[] freqs) throws Exception {
 		byte[][] ret = new byte[frames][freqs.length];
 		double frameDuration = (double)duration/frames; // millis per frame
 		double timePerQuarter = (double)tempoChanges.get(0).getMicrosPerQuarter()/1000;
@@ -158,7 +158,7 @@ public class MIDIAdapter extends MIDI {
 	 * @param timePerQuarter milliseconds per quarter note (current tempo)
 	 * @throws Exception 
 	 */
-	private void setNote(double[] freqs, byte[][] data, int note, long tick, long offTick, double frameDuration, double timePerQuarter) throws Exception {
+	private void setNote(final double[] freqs, final byte[][] data, final int note, final long tick, final long offTick, final double frameDuration, final double timePerQuarter) throws Exception {
 		int startFrame = getFrame(tick, frameDuration, timePerQuarter);
 		int endFrame = (offTick >= 0) ? getFrame(offTick, frameDuration, timePerQuarter) : data.length-1;
 		if (startFrame >= data.length) {
@@ -215,7 +215,7 @@ public class MIDIAdapter extends MIDI {
 	 * @param note midi note identifier
 	 * @return
 	 */
-	public int getNoteBin(double[] freqs, int note) {
+	public int getNoteBin(final double[] freqs, final int note) {
 		double freq = (double)midiRef.getNoteFrequency(note);
 		int f=0;
 		while (freq > freqs[f] && f < freqs.length-1) {
@@ -238,7 +238,7 @@ public class MIDIAdapter extends MIDI {
 	 * @param timePerQuarter milliseconds per quarter note (current tempo)
 	 * @return
 	 */
-	private int getFrame(long tick, double frameDuration, double timePerQuarter) {
+	private int getFrame(final long tick, final double frameDuration, final double timePerQuarter) {
 		double timePos = (double)timePerQuarter * tick / ticksPerQuarter; 
 		return (int)(timePos / frameDuration); 
 	}

@@ -21,7 +21,7 @@ public class FileIO<T> {
 	 * @param data
 	 * @throws Exception
 	 */
-	public void save(String filename, T data) throws Exception {
+	public void save(final String filename, final T data) throws Exception {
 		FileOutputStream fos = new FileOutputStream(filename);
 		ObjectOutputStream out = new ObjectOutputStream(fos);
 		out.writeObject(data);
@@ -37,7 +37,7 @@ public class FileIO<T> {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public T load(String filename) throws Exception {
+	public T load(final String filename) throws Exception {
 		FileInputStream fis = new FileInputStream(filename);
 		ObjectInputStream in = new ObjectInputStream(fis);
 		T ret = (T)in.readObject();

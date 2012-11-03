@@ -56,7 +56,7 @@ public abstract class Sampler<T> {
 	 * @param index
 	 * @return
 	 */
-	public T get(int index) {
+	public T get(final int index) {
 		return datasets.get(index);
 	}
 	
@@ -106,7 +106,7 @@ public abstract class Sampler<T> {
 	 * @param parts number of split samplers to be created
 	 * @return
 	 */
-	public List<Sampler<T>> split(int parts) {
+	public List<Sampler<T>> split(final int parts) {
 		int numPerPart = (int)Math.ceil((double)datasets.size() / parts);
 		List<Sampler<T>> ret = new ArrayList<Sampler<T>>();
 		// Create shuffled clone of datasets list
