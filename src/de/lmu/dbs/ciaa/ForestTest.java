@@ -56,6 +56,9 @@ import de.lmu.dbs.ciaa.util.*;
  * 1: 1/4/1.0/10/5 FeatureHarmonic2 -2/2
  * 2: 2/4/0.2/5/5 Thread test                 !!!!!!!!!!! a-Version! -- d Version is for testing threds
  * 
+ * Remote:
+ * testdeploy: 5/6/0.8/20/5/Harmonic3 0/0
+ * 
  * TODO *************************************************************************************
  * 
  * Random generator is sick?

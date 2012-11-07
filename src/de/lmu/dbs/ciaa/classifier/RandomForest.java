@@ -146,7 +146,7 @@ public class RandomForest {
 	 * @return
 	 */
 	public int[][] visualize(ForestParameters params) {
-		int[][] ret = new int[(params.xMax - params.xMin)*2][params.frequencies.length];
+		int[][] ret = new int[(params.xMax - params.xMin + 1)*2][params.frequencies.length];
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).visualize(ret);
 		}
