@@ -18,7 +18,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forest2d"
+		workingFolder="testdataResults/forestremote"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
