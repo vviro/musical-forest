@@ -37,7 +37,7 @@ public class RandomForest {
 		// Generate trees
 		this.trees = new ArrayList<RandomTree>();
 		for(int i=0; i<numTrees; i++) {
-			this.trees.add(new RandomTree(params));
+			this.trees.add(new RandomTree(params, this));
 		}
 	}
 	
@@ -67,7 +67,7 @@ public class RandomForest {
 			Log.write(i + ": Growing tree to depth " + maxDepth);
 			trees.get(i).grow(sampler.getSample(), maxDepth);
 		}
-		if (params.threadDepth >= 0) {
+		if (params.maxNumOfThreads > 0) {
 			// Multithreading is active, so wait for the results 
 			// TODO: Busy waiting, can be done more effectively, but not critical for this application
 			while(true) {
@@ -165,6 +165,19 @@ public class RandomForest {
 		int[][] ret = new int[(params.xMax - params.xMin + 1)*2][params.frequencies.length];
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).visualize(ret);
+		}
+		return ret;
+	}
+	
+	/**
+	 * Returns the overall amount of threads being active.
+	 * 
+	 * @return
+	 */
+	public synchronized int getThreadsActive() {
+		int ret = 0;
+		for(int i=0; i<trees.size(); i++) {
+			ret += trees.get(i).getThreadsActive();
 		}
 		return ret;
 	}

@@ -20,6 +20,11 @@ import de.lmu.dbs.ciaa.util.Log;
 public class RandomTree extends Thread {
 
 	/**
+	 * Reference to the parent forest (only set in root tree instances, not in threaded recursion).
+	 */
+	protected RandomForest forest;
+	
+	/**
 	 * The actual tree structure
 	 */
 	protected Node tree = new Node();
@@ -35,10 +40,7 @@ public class RandomTree extends Thread {
 	public static final double LOG2 = Math.log(2);
 	
 	/**
-	 * This is used by the initial tree instance to count the threads currently 
-	 * working for the growing of the tree. 0 means only the root node
-	 * (the instantly created thread) is running at the moment.
-	 * 
+	 * Number of active threads in this tree, excluding the calling thread.
 	 */
 	protected int threadsActive = 0;
 	
@@ -91,7 +93,7 @@ public class RandomTree extends Thread {
 	 * 
 	 */
 	public RandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth) throws Exception {
-		this(params);
+		this(params, null);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -107,13 +109,14 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params) throws Exception {
+	public RandomTree(ForestParameters params, RandomForest forest) throws Exception {
 		params.check();
 		this.params = params;
+		this.forest = forest;
 	}
 	
 	/**
-	 * Creates a tree.
+	 * Creates a tree. Blank, for loading classifier data from file.
 	 * 
 	 */
 	public RandomTree() {
@@ -219,7 +222,8 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		if (multithreading && params.threadDepth >= depth) {
+		int forestThreads = root.forest.getThreadsActive();
+		if (multithreading && (forestThreads < params.maxNumOfThreads)) {
 			// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 			// watched with the isGrown method of the original RandomTree instance.
 			if (params.debugThreadForking) System.out.println("--> Forking new thread at depth " + depth);
@@ -325,7 +329,7 @@ public class RandomTree extends Thread {
 
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
 		List<byte[][]> classificationNextR = null; 
-		if (params.threadDepth >= depth) {
+		if (forestThreads < params.maxNumOfThreads) {
 			// For multithreaded use. In this case, we need an individual classification buffer for right recursion.
 			classificationNextR = new ArrayList<byte[][]>(sampler.getPoolSize());
 		} 
@@ -337,7 +341,7 @@ public class RandomTree extends Thread {
 			byte[][] cla = classification.get(i);
 			byte[][] claNext = new byte[data.length][params.frequencies.length];
 			byte[][] claNextR = null;
-			if (params.threadDepth >= depth) {
+			if (forestThreads < params.maxNumOfThreads) {
 				claNextR = new byte[data.length][params.frequencies.length];
 			}
 			
@@ -375,7 +379,7 @@ public class RandomTree extends Thread {
 		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
 
 		node.right = new Node();
-		if (params.threadDepth >= depth) {
+		if (forestThreads < params.maxNumOfThreads) {
 			growRec(root, sampler, classificationNextR, node.right, 2, depth+1, maxDepth, true);
 			root.decThreadsActive();
 		} else {
@@ -495,27 +499,31 @@ public class RandomTree extends Thread {
 	}
 	
 	/**
-	 * Returns the amount of active threads in this tree (exclusive the primary thread).
+	 * Returns the amount of active threads for this tree.
 	 * 
 	 * @return
 	 */
 	public synchronized int getThreadsActive() {
 		return threadsActive;
 	}
-
+	
 	/**
-	 * Internal: decrease thread counter.
+	 * Decreases the thread counter for this tree.
 	 * 
+	 * @throws Exception
 	 */
-	private synchronized void incThreadsActive() {
-		this.threadsActive++;
+	protected synchronized void incThreadsActive() throws Exception {
+		threadsActive++;
+		if (threadsActive > params.maxNumOfThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfThreads + ": " + threadsActive);
 	}
 
 	/**
-	 * Internal: increase thread counter.
+	 * Increases the thread counter for this tree.
 	 * 
+	 * @throws Exception
 	 */
-	private synchronized void decThreadsActive() {
-		this.threadsActive--;
+	protected synchronized void decThreadsActive() throws Exception {
+		threadsActive--;
+		if (threadsActive < 0) throw new Exception("Thread amount below zero: " + threadsActive);
 	}
 }

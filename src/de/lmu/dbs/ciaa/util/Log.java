@@ -31,7 +31,7 @@ public class Log {
 	 * @throws IOException
 	 */
 	public static void open(String logfile) throws IOException {
-		FileWriter fstream = new FileWriter(logfile, true);
+		FileWriter fstream = new FileWriter(logfile);
 		out = new BufferedWriter(fstream);
 	}
 	
@@ -43,7 +43,7 @@ public class Log {
 	 */
 	public static void write(String message) throws Exception {
 		if (out == null) throw new Exception("Log not open.");
-		out.write(timeStampFormatter.format(new Date()) + ": " + message);
+		out.write(timeStampFormatter.format(new Date()) + ": " + message + "\n");
 	}
 	
 	/**

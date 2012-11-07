@@ -43,10 +43,9 @@ public class ForestParameters {
 	public int maxDepth = -1;
 	
 	/**
-	 * Level of Multithreading. The amount of threads per tree calculates to 2^threadDepth. 
-	 * -1 does no multithreading at all, zero will create one thread per tree.
+	 * Maximum amount of threads.
 	 */
-	public int threadDepth = -2;
+	public int maxNumOfThreads = 0;
 	
 	/**
 	 * Milliseconds interval to check growth status in the forest.
@@ -182,7 +181,7 @@ public class ForestParameters {
 		if (fMax < 1) throw new Exception("You have to set the maximum frequency of spectral data");
 		if (forestSize < 1) throw new Exception("Forest must have at least one tree: " + forestSize);
 		if (maxDepth < 1) throw new Exception("Maximum tree depth has to be at least 1: " + maxDepth);
-		if (threadDepth < -1) throw new Exception("Illegal thread depth value: " + threadDepth);
+		if (maxNumOfThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfThreads);
 		if (threadWaitTime < 10) throw new Exception("Thread wait time too short: " + threadWaitTime);
 		if (step < 1) throw new Exception("Frame step in samples too low: " + step);
 		if (threshold < 0) throw new Exception("CQT transformation threshold is too low: " + threshold);
