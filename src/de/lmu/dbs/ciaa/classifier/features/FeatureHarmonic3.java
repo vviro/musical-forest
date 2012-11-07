@@ -104,9 +104,9 @@ public class FeatureHarmonic3 extends Feature {
 		int ivY = y+vY;
 		if (ivY >= 0 && ivY < data[0].length) v = true; 
 		
-		if (u && v) return data[iuX][iuY] + data[ivX][ivY] + data[x][y]; 
-		if (u) return data[iuX][iuY] + data[x][y];
-		if (v) return data[ivX][ivY] + data[x][y];
+		if (u && v) return data[iuX][iuY] + data[ivX][ivY] + 2*data[x][y]; 
+		if (u) return data[iuX][iuY] + 2*data[x][y];
+		if (v) return data[ivX][ivY] + 2*data[x][y];
 		return Integer.MIN_VALUE; // All out of range
 	}
 	
