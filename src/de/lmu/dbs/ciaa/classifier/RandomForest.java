@@ -68,7 +68,7 @@ public class RandomForest {
 		}
 		if (params.threadDepth >= 0) {
 			// Multithreading is active, so wait for the results 
-			// TODO: Busy waiting, can be more effectively, but not critical for this application)
+			// TODO: Busy waiting, can be done more effectively, but not critical for this application
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
 				boolean ret = true;
@@ -85,6 +85,7 @@ public class RandomForest {
 			}
 		}
 		// Debug tree stats
+		//System.out.println("### Forest stats ###");
 		System.out.println("Number of leafs:");
 		for(int i=0; i<trees.size(); i++) {
 			System.out.println(i + ": " + trees.get(i).getNumOfLeafs());

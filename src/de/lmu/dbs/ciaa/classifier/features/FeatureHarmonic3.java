@@ -35,9 +35,17 @@ public class FeatureHarmonic3 extends Feature {
 	 * 
 	 */
 	public FeatureHarmonic3(final ForestParameters params) {
-		this.uX = RandomUtils.randomInt(params.xMin, params.xMax);
+		if (params.xMin < params.xMax) {
+			this.uX = RandomUtils.randomInt(params.xMin, params.xMax);
+		} else {
+			this.uX = 0;
+		}
+		if (params.xMin < params.xMax) {
+			this.vX = RandomUtils.randomInt(params.xMin, params.xMax);
+		} else {
+			this.vX = 0;
+		}
 		this.uY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
-		this.vX = RandomUtils.randomInt(params.xMin, params.xMax);
 		this.vY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
 		this.threshold = RandomUtils.randomInt(params.thresholdMax);
 		//generateHarmonicFactors(50);

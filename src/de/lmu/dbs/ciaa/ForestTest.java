@@ -102,7 +102,6 @@ public class ForestTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
 
 		// XML file for program configuration
 		String settingsFile = "settings.xml";
@@ -114,6 +113,8 @@ public class ForestTest {
 		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
+			System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
+			
 			// Create profiling tool
 			RuntimeMeasure m = new RuntimeMeasure(System.out);
 

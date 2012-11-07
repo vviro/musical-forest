@@ -143,14 +143,11 @@ public class RandomTree extends Thread {
 	 */
 	protected float classifyRec(final byte[][] data, final Node node, final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
-			//System.out.println("Leaf");
 			return node.probabilities[y];
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				//System.out.println("L");
 				return classifyRec(data, node.left, x, y);
 			} else {
-				//System.out.println("R");
 				return classifyRec(data, node.right, x, y);
 			}
 		}
@@ -172,7 +169,6 @@ public class RandomTree extends Thread {
 		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index
 		if (params.percentageOfRandomValuesPerFrame < 1.0) {
 			// Drop some of the values by classifying them to -1
-			//System.out.println("Generate random values...");
 			int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length);
 			long[] array = sampler.get(0).getRandomValuesArray(vpf);
 			for(int i=0; i<sampler.getPoolSize(); i++) {
@@ -255,7 +251,6 @@ public class RandomTree extends Thread {
 		// Leaf: Calculate probabilities
 		if (depth >= maxDepth) {
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			//System.out.println(pre + "Calculated leaf probabilities.");
 			return;
 		}
 		
@@ -271,7 +266,6 @@ public class RandomTree extends Thread {
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
 			// Each dataset...load spectral data and midi
-			//System.out.println(pre + "--> Dataset " + i);
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
 			byte[][] midi = dataset.getMidi();
@@ -308,7 +302,6 @@ public class RandomTree extends Thread {
 		}
 
 		// Calculate shannon entropy for all parameter sets to get the best set
-		//System.out.println(pre + "Compute Entropy...");
 		double[] gain = new double[paramSet.size()];
 		for(int i=0; i<paramSet.size(); i++) {
 			long note = noteLeft[i] + noteRight[i];
@@ -338,7 +331,6 @@ public class RandomTree extends Thread {
 		
 		// Split values by winner feature for deeper branches
 		for(int i=0; i<poolSize; i++) {
-			//System.out.println("--> Dataset " + i);
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
 			byte[][] cla = classification.get(i);
@@ -379,11 +371,9 @@ public class RandomTree extends Thread {
 		
 		// Recursion to left and right
 		node.left = new Node();
-		//System.out.println(pre + "Recurse left to depth " + (depth+1) + "...");
 		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
 
 		node.right = new Node();
-		//System.out.println(pre + "Recurse right to depth " + (depth+1) + "...");
 		if (params.threadDepth >= depth) {
 			growRec(root, sampler, classificationNextR, node.right, 2, depth+1, maxDepth, true);
 			root.decThreadsActive();
@@ -503,15 +493,28 @@ public class RandomTree extends Thread {
 		return getNumOfLeafs(node.left) + getNumOfLeafs(node.right);
 	}
 	
-	protected synchronized int getThreadsActive() {
+	/**
+	 * Returns the amount of active threads in this tree (exclusive the primary thread).
+	 * 
+	 * @return
+	 */
+	public synchronized int getThreadsActive() {
 		return threadsActive;
 	}
 
-	protected synchronized void incThreadsActive() {
+	/**
+	 * Internal: decrease thread counter.
+	 * 
+	 */
+	private synchronized void incThreadsActive() {
 		this.threadsActive++;
 	}
 
-	protected synchronized void decThreadsActive() {
+	/**
+	 * Internal: increase thread counter.
+	 * 
+	 */
+	private synchronized void decThreadsActive() {
 		this.threadsActive--;
 	}
 }
