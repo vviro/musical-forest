@@ -65,13 +65,15 @@ public class RandomForest {
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
 				boolean ret = true;
+				if (params.debugThreadPolling) System.out.println("--> Active threads: ");
 				for(int i=0; i<trees.size(); i++) {
-					if (params.debugThreadPolling) System.out.println("--> Active threads in tree " + i + ": " + trees.get(i).getThreadsActive());
+					if (params.debugThreadPolling) System.out.print(trees.get(i).getThreadsActive() + " ");
 					if (!trees.get(i).isGrown()) {
 						ret = false;
 						if (!params.debugThreadPolling) break;
 					}
 				}
+				if (params.debugThreadPolling) System.out.println("");
 				if (ret) break;
 			}
 		}
