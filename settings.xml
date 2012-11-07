@@ -63,7 +63,7 @@
 		yMax="0"
 		thresholdMax="60"
 		
-		threadDepth="1"
+		threadDepth="2"
 		threadWaitTime="3000"
 	></Forest>
 
