@@ -181,7 +181,8 @@ public class RandomTree extends Thread {
 		} else {
 			// Set all zero classification
 			for(int i=0; i<sampler.getPoolSize(); i++) {
-				classification.set(i, new byte[sampler.get(0).getSpectrum().length][sampler.get(0).getSpectrum()[0].length]);
+				Dataset s = sampler.get(i);
+				classification.set(i, new byte[s.getSpectrum().length][s.getSpectrum()[0].length]);
 			}
 		}
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
