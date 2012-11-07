@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.RandomTreeParameters;
+import de.lmu.dbs.ciaa.classifier.ForestParameters;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
@@ -25,7 +25,7 @@ public class FeatureKinect extends Feature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureKinect(final RandomTreeParameters params) {
+	public FeatureKinect(final ForestParameters params) {
 		this.uX = RandomUtils.randomInt(params.xMin, params.xMax);
 		this.uY = RandomUtils.randomInt(params.yMin, params.yMax);
 		this.vX = RandomUtils.randomInt(params.xMin, params.xMax);
@@ -58,7 +58,7 @@ public class FeatureKinect extends Feature {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature> getRandomFeatureSet(final RandomTreeParameters params) {
+	public List<Feature> getRandomFeatureSet(final ForestParameters params) {
 		List<Feature> ret = new ArrayList<Feature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureKinect n = new FeatureKinect(params);
@@ -92,4 +92,19 @@ public class FeatureKinect extends Feature {
 		if (ivY < 0 || ivY >= data[0].length) return 0; //Integer.MIN_VALUE;
 		return data[iuX][iuY] - data[ivX][ivY];
 	}
+	
+	/**
+	 * Returns a visualization of all node features of the forest. For debugging use.
+	 * 
+	 * @param data the array to store results (additive)
+	 */
+	public void visualize(int[][] data) {
+		int x = data.length/2 + uX;
+		int y = uY;
+		data[x][y]++;
+		x = data.length/2 + vX;
+		y = vY;
+		data[x][y]++;
+	}
+
 }

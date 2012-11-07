@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.RandomTreeParameters;
+import de.lmu.dbs.ciaa.classifier.ForestParameters;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
@@ -33,7 +33,7 @@ public class FeatureHarmonic extends Feature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureHarmonic(final RandomTreeParameters params) {
+	public FeatureHarmonic(final ForestParameters params) {
 		this.uX = RandomUtils.randomInt(params.xMin, params.xMax);
 		this.uY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
 		this.vX = RandomUtils.randomInt(params.xMin, params.xMax);
@@ -67,7 +67,7 @@ public class FeatureHarmonic extends Feature {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature> getRandomFeatureSet(RandomTreeParameters params) {
+	public List<Feature> getRandomFeatureSet(ForestParameters params) {
 		List<Feature> ret = new ArrayList<Feature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic n = new FeatureHarmonic(params);
@@ -130,4 +130,19 @@ public class FeatureHarmonic extends Feature {
 		System.out.println("}");
 		System.exit(0);
 	}
+	
+	/**
+	 * Returns a visualization of all node features of the forest. For debugging use.
+	 * 
+	 * @param data the array to store results (additive)
+	 */
+	public void visualize(int[][] data) {
+		int x = data.length/2 + uX;
+		int y = uY;
+		data[x][y]++;
+		x = data.length/2 + vX;
+		y = vY;
+		data[x][y]++;
+	}
+
 }

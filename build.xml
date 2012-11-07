@@ -23,6 +23,8 @@
     	<pathelement path="${lib-directory}/RasmusDSP/rasmusdsp.jar"/>
     	<pathelement path="${lib-directory}/MidiReference1.0.jar"/>
     	<pathelement path="${lib-directory}/colt.jar"/>
+    	<pathelement path="${lib-directory}/jdom-2.0.2.jar"/>
+    	<pathelement path="${lib-directory}/commons-io-2.2.jar"/>
 	</path>
 
 	<pathconvert property="jar.classpath" pathsep=" ">
@@ -105,6 +107,7 @@
 
 	<target name="run" description="run the project">    
 		<java jar="${build-directory}/${jar-file}" fork="true">
+			<jvmarg value="-Xmx512m" />
 			<!--
 			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 			-->

@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.io.Serializable;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.RandomTreeParameters;
+import de.lmu.dbs.ciaa.classifier.ForestParameters;
 
 /**
  * Abstract feature implementation with its parameters and feature evaluation function,
@@ -27,7 +27,7 @@ public abstract class Feature implements Serializable {
 	 * @param params the RandomTreeParameters object holding parameters.
 	 * @return
 	 */
-	public abstract List<Feature> getRandomFeatureSet(final RandomTreeParameters params);
+	public abstract List<Feature> getRandomFeatureSet(final ForestParameters params);
 
 	/**
 	 * Feature function called to classify values. 
@@ -39,5 +39,12 @@ public abstract class Feature implements Serializable {
 	 * @throws Exception 
 	 */
 	public abstract int evaluate(final byte[][] data, final int x, final int y) throws Exception;
+
+	/**
+	 * Returns a visualization of all node features of the forest. For debugging use.
+	 * 
+	 * @param data the array to store results (additive)
+	 */
+	public abstract void visualize(int[][] data);
 
 }

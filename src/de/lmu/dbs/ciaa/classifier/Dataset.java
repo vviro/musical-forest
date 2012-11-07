@@ -36,7 +36,7 @@ public class Dataset {
 	 * exclusively used by one recursion depth. Values inside the list elements:
 	 * 0: root node; 1: left; 2: right; -1: out of bag
 	 * 
-	 */
+	 *
 	public List<byte[][]> classification;
 	
 	/**
@@ -89,7 +89,7 @@ public class Dataset {
 		this.midiFile = midiFile;
 		this.frequencies = frequencies;
 		this.step = step;
-		this.classification = new ArrayList<byte[][]>();
+		//this.classification = new ArrayList<byte[][]>();
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class Dataset {
 	 * @throws Exception 
 	 * 
 	 */
-	public void load() throws Exception {
+	public synchronized void load() throws Exception {
 		if (loaded) return;
 		// Spectrum
 		spectrum = spectrumIo.load(spectrumFile.getAbsolutePath()); 
@@ -110,6 +110,22 @@ public class Dataset {
 	}
 	
 	/**
+	 * Returns the classification array for a given recursion depth.
+	 * 
+	 * @param depth
+	 * @return
+	 *
+	public byte[][] getClassificationArray(final int depth) {
+		if (classification.size() <= depth) {
+			for(int i=0; i<=depth; i++) {
+				byte[][] n = new byte[spectrum.length][frequencies.length];
+				classification.add(n);
+			}
+		}
+		return classification.get(depth);
+	}
+	
+	/**
 	 * Returns a part of the spectrum.
 	 * 
 	 * @param x starting frame
@@ -117,7 +133,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception
 	 */
-	public byte[][] getSpectrum(final int x, final int frames) throws Exception {
+	public synchronized byte[][] getSpectrum(final int x, final int frames) throws Exception {
 		if (!loaded) load();
 		byte[][] ret = new byte[frames][];
 		for (int i=0; i<frames; i++) {
@@ -133,7 +149,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public byte[][][] divideSpectrum(final int frames) throws Exception {
+	public synchronized byte[][][] divideSpectrum(final int frames) throws Exception {
 		if (!loaded) load();
 		int chunks = spectrum.length/frames;
 		byte[][][] ret = new byte[chunks][][];
@@ -151,7 +167,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<int[]> getRelevant(final int threshold, final double maxFreq) throws Exception {
+	public synchronized List<int[]> getRelevant(final int threshold, final double maxFreq) throws Exception {
 		if (!loaded) load();
 		List<int[]> ret = new ArrayList<int[]>();
 		int maxBin = getFrequencyBin(maxFreq);
@@ -179,7 +195,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<int[]> getRelevant(final int x, final int frames, final int threshold, final double maxFreq) throws Exception {
+	public synchronized List<int[]> getRelevant(final int x, final int frames, final int threshold, final double maxFreq) throws Exception {
 		if (!loaded) load();
 		List<int[]> ret = new ArrayList<int[]>();
 		byte[][] chunk = getSpectrum(x, frames);
@@ -229,7 +245,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception
 	 */
-	public byte[][] getSpectrum() throws Exception {
+	public synchronized byte[][] getSpectrum() throws Exception {
 		if (!loaded) load();
 		return spectrum;
 	}
@@ -254,27 +270,11 @@ public class Dataset {
 		return midi;
 	}*/
 	
-	public byte[][] getMidi() throws Exception {
+	public synchronized byte[][] getMidi() throws Exception {
 		if (!loaded) load();
 		return midi;
 	}
 
-	/**
-	 * Returns the classification array for a given recursion depth.
-	 * 
-	 * @param depth
-	 * @return
-	 */
-	public byte[][] getClassificationArray(final int depth) {
-		if (classification.size() <= depth) {
-			for(int i=0; i<=depth; i++) {
-				byte[][] n = new byte[spectrum.length][frequencies.length];
-				classification.add(n);
-			}
-		}
-		return classification.get(depth);
-	}
-	
 	/**
 	 * Selects valuesPerFrame randomly chosen pixels from the dataset.
 	 * This is done by classifying the value to -1 (out of bag). Also resets the
@@ -287,13 +287,13 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public void selectRandomValues(final int depth, final int valuesPerFrame, long[] array) throws Exception {
+	public synchronized byte[][] selectRandomValues(final int depth, final int valuesPerFrame, long[] array) throws Exception {
 		if (!loaded) load();
 		// Throw all out of bag
-		byte[][] d = getClassificationArray(depth);
+		byte[][] ret = new byte[spectrum.length][frequencies.length];
 		for(int i=0; i<spectrum.length; i++) {
 			for(int j=0; j<frequencies.length; j++) {
-				d[i][j] = -1; 
+				ret[i][j] = -1; 
 			}
 		}
 		// Get sample without replacement
@@ -309,8 +309,9 @@ public class Dataset {
 		for(int i=0; i<array.length; i++) {
 			int x = (int)array[i] % spectrum.length;
 			int y = (int)Math.floor(array[i] / spectrum.length);
-			d[x][y] = 0; 
+			ret[x][y] = 0; 
 		}
+		return ret;
 	}
 	
 	/**
@@ -319,7 +320,7 @@ public class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public long[] getRandomValuesArray(final int valuesPerFrame) throws Exception {
+	public synchronized long[] getRandomValuesArray(final int valuesPerFrame) throws Exception {
 		if (!loaded) load();
 		return new long[valuesPerFrame*spectrum.length];
 	}

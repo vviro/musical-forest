@@ -42,4 +42,16 @@ public class Node implements Serializable {
 	public boolean isLeaf() {
 		return (probabilities != null);
 	}
+	
+	/**
+	 * Returns a visualization of all node features of the forest. For debugging use.
+	 * 
+	 * @param data the array to store results (additive)
+	 */
+	public void visualize(int[][] data) {
+		if (isLeaf()) return;
+		feature.visualize(data);
+		left.visualize(data);
+		right.visualize(data);
+	}
 }

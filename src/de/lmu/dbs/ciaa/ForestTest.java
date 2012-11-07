@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 
 import de.lmu.dbs.ciaa.classifier.*;
-import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
 import de.lmu.dbs.ciaa.util.*;
@@ -45,32 +45,50 @@ import de.lmu.dbs.ciaa.util.*;
  * 17: 1/4/1.0/20/6 FeatureHarmonic2
  * 18: "-" max
  * 19: "-" (add im feature) max
+ * 21: "-" mit neuen Testdaten (Log) nur mono
+ * 22: "-" mit neuen Testdaten (Log) auch poly, simple feature
+ * 23: "-" additives harmonic feature
+ * 24: 5/4/1.0/5/5 FeatureHarmonic2
+ * 25: 1/4/1.0/10/5 FeatureHarmonic2 -2/2
+ * 
+ * In Folders: (forestX)
+ * 
+ * 1: 1/4/1.0/10/5 FeatureHarmonic2 -2/2
+ * 2: 2/4/0.2/5/5 Thread test                 !!!!!!!!!!! a-Version! -- d Version is for testing threds
  * 
  * TODO *************************************************************************************
  * 
  * Random generator is sick?
  * 
- * 
- * Forest:
- * 		- Log vom CQT
- * 		- peaks als zweite infoquelle für u/v-Punkte?
- * 		- notenlänge verteilung
- * 		- Information gain threshold?
- * 		- Mehrere verschiedene feaure-typen? 
- * 			- f0-feature
- * 			- noteOn-feature (basiert auf fuzzy attacks)
- * 			- ...?
- * 
- * Application Design:
- * 		- profile buffer (google code) für dateiformat, statt serialization
- * 
  * Optimierung:
- * 		- Multithread!
- * 			- Make the application distributable
- * 		- lookup table für feature.evaluate?
+ * 		- Make the application distributable
+ * 		- lookup table für feature.evaluate? (später)
+ * 		- Testen: Compile on Server?
  * 
  * Testdaten:
  * 		- Performances von Vladimir
+ * 
+ * Forest:
+ *		- Visualize Forest Nodes (Features)! Siehe Test 25, alles dieselben Parameter! Was ist am besten? 
+ * 		Feature:
+ * 			- u und v auf gleicher frequenz (probieren)
+ * 			- harmonics über eine verteilung verteilen? -> weil je weiter oben desto besser das ergebnis
+ * 			- peaks als zweite infoquelle für u/v-Punkte?
+ * 			- notenlänge verteilung
+ * 		Allgemein:
+ * 			- Entropy: Wird wirklich der maximale Infogehalt ermittelt?
+ * 				-> Mit aktuelleren Features nochmal testen
+ * 			- Information gain threshold?
+ * 			- Mehrere verschiedene feaure-typen?
+ * 				- f0-feature
+ * 				- noteOn-feature (basiert auf fuzzy attacks)
+ * 				- ...?
+ * 			- oder alternieren zw. daten und peaks (bei Featuregenerierung)?
+ * 			- oder mehrere Wälder per problem?
+ * 
+ * Application Design:
+ * 		- protocol buffer (google code) für dateiformat, statt serialization
+ * 
  * 
  * 
  * @author Thomas Weber
@@ -82,54 +100,41 @@ public class ForestTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		RandomTreeParameters params = new RandomTreeParameters();
+		System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
 
-		// Forest params
-		int forestSize = 1; // Number of trees
-		String forestFile = "testdataResults/forest_oob19_max"; // file for forest parameters
-		boolean load = false;  // Instead of growing it, load the forest from file. If false, the forest will grow and be saved to the file.
+		// XML file for configuration
+		String settingsFile = "settings.xml";
 		
-		// Tree params
-		int maxDepth = 4; // 4 Max. tree depth
-		params.percentageOfRandomValuesPerFrame = 1.0; // 0.5 Percentage of values per frame to be picked to train the trees
-		params.numOfRandomFeatures = 20; // 2 Num of random generated feature sets to train each tree node
-		params.thresholdCandidatesPerFeature = 6; // 1 Num of thresholds randomly tried for each random feature set
-		params.featureFactory = new FeatureHarmonic2(); // Factory feature instance. Here you can decide which feature type to use in the forest.
-		params.fMin = 80.0;
-		params.fMax = 10000.0;
-		params.binsPerOctave = 48.0;
-
-		// Feature parameters
-		params.xMin = -20;
-		params.xMax = 2;
-		//params.yMin = -150;
-		//params.yMax = 150;
-		params.thresholdMax = Byte.MAX_VALUE;
-		
-		// MISC params
-		String freqFileName = "testdata/frequencies"; // File holding the spectrum frequencies
+		// Debug params (all others are loaded from settings.xml)
+		String copyToDir = "testdataResults/lastrun";
+		String featureImgFile = "featuresOverview.png";
 		String testFile = "WaveFiles/Test8_Mix.wav";
+		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
 		
-		// Test params (for CQT transformation)
-		int step = 256; // Samples per frame
-		double threshold = 0.05;
-		double spread = 1.0;
-		double divideFFT = 4.0;
-		String cqtBufferLocation = "cqtbuff/";
-
 		try {
 			// Create profiling tool
 			RuntimeMeasure m = new RuntimeMeasure(System.out);
 
+			// Load settings
+			Settings settings = new Settings(settingsFile);
+			ForestParameters params = settings.getForestParameters();
+			m.measure("Loaded settings from XML file");
+			
+			// Create result folder
+			File resultDir = new File(params.workingFolder);
+			resultDir.mkdirs();
+			m.measure("Created target folder");
+			
 			// Load frequency table (must be common for all samples)
 			FileIO<double[]> fio = new FileIO<double[]>();
+			String freqFileName = params.frequencyTableFile;
 			params.frequencies = fio.load(freqFileName);
 			m.measure("Loaded frequency table from " + freqFileName);
 
 			// Collecting test/training samples
 			List<Dataset> initialSet = new ArrayList<Dataset>();
-			initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, step));
-			initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, step));
+			initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
+			initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);
@@ -144,19 +149,19 @@ public class ForestTest {
 			
 			// Grow forest with training part of data
 			RandomForest forest;
-			if (!load) {
+			if (!params.loadForest) {
 				// Grow
-				forest= new RandomForest(forestSize, params);
-				forest.grow(samplers.get(0), maxDepth);
+				forest= new RandomForest(params.forestSize, params);
+				forest.grow(samplers.get(0), params.maxDepth);
 				m.measure("Finished growing random forest");
 	
-				forest.save(forestFile);
-				m.measure("Finished saving forest to file: " + forestFile);
+				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);
+				m.measure("Finished saving forest to file: " + params.workingFolder);
 
 			} else {
 				// Load
-				forest = RandomForest.load(forestFile, forestSize);
-				m.measure("Finished loading forest from file: " + forestFile);
+				forest = RandomForest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
+				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 	
 			// TMP Test with oob data
@@ -164,7 +169,7 @@ public class ForestTest {
 			Sample src = new WaveSample(new File(testFile));
 			m.measure("Loaded sample");
 
-			Transform transformation = new ConstantQTransform((double)src.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, threshold, spread, divideFFT, cqtBufferLocation);
+			Transform transformation = new ConstantQTransform((double)src.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtBufferLocation);
 			
 			m.measure("Initialized transformation");
 			out("--> Window size: " + transformation.getWindowSize());
@@ -174,29 +179,48 @@ public class ForestTest {
 			m.measure("Extracted left channel, total samples: " + mono.length);
 
 			// Calculate transformation
-			double[][] dataOobD = transformation.calculate(mono, step, new HammingWindow(transformation.getWindowSize()));
-			byte[][] dataOob = ArrayUtils.toByteArray(dataOobD);
-			m.measure("Finished transformation");
+			double[][] dataOobD = transformation.calculate(mono, params.step, new HammingWindow(transformation.getWindowSize()));
+			Scale scale = new LogScale(10);
+			ArrayUtils.normalize(dataOobD); // Normalize to [0,1]
+			ArrayUtils.scale(dataOobD, scale); // Log scale
+			ArrayUtils.normalize(dataOobD, (double)Byte.MAX_VALUE); // Normalize back to [0,MAX_VALUE] 
+			byte[][] dataOob = ArrayUtils.toByteArray(dataOobD); // To byte array to use with forest
+			m.measure("Finished transformation and scaling");
 			
-			float[][] dataForest = new float[dataOob.length][params.frequencies.length];
-			for(int x=0; x<dataOob.length; x++) {
-				for(int y=0; y<params.frequencies.length; y++) {
-					dataForest[x][y] = forest.classify(dataOob, x, y);
-				}
-			}
+			// Test classification
+			float[][] dataForest = forest.classify(dataOob); 
 			m.measure("Finished testing forest");
 			
 			// Save image
-			String forestImgFile = forestFile + ".png";
-			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length, 1);
-			Scale scale = new LogScale(10);
-			img.add(dataOobD, new Color(255,150,0), scale);
-			img.add(dataForest, Color.GREEN, scale, 0.8);
+			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
+			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length);
+			img.add(dataOobD, new Color(255,150,0), null);
+			img.add(dataForest, Color.GREEN, null, imgThreshold);
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
+			
+			// Visualize features
+			int[][] featuresVisualization = forest.visualize(params);
+			int[][] featuresVisualizationGrid = new int[featuresVisualization.length][featuresVisualization[0].length];
+			int x0 = -params.xMin;
+			for(int i=0; i<featuresVisualizationGrid[0].length; i++) {
+				featuresVisualizationGrid[x0*2][i] = 1;
+			}
+			String featuresFile = params.workingFolder + File.separator + featureImgFile;
+			SpectrumToImage imgF = new SpectrumToImage(featuresVisualization.length, featuresVisualization[0].length, 2, 20);
+			imgF.add(featuresVisualizationGrid, Color.BLUE, null, 0);
+			out("Maximum feature point overlay: " + imgF.add(featuresVisualization, Color.WHITE, null, 0));
+			imgF.save(new File(featuresFile));
+			m.measure("Saved feature visualization to " + featuresFile);
 
+			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
+			FileUtils.deleteQuietly(new File(copyToDir));
+			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
+			m.measure("Copied results to " + copyToDir);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Parameters for Musical Forest. -->
+<MusicalForest
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
+	<!--  
+		loadForest:         Load the forest from the node data in the working folder (must be grown first) 
+		workingFolder:      Folder where the forest can save its node data. Can also be used to store test results etc.
+		nodedataFilePrefix: Prefix for the node data files (one will be created for each tree)
+		frequencyTableFile: Path to the frequency table file, usually located beneath the test data folders. The file
+		                    holds a table of frequencies corresponding to the bins of the spectral transformation output.
+		                    
+		debugProgress:      Show little progress info while growing.
+		debugNodeInfo:      Show more details for each node growed on the console.
+		debugThreadForking: Show a message every time a new thread is created.
+		debugThreadPolling: Show thread polling status information.
+	-->
+	<General
+		loadForest="false" 
+		workingFolder="testdataResults/forest2d"
+		nodedataFilePrefix="nodedata"
+		frequencyTableFile = "testdata/frequencies"
+		
+		debugProgress="false"
+		debugNodeInfo="false"
+		debugThreadForking="false"
+		debugThreadPolling="true"
+	></General>
+
+	<!--  
+		### Forest parameters ###
+		forestSize:                       Number of trees
+		maxDepth:                         Maximum depth of the trees
+		percentageOfRandomValuesPerFrame: Percentage of vlaues randomly picked from the test data per frame. Has to be in range [0,1].
+		numOfRandomFeatures:              Number of randomly created feature candidates to be evaluated in each node while growing the forest. 
+		thresholdCandidatesPerFeature:    Number of thresholds for each generated feature candidate.
+		featureFactoryClass:              Class name of the feature to be used. 
+
+		### Feature parameters ###
+		xMin:         Min x deviation
+		xMax:         Max x deviation
+		yMin:         Min y deviation
+		yMax:         Max y deviation
+		thresholdMax: Maximum for threshold generation. Thresholds will be created in range [0, thresholdMax].
+		
+		### Multithreading parameters
+		threadDepth:    Level of Multithreading. The amount of threads per tree calculates to 2^threadDepth. 
+	                    A value of -1 does no multithreading at all, zero will create one thread per tree.
+		threadWaitTime: Milliseconds interval to check growth status in the forest.
+	-->
+	<Forest
+		forestSize="2"
+		maxDepth="4"
+		percentageOfRandomValuesPerFrame="0.2"
+		numOfRandomFeatures="5"
+		thresholdCandidatesPerFeature="5"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
+
+		xMin="-2"
+		xMax="2"
+		yMin="0"
+		yMax="0"
+		thresholdMax="60"
+		
+		threadDepth="2"
+		threadWaitTime="1000"
+	></Forest>
+
+	<!--  
+		### CQT Parameters ###
+		binsPerOctave:     Number of frequency bins per octave.
+		fMin:              Minimum frequency.
+		fMax:              Maximum frequency.
+		step:              Samples per frame for windowing.
+		threshold:         See class ConstantQTransformation.
+		spread:            See class ConstantQTransformation.
+		divideFFT:         See class ConstantQTransformation.
+		cqtBufferLocation: Buffer folder for storing cqt kernel buffer files. See class ConstantQTransformation.
+	-->
+	<Transformation
+		binsPerOctave="48"
+		fMin="80"
+		fMax="8000"
+		step="256"
+		threshold="0.05"
+		spread="1.0"
+		divideFFT="4.0"
+		cqtBufferLocation="cqtbuff/"
+	></Transformation>
+
+</MusicalForest>

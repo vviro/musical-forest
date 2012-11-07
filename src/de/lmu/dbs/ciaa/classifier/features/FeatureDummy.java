@@ -12,7 +12,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureKinect5 extends Feature {
+public class FeatureDummy extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -25,11 +25,7 @@ public class FeatureKinect5 extends Feature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureKinect5(final ForestParameters params) {
-		this.uX = RandomUtils.randomInt(params.xMin, params.xMax);
-		this.uY = RandomUtils.randomInt(params.yMin, params.yMax);
-		this.vX = RandomUtils.randomInt(params.xMin, params.xMax);
-		this.vY = RandomUtils.randomInt(params.yMin, params.yMax);
+	public FeatureDummy(final ForestParameters params) {
 		this.threshold = RandomUtils.randomInt(params.thresholdMax);
 	}
 	
@@ -38,18 +34,14 @@ public class FeatureKinect5 extends Feature {
 	 * another FeatureKinect instance.
 	 * 
 	 */
-	public FeatureKinect5(final FeatureKinect5 f, final int thresholdMax) {
-		this.uX = f.uX;
-		this.uY = f.uY;
-		this.vX = f.vX;
-		this.vY = f.vY;
+	public FeatureDummy(final FeatureDummy f, final int thresholdMax) {
 		this.threshold = RandomUtils.randomInt(thresholdMax);
 	}
 
 	/**
 	 * 
 	 */
-	public FeatureKinect5() {
+	public FeatureDummy() {
 	}
 	
 	/**
@@ -61,10 +53,10 @@ public class FeatureKinect5 extends Feature {
 	public List<Feature> getRandomFeatureSet(final ForestParameters params) {
 		List<Feature> ret = new ArrayList<Feature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureKinect5 n = new FeatureKinect5(params);
+			FeatureDummy n = new FeatureDummy(params);
 			ret.add(n);
 			for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
-				ret.add(new FeatureKinect5(n, params.thresholdMax));
+				ret.add(new FeatureDummy(n, params.thresholdMax));
 			}
 		}
 		return ret;
@@ -81,16 +73,7 @@ public class FeatureKinect5 extends Feature {
 	 * @throws Exception 
 	 */
 	public int evaluate(final byte[][] data, final int x, final int y) throws Exception {
-		//if (data[x][y] <= 0) return 0; //Integer.MIN_VALUE;
-		int iuX = x+uX; ///data[x][y];
-		if (iuX < 0 || iuX >= data.length) return 0; //Integer.MIN_VALUE;
-		int iuY = y+uY; ///data[x][y];
-		if (iuY < 0 || iuY >= data[0].length) return 0; //Integer.MIN_VALUE;
-		int ivX = x+vX; ///data[x][y];
-		if (ivX < 0 || ivX >= data.length) return 0; //Integer.MIN_VALUE;
-		int ivY = y+vY; ///data[x][y];
-		if (ivY < 0 || ivY >= data[0].length) return 0; //Integer.MIN_VALUE;
-		return data[x][y] + data[iuX][iuY] + data[ivX][ivY];
+		return data[x][y];
 	}
 	
 	/**
@@ -99,12 +82,8 @@ public class FeatureKinect5 extends Feature {
 	 * @param data the array to store results (additive)
 	 */
 	public void visualize(int[][] data) {
-		int x = data.length/2 + uX;
-		int y = uY;
-		data[x][y]++;
-		x = data.length/2 + vX;
-		y = vY;
+		int x = data.length/2;
+		int y = 0;
 		data[x][y]++;
 	}
-
 }

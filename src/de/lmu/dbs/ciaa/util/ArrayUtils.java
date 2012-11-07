@@ -57,6 +57,37 @@ public class ArrayUtils {
 	}
 	
 	/**
+	 * Normalizes a matrix to [0,1]
+	 * 
+	 * @param in
+	 */
+	public static void normalize(float[][] data) {
+	    normalize(data, 1);
+	}
+	
+	/**
+	 * Normalizes a matrix to [0,ceil]
+	 * 
+	 * @param in
+	 * @param ceil
+	 */
+	public static void normalize(float[][] data, final float ceil) {
+	    // Get maximum
+	    double max = Float.MIN_VALUE;
+	    for(int i=0; i<data.length; i++) {
+		    for(int j=0; j<data[i].length; j++) {
+		    	if (data[i][j] > max) max = data[i][j];
+		    }
+		}
+	    for(int i=0; i<data.length; i++) {
+		    for(int j=0; j<data[i].length; j++) {
+		    	data[i][j]/=max;
+		    	if (ceil != 1) data[i][j]*=ceil;
+		    }
+		}
+	}
+
+	/**
 	 * Returns the maximum in in.
 	 * 
 	 * @param in

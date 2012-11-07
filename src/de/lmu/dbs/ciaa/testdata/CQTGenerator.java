@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 
 import de.lmu.dbs.ciaa.spectrum.*;
+import de.lmu.dbs.ciaa.spectrum.analyze.DifferentialAnalyzer;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
@@ -21,14 +22,16 @@ public class CQTGenerator {
 
 		boolean saveCqt = true;
 		boolean savePng = true;
+		boolean savePeak = true;
 		File srcFolder = new File("testdata/poly/wav/");
 		File cqtFolder = new File("testdata/poly/cqt/");
 		File pngFolder = new File("testdata/poly/png/");
 		String cqtPostfix = ".cqt";
+		String peakPostfix = ".peak";
 		String pngPostfix = ".png";
 		String wavPostfix = ".wav";
 		String freqFileName = "testdata/frequencies";
-		Scale scale = null; //new LogScale(10);
+		Scale scale = new LogScale(10);
 		int step = 256; // Samples per frame
 
 		// CQT parameters (see ConstantQTransform javadoc for details...)
@@ -58,6 +61,7 @@ public class CQTGenerator {
 				}
 				File cqtfile = new File(cqtFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, cqtPostfix));
 				File pngfile = new File(pngFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, pngPostfix));
+				File peakfile = new File(cqtFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, peakPostfix));
 				out("#### Processing file " + i + " ####");
 				
 				// Load sample
@@ -86,6 +90,14 @@ public class CQTGenerator {
 				double[][] data = transformation.calculate(mono, step, new HammingWindow(transformation.getWindowSize()));
 				m.measure("Finished transformation");
 
+				// peak detection
+				double[][] dataPeak = new double[data.length][];
+				DifferentialAnalyzer p = new DifferentialAnalyzer();
+				for(int j=0; j<data.length; j++) {
+					dataPeak[j] = p.getPeaks(data[j]);
+				}
+				m.measure("Finished peak detection");
+
 				// Normalize and scale
 				if (scale != null) {
 					ArrayUtils.normalize(data); 
@@ -94,6 +106,8 @@ public class CQTGenerator {
 				
 				ArrayUtils.normalize(data, (double)Byte.MAX_VALUE);
 				byte[][] byteData = ArrayUtils.toByteArray(data);
+				ArrayUtils.normalize(dataPeak, (double)Byte.MAX_VALUE);
+				byte[][] peakData = ArrayUtils.toByteArray(dataPeak);
 				m.measure("Prepared transformation data");
 
 				if (saveCqt) {
@@ -101,10 +115,16 @@ public class CQTGenerator {
 					m.measure("Saved raw cqt data to " + cqtfile.getName());
 				}
 
+				if (savePeak) {
+					io.save(peakfile.getAbsolutePath(), peakData);
+					m.measure("Saved raw cqt data to " + cqtfile.getName());
+				}
+
 				// Save PNG image of the results
 				if (savePng) {
 					SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, 1);
 					out("--> Max Data:  " + img.add(byteData, Color.WHITE, null));
+					out("--> Max Peak:  " + img.add(peakData, Color.GREEN, null, 0));
 					img.save(pngfile);
 					m.measure("Saved image to " + pngfile.getName());
 				}

@@ -20,6 +20,7 @@ public class SpectrumToImage {
 	private int width;
 	private int height;
 	private int yspread;
+	private int xspread;
 	
 	private Graphics2D g2d;
 	private BufferedImage rendImage;
@@ -30,17 +31,42 @@ public class SpectrumToImage {
 	 * @param file
 	 * @param width
 	 * @param height
+	 */
+	public SpectrumToImage(int width, int height) {
+		this(width, height, 1, 1);
+	}
+	
+	/**
+	 * Create an object to compose one PNG.
+	 * 
+	 * @param file
+	 * @param width
+	 * @param height
 	 * @param yspread scale factor for y axis
 	 */
 	public SpectrumToImage(int width, int height, int yspread) {
-		this.width = width;
-		this.height = height;
-		this.yspread = yspread;
-
-	    rendImage = new BufferedImage(width, height*yspread, BufferedImage.TYPE_INT_RGB);
-	    g2d = rendImage.createGraphics();
+		this(width, height, yspread, 1);
 	}
 	
+	/**
+	 * Create an object to compose one PNG.
+	 * 
+	 * @param file
+	 * @param width
+	 * @param height
+	 * @param yspread scale factor for y axis
+	 * @param xspread scale factor for x axis
+	 */
+	public SpectrumToImage(int width, int height, int yspread, int xspread) {
+		this.width = width;
+		this.height = height;
+		this.xspread = xspread;
+		this.yspread = yspread;
+
+	    rendImage = new BufferedImage(width*xspread, height*yspread, BufferedImage.TYPE_INT_RGB);
+	    g2d = rendImage.createGraphics();
+	}
+
 	/**
 	 * Adds a data array to PNG to visualize it. Values in data have to be positive, and are 
 	 * drawn normalized, meaning that the highest value always gets the highest color representation.
@@ -299,7 +325,12 @@ public class SpectrumToImage {
 	    		} else {
 	    			g2d.setColor(new Color((int)(color.getRed()*norm), (int)(color.getGreen()*norm), (int)(color.getBlue()*norm)));
 	    		}
-			    g2d.drawLine(i,height*yspread-j*yspread,i,height*yspread-j*yspread-yspread+1);
+			    g2d.drawLine(
+			    		i*xspread,
+			    		height*yspread-j*yspread, 
+			    		i*xspread,
+			    		height*yspread-j*yspread-yspread+1
+			    );
 	    	}
 	    }
 	    return max;
