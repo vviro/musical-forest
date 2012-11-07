@@ -187,6 +187,7 @@ public class RandomTree extends Thread {
 				
 				System.out.println(i + " " + s);
 				byte[][] spec = s.getSpectrum();
+				System.out.println(spec);
 				classification.set(i, new byte[spec.length][spec[0].length]);
 			}
 		}
