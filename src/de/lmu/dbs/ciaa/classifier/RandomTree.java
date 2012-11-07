@@ -483,6 +483,26 @@ public class RandomTree extends Thread {
 		tree.visualize(data);
 	}
 
+	/**
+	 * Returns the number of leafs in the tree.
+	 * 
+	 * @return
+	 */
+	public int getNumOfLeafs() {
+		return getNumOfLeafs(tree.left) + getNumOfLeafs(tree.right);
+	}
+	
+	/**
+	 * Returns the number of leafs in the tree. (Internal)
+	 * 
+	 * @param node
+	 * @return
+	 */
+	protected int getNumOfLeafs(Node node) {
+		if (node.isLeaf()) return 1;
+		return getNumOfLeafs(tree.left) + getNumOfLeafs(tree.right);
+	}
+	
 	protected synchronized int getThreadsActive() {
 		return threadsActive;
 	}

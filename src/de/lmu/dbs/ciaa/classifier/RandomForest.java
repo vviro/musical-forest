@@ -1,6 +1,5 @@
 package de.lmu.dbs.ciaa.classifier;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,6 +83,11 @@ public class RandomForest {
 				if (params.debugThreadPolling) System.out.println("");
 				if (ret) break;
 			}
+		}
+		// Debug tree stats
+		System.out.println("Number of leafs:");
+		for(int i=0; i<trees.size(); i++) {
+			System.out.println(i + ": " + trees.get(i).getNumOfLeafs());
 		}
 	}
 
