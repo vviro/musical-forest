@@ -500,7 +500,7 @@ public class RandomTree extends Thread {
 	 */
 	protected int getNumOfLeafs(Node node) {
 		if (node.isLeaf()) return 1;
-		return getNumOfLeafs(tree.left) + getNumOfLeafs(tree.right);
+		return getNumOfLeafs(node.left) + getNumOfLeafs(node.right);
 	}
 	
 	protected synchronized int getThreadsActive() {

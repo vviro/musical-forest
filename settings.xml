@@ -5,30 +5,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
 	<!--  
-		loadForest:         Load the forest from the node data in the working folder (must be grown first) 
-		workingFolder:      Folder where the forest can save its node data. Can also be used to store test results etc.
-		nodedataFilePrefix: Prefix for the node data files (one will be created for each tree)
-		frequencyTableFile: Path to the frequency table file, usually located beneath the test data folders. The file
-		                    holds a table of frequencies corresponding to the bins of the spectral transformation output.
-		                    
-		debugProgress:      Show little progress info while growing.
-		debugNodeInfo:      Show more details for each node growed on the console.
-		debugThreadForking: Show a message every time a new thread is created.
-		debugThreadPolling: Show thread polling status information.
-	-->
-	<General
-		loadForest="false" 
-		workingFolder="testdataResults/forestremote"
-		nodedataFilePrefix="nodedata"
-		frequencyTableFile = "testdata/frequencies"
-		
-		debugProgress="true"
-		debugNodeInfo="true"
-		debugThreadForking="false"
-		debugThreadPolling="true"
-	></General>
-
-	<!--  
 		### Forest parameters ###
 		forestSize:                       Number of trees
 		maxDepth:                         Maximum depth of the trees
@@ -66,6 +42,30 @@
 		threadDepth="2"
 		threadWaitTime="3000"
 	></Forest>
+
+	<!--  
+		loadForest:         Load the forest from the node data in the working folder (must be grown first) 
+		workingFolder:      Folder where the forest can save its node data. Can also be used to store test results etc.
+		nodedataFilePrefix: Prefix for the node data files (one will be created for each tree)
+		frequencyTableFile: Path to the frequency table file, usually located beneath the test data folders. The file
+		                    holds a table of frequencies corresponding to the bins of the spectral transformation output.
+		                    
+		debugProgress:      Show little progress info while growing.
+		debugNodeInfo:      Show more details for each node growed on the console.
+		debugThreadForking: Show a message every time a new thread is created.
+		debugThreadPolling: Show thread polling status information.
+	-->
+	<General
+		loadForest="false" 
+		workingFolder="testdataResults/forestremote"
+		nodedataFilePrefix="nodedata"
+		frequencyTableFile = "testdata/frequencies"
+		
+		debugProgress="true"
+		debugNodeInfo="true"
+		debugThreadForking="false"
+		debugThreadPolling="true"
+	></General>
 
 	<!--  
 		### CQT Parameters ###
