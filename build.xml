@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project>
 
-<project name="de.lmu.dbs.ciaa" default="all" basedir=".">
+<project name="de.lmu.dbs.ciaa" default="nodoc" basedir=".">
 	
 	<property name="project-name" value="de.lmu.dbs.ciaa" />
 
@@ -53,6 +53,12 @@
 		description="Makro: Build and package all." 
 	/>
 	
+	<target 
+		name="nodoc" 
+		depends="compile,jar,run" 
+		description="Makro: Build and package all without docs." 
+	/>
+
 <!-- ==================================================================================== -->
 
 	<target name="compile" description="compiles the class(es)">
