@@ -105,6 +105,7 @@ public class ForestTest {
 
 		// XML file for program configuration
 		String settingsFile = "settings.xml";
+		String logFile = "growlog.txt"; // File for logging tree grow events (not application logging)
 		
 		// Debug params (all others are loaded from settings.xml)
 		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
@@ -126,7 +127,8 @@ public class ForestTest {
 			// Create result folder
 			File resultDir = new File(params.workingFolder);
 			resultDir.mkdirs();
-			m.measure("Created target folder");
+			Log.open(params.workingFolder + File.separator + logFile);
+			m.measure("Created target folder and opened log");
 			
 			// Load frequency table (must be common for all samples)
 			FileIO<double[]> fio = new FileIO<double[]>();
@@ -156,6 +158,7 @@ public class ForestTest {
 				// Grow
 				forest= new RandomForest(params.forestSize, params);
 				forest.grow(samplers.get(0), params.maxDepth);
+				
 				m.measure("Finished growing random forest");
 	
 				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);
@@ -220,6 +223,9 @@ public class ForestTest {
 			FileUtils.deleteQuietly(new File(copyToDir));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
+			
+			Log.close();
+			m.measure("Saved log to " + logFile);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

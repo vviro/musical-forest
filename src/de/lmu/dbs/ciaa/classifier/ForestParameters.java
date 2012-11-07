@@ -149,12 +149,12 @@ public class ForestParameters {
 	/**
 	 * Show little progress info while growing.
 	 */
-	public boolean debugProgress = false;
+	public boolean logProgress = false;
 	
 	/**
 	 * Show more details for each node growed on the console.
 	 */
-	public boolean debugNodeInfo = false;
+	public boolean logNodeInfo = false;
 	
 	/**
 	 * Show a message every time a new thread is created.

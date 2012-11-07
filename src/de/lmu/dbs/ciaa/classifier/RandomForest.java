@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.util.ArrayUtils;
+import de.lmu.dbs.ciaa.util.Log;
 
 /**
  * Random forest implementation. 
@@ -63,7 +64,7 @@ public class RandomForest {
 	 */
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
 		for(int i=0; i<trees.size(); i++) {
-			System.out.println("Growing tree " + i + " to depth " + maxDepth);
+			Log.write(i + ": Growing tree to depth " + maxDepth);
 			trees.get(i).grow(sampler.getSample(), maxDepth);
 		}
 		if (params.threadDepth >= 0) {
@@ -86,9 +87,9 @@ public class RandomForest {
 		}
 		// Debug tree stats
 		//System.out.println("### Forest stats ###");
-		System.out.println("Number of leafs:");
+		Log.write("Number of leafs:");
 		for(int i=0; i<trees.size(); i++) {
-			System.out.println(i + ": " + trees.get(i).getNumOfLeafs());
+			Log.write("Tree " + i + ": " + trees.get(i).getNumOfLeafs());
 		}
 	}
 

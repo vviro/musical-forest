@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
+import de.lmu.dbs.ciaa.util.Log;
 
 /**
  * Represents one random decision tree.
@@ -230,19 +231,19 @@ public class RandomTree extends Thread {
 		
 		// Debug
 		String pre = "   ";
-		if (params.debugProgress) {
+		if (params.logProgress) {
 			for(int i=0; i<depth; i++) pre+= "-  ";
 			switch (mode) {
 				case 0: {
-					System.out.println(pre + "Root, Depth " + depth);
+					Log.write(pre + "Root, Depth " + depth);
 					break;
 				}
 				case 1: {
-					System.out.println(pre + "L, Depth " + depth);
+					Log.write(pre + "L, Depth " + depth);
 					break;
 				}
 				case 2: {
-					System.out.println(pre + "R, Depth " + depth);
+					Log.write(pre + "R, Depth " + depth);
 					break;
 				}
 			}
@@ -361,11 +362,11 @@ public class RandomTree extends Thread {
 		}
 		
 		// Debug //////////////////////////////////////////
-		if (params.debugNodeInfo) {
-			System.out.println(pre + "Winner: " + winner + "; Information gain: " + gain[winner] + " Threshold: " + paramSet.get(winner).threshold);
-			System.out.println(pre + "Left: " + silenceLeft[winner] + " + " + noteLeft[winner] + " = " + (silenceLeft[winner]+noteLeft[winner]));
-			System.out.println(pre + "Right: " + noteRight[winner] + " + " + silenceRight[winner] + " = " + (noteRight[winner]+silenceRight[winner]));
-			System.out.println(pre + "Amount of counted samples: " + (silenceLeft[winner]+noteLeft[winner]+noteRight[winner]+silenceRight[winner]));
+		if (params.logNodeInfo) {
+			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner] + " Threshold: " + paramSet.get(winner).threshold);
+			Log.write(pre + "Left: " + silenceLeft[winner] + " + " + noteLeft[winner] + " = " + (silenceLeft[winner]+noteLeft[winner]));
+			Log.write(pre + "Right: " + noteRight[winner] + " + " + silenceRight[winner] + " = " + (noteRight[winner]+silenceRight[winner]));
+			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner]+noteLeft[winner]+noteRight[winner]+silenceRight[winner]));
 		}
 		//////////////////////////////////////////////////
 		

@@ -61,8 +61,8 @@
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
-		debugProgress="true"
-		debugNodeInfo="true"
+		logProgress="true"
+		logNodeInfo="true"
 		debugThreadForking="false"
 		debugThreadPolling="true"
 	></General>
