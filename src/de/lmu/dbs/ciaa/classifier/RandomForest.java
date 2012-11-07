@@ -1,6 +1,9 @@
 package de.lmu.dbs.ciaa.classifier;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.util.ArrayUtils;
@@ -49,6 +52,11 @@ public class RandomForest {
 	}
 
 	/**
+	 * Date formatter for debug output.
+	 */
+	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
+	
+	/**
 	 * Grows the forest. 
 	 * 
 	 * @param sampler data provider
@@ -65,7 +73,7 @@ public class RandomForest {
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
 				boolean ret = true;
-				if (params.debugThreadPolling) System.out.println("--> Active threads: ");
+				if (params.debugThreadPolling) System.out.print(timeStampFormatter.format(new Date()) + ": Active threads: ");
 				for(int i=0; i<trees.size(); i++) {
 					if (params.debugThreadPolling) System.out.print(trees.get(i).getThreadsActive() + " ");
 					if (!trees.get(i).isGrown()) {
