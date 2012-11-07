@@ -169,7 +169,7 @@ public class RandomTree extends Thread {
 	 */
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
 		// Get random value selection initially
-		List<byte[][]> classification = new ArrayList<byte[][]>(sampler.getPoolSize()); // Classification arrays for each dataset in the sampler, same index
+		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index
 		if (params.percentageOfRandomValuesPerFrame < 1.0) {
 			// Drop some of the values by classifying them to -1
 			//System.out.println("Generate random values...");
@@ -181,13 +181,7 @@ public class RandomTree extends Thread {
 		} else {
 			// Set all zero classification
 			for(int i=0; i<sampler.getPoolSize(); i++) {
-				Dataset s = sampler.get(i);
-
-				
-				
-				byte[][] spec = s.getSpectrum();
-				System.out.println(classification.size());
-				classification.set(i, new byte[spec.length][spec[0].length]);
+				classification.add(new byte[sampler.get(i).getSpectrum().length][sampler.get(i).getSpectrum()[0].length]);
 			}
 		}
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
