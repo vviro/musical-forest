@@ -63,7 +63,6 @@ import de.lmu.dbs.ciaa.util.*;
  * Optimierung:
  * 		- Make the application distributable
  * 		- lookup table für feature.evaluate? (später)
- * 		- Testen: Compile on Server?
  * 
  * Testdaten:
  * 		- Performances von Vladimir
@@ -102,13 +101,13 @@ public class ForestTest {
 	public static void main(String[] args) {
 		System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
 
-		// XML file for configuration
+		// XML file for program configuration
 		String settingsFile = "settings.xml";
 		
 		// Debug params (all others are loaded from settings.xml)
-		String copyToDir = "testdataResults/lastrun";
-		String featureImgFile = "featuresOverview.png";
-		String testFile = "WaveFiles/Test8_Mix.wav";
+		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
+		String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
+		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
