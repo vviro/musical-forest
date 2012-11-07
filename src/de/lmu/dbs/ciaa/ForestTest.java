@@ -106,7 +106,7 @@ public class ForestTest {
 		String settingsFile = "settings.xml";
 		
 		// Debug params (all others are loaded from settings.xml)
-		String copyToDir = "testdataResults/lastrun";
+		String copyToDir = "testdataResults/lastrun/";
 		String featureImgFile = "featuresOverview.png";
 		String testFile = "WaveFiles/Test8_Mix.wav";
 		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
