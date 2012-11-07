@@ -52,8 +52,8 @@
 	<Forest
 		forestSize="5"
 		maxDepth="6"
-		percentageOfRandomValuesPerFrame="0.8"
-		numOfRandomFeatures="20"
+		percentageOfRandomValuesPerFrame="1.0"
+		numOfRandomFeatures="50"
 		thresholdCandidatesPerFeature="5"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
 
@@ -63,8 +63,8 @@
 		yMax="0"
 		thresholdMax="60"
 		
-		threadDepth="0"
-		threadWaitTime="2000"
+		threadDepth="1"
+		threadWaitTime="3000"
 	></Forest>
 
 	<!--  
