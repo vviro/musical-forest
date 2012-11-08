@@ -42,7 +42,7 @@
 		yMax="0"
 		thresholdMax="0"
 		
-		maxNumOfThreads="16"
+		maxNumOfThreads="44"
 		enableNodeThreading="true"
 		enableEvaluationThreading="true"
 		threadWaitTime="3000"
