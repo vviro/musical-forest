@@ -84,11 +84,11 @@ public class Statistic {
 		maxS/= (double)maxL;
 		DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00000000" );
 		for(int i=0; i<s.length; i++) {
-			s[i]/=maxS;
 			ret += df2.format((i/f)+min) + ": ";
 		//	ret += ((i/f)+min) + ": ";
-			for(int j=0; j<s[i]; j++) ret += "#";
-			ret += "\n";
+			int scaled = (int)(s[i]/maxS);
+			for(int j=0; j<scaled; j++) ret += "#";
+			ret += " (" + (int)s[i] + ")\n";
 		}
 		return ret;
 	}
