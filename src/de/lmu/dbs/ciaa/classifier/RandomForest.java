@@ -105,6 +105,7 @@ public class RandomForest {
 	public void logTreeStats() throws Exception {
 		Log.write("");
 		Log.write("### Forest stats ###");
+		Log.write("Avg. time per node: " + )
 		int poss = (int)Math.pow(2, params.maxDepth);
 		for(int i=0; i<trees.size(); i++) {
 			RandomTreeAnalyzable t = (RandomTreeAnalyzable)trees.get(i);
