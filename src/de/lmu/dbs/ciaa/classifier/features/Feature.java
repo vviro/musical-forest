@@ -47,4 +47,10 @@ public abstract class Feature implements Serializable {
 	 */
 	public abstract void visualize(int[][] data);
 
+	/**
+	 * Returns the maximum evaluate value
+	 * 
+	 * @return
+	 */
+	public abstract int getMaxValue();
 }

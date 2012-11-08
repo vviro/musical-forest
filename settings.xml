@@ -29,17 +29,17 @@
 		forestSize="1"
 		maxDepth="4"
 		percentageOfRandomValuesPerFrame="0.5"
-		numOfRandomFeatures="100"
-		thresholdCandidatesPerFeature="10"
+		numOfRandomFeatures="10"
+		thresholdCandidatesPerFeature="3"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
 
 		xMin="0"
 		xMax="0"
 		yMin="0"
 		yMax="0"
-		thresholdMax="60"
+		thresholdMax="0"
 		
-		maxNumOfThreads="16"
+		maxNumOfThreads="8"
 		threadWaitTime="3000"
 	></Forest>
 

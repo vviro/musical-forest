@@ -47,7 +47,7 @@ public class FeatureHarmonic3 extends Feature {
 		}
 		this.uY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
 		this.vY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
-		this.threshold = RandomUtils.randomInt(params.thresholdMax);
+		this.threshold = RandomUtils.randomInt(getMaxValue());
 		//generateHarmonicFactors(50);
 	}
 	
@@ -56,12 +56,12 @@ public class FeatureHarmonic3 extends Feature {
 	 * another FeatureKinect instance.
 	 * 
 	 */
-	public FeatureHarmonic3(final FeatureHarmonic3 f, final int thresholdMax) {
+	public FeatureHarmonic3(final FeatureHarmonic3 f) {
 		this.uX = f.uX;
 		this.uY = f.uY;
 		this.vX = f.vX;
 		this.vY = f.vY;
-		this.threshold = RandomUtils.randomInt(thresholdMax);
+		this.threshold = RandomUtils.randomInt(getMaxValue());
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class FeatureHarmonic3 extends Feature {
 			FeatureHarmonic3 n = new FeatureHarmonic3(params);
 			ret.add(n);
 			for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
-				ret.add(new FeatureHarmonic3(n, params.thresholdMax));
+				ret.add(new FeatureHarmonic3(n));
 			}
 		}
 		return ret;
@@ -151,6 +151,11 @@ public class FeatureHarmonic3 extends Feature {
 		x = data.length/2 + vX;
 		y = vY;
 		data[x][y]++;
+	}
+
+	@Override
+	public int getMaxValue() {
+		return (Byte.MAX_VALUE-1) * 4;
 	}
 
 }
