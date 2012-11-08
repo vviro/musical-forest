@@ -82,7 +82,7 @@ public class Statistic {
 		maxS/= (double)maxL;
 		for(int i=0; i<s.length; i++) {
 			s[i]/=maxS;
-			ret += f*i + ": ";
+			ret += f*s[i] + ": ";
 			for(int j=0; j<s[i]; j++) ret += "#";
 			ret += "\n";
 		}
