@@ -35,9 +35,9 @@
 		forestSize="4"
 		maxDepth="4"
 		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="50"
+		numOfRandomFeatures="20"
 		thresholdCandidatesPerFeature="10"
-		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic4"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
 		entropyThreshold="1E-6"
 		
 		xMin="0"
