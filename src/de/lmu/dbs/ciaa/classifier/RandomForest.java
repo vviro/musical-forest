@@ -101,7 +101,7 @@ public class RandomForest {
 			RandomTreeAnalyzable t = (RandomTreeAnalyzable)trees.get(i);
 			Log.write("Tree " + i + ": " + t.getNumOfLeafs() +  " leafs of possible " + poss + "; Information gain: " + t.infoGain);
 			Log.write("Count nodes at depths:\n" + t.getDepthCountsString());
-			Log.write("Tree structure:\n" + t.getTreeVisualization());
+			//Log.write("Tree structure:\n" + t.getTreeVisualization());
 			Log.write("Distribution of gains:\n" + t.infoGain.getDistributionString(20, 80));
 		}
 	}

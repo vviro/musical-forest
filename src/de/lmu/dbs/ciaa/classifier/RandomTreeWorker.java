@@ -5,7 +5,7 @@ import java.util.List;
 import de.lmu.dbs.ciaa.classifier.features.Feature;
 
 /**
- * UNUSED
+ * 
  * 
  * @author tom
  *
@@ -20,9 +20,12 @@ public class RandomTreeWorker extends Thread {
 	
 	protected int mode;
 	
+	protected RandomTree root;
+	
 	protected long[][] result = null;
 	
-	public RandomTreeWorker(List<Feature> paramSet, Sampler<Dataset> sampler, List<byte[][]> classification, int mode) {
+	public RandomTreeWorker(RandomTree root, List<Feature> paramSet, Sampler<Dataset> sampler, List<byte[][]> classification, int mode) {
+		this.root = root;
 		this.paramSet = paramSet;
 		this.sampler = sampler;
 		this.classification = classification;
@@ -39,10 +42,20 @@ public class RandomTreeWorker extends Thread {
 	public void run() {
 		try {
 			result = work();
+			root.decThreadsActive();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
+	}
+	
+	/**
+	 * Is the worker finished and are the results ready to fetch?
+	 * 
+	 * @return
+	 */
+	public boolean isDone() {
+		return (result != null);
 	}
 	
 	/**

@@ -52,6 +52,10 @@ public class ForestParameters {
 	 * Milliseconds interval to check growth status in the forest.
 	 */
 	public long threadWaitTime = -1;
+
+	public boolean enableNodeThreading = false;
+	
+	public boolean enableEvaluationThreading = false;
 	
 	/**
 	 * For each data frame, this represents the percentage of the values to be picked initially

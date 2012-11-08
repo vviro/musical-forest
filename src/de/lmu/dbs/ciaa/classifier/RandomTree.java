@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
@@ -95,6 +97,11 @@ public class RandomTree extends Thread {
 	 * to new Threads (see growRec source code)
 	 */
 	protected int newThreadMaxDepth;
+	
+	/**
+	 * Date formatter for debug output.
+	 */
+	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
 	
 	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
@@ -210,15 +217,17 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		synchronized (root.forest) { 
-			if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfThreads)) {
-				// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
-				// watched with the isGrown method of the original RandomTree instance.
-				Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
-				if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new thread at depth " + depth);
-				root.incThreadsActive();
-				t.start();
-				return;
+		if (params.enableNodeThreading) {
+			synchronized (root.forest) { 
+				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfThreads)) {
+					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
+					// watched with the isGrown method of the original RandomTree instance.
+					Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
+					if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new thread at depth " + depth);
+					root.incThreadsActive();
+					t.start();
+					return;
+				}
 			}
 		}
 		
@@ -250,6 +259,7 @@ public class RandomTree extends Thread {
 		
 		// Get random feature parameter sets
 		List<Feature> paramSet = params.featureFactory.getRandomFeatureSet(params);
+
 		int numOfFeatures = paramSet.size();
 
 		long[] silenceLeft = new long[paramSet.size()];
@@ -258,7 +268,24 @@ public class RandomTree extends Thread {
 		long[] noteRight = new long[paramSet.size()];
 		
 		int poolSize = sampler.getPoolSize();
+		List<RandomTreeWorker> workers = null;
+		if (params.enableEvaluationThreading) workers = new ArrayList<RandomTreeWorker>();
 		for(int i=0; i<poolSize; i++) {
+
+			// Try to start a worker thread
+			if (workers != null) {
+				synchronized (root.forest) { 
+					if (root.forest.getThreadsActive() < params.maxNumOfThreads) {
+						RandomTreeWorker t = new RandomTreeWorker(root, paramSet, sampler, classification, mode);
+						if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new worker thread at depth " + depth + " for pool entry " + i);
+						root.incThreadsActive();
+						t.start();
+						workers.add(t);
+						continue;
+					}
+				}
+			}
+			
 			// Each dataset...load spectral data and midi
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
@@ -291,6 +318,31 @@ public class RandomTree extends Thread {
 							}
 						}
 					}
+				}
+			}
+		}
+		// Wait for remaining workers
+		if (workers != null && workers.size() > 0) {
+			while(true) {
+				Thread.sleep(params.threadWaitTime);
+				if (params.debugThreadPolling) System.out.print(timeStampFormatter.format(new Date()) + ": Tree " + root.num + " waiting for total of " + workers.size() + " workers");
+				boolean fin = true;
+				for(int i=0; i<workers.size(); i++) {
+					if (!workers.get(i).isDone()) {
+						fin = false;
+						break;
+					}
+				}
+				if (fin) break;
+			}
+			// Get workers results and add them to the local ones
+			for(int i=0; i<workers.size(); i++) {
+				RandomTreeWorker w = workers.get(i);
+				for (int j=0; j<paramSet.size(); j++) {
+					silenceLeft[j] += w.result[0][j];
+					noteLeft[j] += w.result[1][j];
+					silenceRight[j] += w.result[2][j];
+					noteRight[j] += w.result[3][j];
 				}
 			}
 		}
@@ -327,38 +379,23 @@ public class RandomTree extends Thread {
 		
 		// Split values by winner feature for deeper branches
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
-		//List<byte[][]> classificationNextR = null;
-		/*int forestThreads = root.forest.getThreadsActive();
-		if (forestThreads < params.maxNumOfThreads) {
-			// For multithreaded use. In this case, we need an individual classification buffer for right recursion.
-			classificationNextR = new ArrayList<byte[][]>(sampler.getPoolSize());
-		} */
 		for(int i=0; i<poolSize; i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
 			byte[][] cla = classification.get(i);
 			byte[][] claNext = new byte[data.length][params.frequencies.length];
-			/*byte[][] claNextR = null;
-			if (forestThreads < params.maxNumOfThreads) {
-				claNextR = new byte[data.length][params.frequencies.length];
-			}*/
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<params.frequencies.length; y++) {
 					if (mode == cla[x][y]) {
 						if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 							claNext[x][y] = 1; // Left
-							//if (claNextR != null) claNextR[x][y] = 1;
 						} else {
 							claNext[x][y] = 2; // Right
-							//if (claNextR != null) claNextR[x][y] = 2;
 						}
 					}
 				}
 			}
 			classificationNext.add(claNext);
-			/*if (claNextR != null) {
-				classificationNextR.add(claNextR);
-			}*/
 		}
 		
 		// Debug //////////////////////////////////////////
@@ -376,11 +413,7 @@ public class RandomTree extends Thread {
 		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
 
 		node.right = new Node();
-		/*if (forestThreads < params.maxNumOfThreads) {
-			growRec(root, sampler, classificationNextR, node.right, 2, depth+1, maxDepth, true);
-		} else {*/
-			growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
-		//}
+		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
 	}
 	
 	/**

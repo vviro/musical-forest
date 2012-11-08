@@ -169,12 +169,12 @@ public class ForestTest {
 				forest.grow(sampler);
 				m.measure("Finished growing random forest");
 
-				forest.logTreeStats();
-				m.measure("Finished logging forest stats");
-	
 				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);
 				m.measure("Finished saving forest to file: " + params.workingFolder);
 
+				forest.logTreeStats();
+				m.measure("Finished logging forest stats");
+	
 			} else {
 				// Load
 				forest = RandomForest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
