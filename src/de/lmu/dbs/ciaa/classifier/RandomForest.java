@@ -91,7 +91,7 @@ public class RandomForest {
 		int poss = (int)Math.pow(2, maxDepth);
 		for(int i=0; i<trees.size(); i++) {
 			Log.write("Tree " + i + ": " + trees.get(i).getNumOfLeafs() +  " leafs of possible " + poss + "; Information gain: " + trees.get(i).infoGain);
-			Log.write("Distribution of gains:\n" + trees.get(i).infoGain.getDistribution(20, 20));
+			Log.write("Distribution of gains:\n" + trees.get(i).infoGain.getDistribution(20, 80));
 		}
 	}
 
