@@ -15,6 +15,7 @@ import de.lmu.dbs.ciaa.util.*;
  * Generated data: ************************************************************************
  * 
  * Last revision w/ pixelwise clasification: 943, ab da: multiclass
+ * 											 945 auch, mit "Fat MIDI"
  * 
  * Forests:
  * 0: 1/4/0.3/1/1 - Feature bei Ausreisser: Exceptions (Ignore bzw. rec. Right)

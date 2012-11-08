@@ -444,7 +444,7 @@ public class RandomTree extends Thread {
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) { 
-						if (midi[x][y] == 0) { // Inverse
+						if (midi[x][y] > 0) { // Inverse
 							// f0 is (not) present
 							ret[y]++;
 							if (ret[y] > maxP) maxP = ret[y];
@@ -455,6 +455,7 @@ public class RandomTree extends Thread {
 		}
 		// Invert back and normalize
 		for(int i=0; i<ret.length; i++) {
+			ret[i]/= maxP;
 			ret[i] = (maxP - ret[i]) / maxP; 
 		}
 		return ret;
