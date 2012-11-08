@@ -43,7 +43,7 @@
 		thresholdMax="0"
 		
 		maxNumOfThreads="16"
-		enableNodeThreading="false"
+		enableNodeThreading="true"
 		enableEvaluationThreading="true"
 		threadWaitTime="3000"
 	></Forest>
