@@ -118,6 +118,11 @@ public class FeatureHarmonic3 extends Feature {
 		return Integer.MIN_VALUE; // All out of range
 	}
 	
+	@Override
+	public int getMaxValue() {
+		return (Byte.MAX_VALUE-1) * 3;
+	}
+
 	/**
 	 * Generates factors for the overtone harmonics and outputs the array
 	 * to the console. Paste this output into the java code then.
@@ -151,11 +156,6 @@ public class FeatureHarmonic3 extends Feature {
 		x = data.length/2 + vX;
 		y = vY;
 		data[x][y]++;
-	}
-
-	@Override
-	public int getMaxValue() {
-		return (Byte.MAX_VALUE-1) * 3;
 	}
 
 }

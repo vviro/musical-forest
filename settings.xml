@@ -29,8 +29,8 @@
 		forestSize="1"
 		maxDepth="4"
 		percentageOfRandomValuesPerFrame="0.5"
-		numOfRandomFeatures="10"
-		thresholdCandidatesPerFeature="3"
+		numOfRandomFeatures="100"
+		thresholdCandidatesPerFeature="20"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
 
 		xMin="0"

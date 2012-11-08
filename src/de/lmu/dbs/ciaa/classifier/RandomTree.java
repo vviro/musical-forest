@@ -86,6 +86,11 @@ public class RandomTree extends Thread {
 	protected int newThreadMaxDepth;
 	
 	/**
+	 * Index of the tree in a forest.
+	 */
+	protected int num = -1;
+	
+	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
 	 * the arguments of growRec to the new thread. See method growRec source code.
 	 * 
@@ -93,7 +98,7 @@ public class RandomTree extends Thread {
 	 * 
 	 */
 	public RandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth) throws Exception {
-		this(params, null);
+		this(params, null, -1);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -109,10 +114,11 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, RandomForest forest) throws Exception {
+	public RandomTree(ForestParameters params, RandomForest forest, int num) throws Exception {
 		params.check();
 		this.params = params;
 		this.forest = forest;
+		this.num = num;
 	}
 	
 	/**
@@ -228,7 +234,7 @@ public class RandomTree extends Thread {
 				// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 				// watched with the isGrown method of the original RandomTree instance.
 				Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
-				if (params.debugThreadForking) System.out.println("--> Forking new thread at depth " + depth);
+				if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new thread at depth " + depth);
 				root.incThreadsActive();
 				t.start();
 				return;
@@ -236,7 +242,7 @@ public class RandomTree extends Thread {
 		}
 		
 		// Debug
-		String pre = "   ";
+		String pre = "T" + root.num + ":   ";
 		if (params.logProgress) {
 			for(int i=0; i<depth; i++) pre+= "-  ";
 			switch (mode) {

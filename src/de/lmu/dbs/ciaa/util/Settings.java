@@ -72,8 +72,8 @@ public class Settings {
 		r.frequencyTableFile = general.getAttributeValue("frequencyTableFile");
 		r.loadForest = Boolean.parseBoolean(general.getAttributeValue("loadForest"));
 		
-		r.logProgress = Boolean.parseBoolean(general.getAttributeValue("debugProgress"));
-		r.logNodeInfo = Boolean.parseBoolean(general.getAttributeValue("debugNodeInfo"));
+		r.logProgress = Boolean.parseBoolean(general.getAttributeValue("logProgress"));
+		r.logNodeInfo = Boolean.parseBoolean(general.getAttributeValue("logNodeInfo"));
 		r.debugThreadForking = Boolean.parseBoolean(general.getAttributeValue("debugThreadForking"));
 		r.debugThreadPolling = Boolean.parseBoolean(general.getAttributeValue("debugThreadPolling"));
 		

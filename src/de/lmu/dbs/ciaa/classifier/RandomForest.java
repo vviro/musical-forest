@@ -37,7 +37,7 @@ public class RandomForest {
 		// Generate trees
 		this.trees = new ArrayList<RandomTree>();
 		for(int i=0; i<numTrees; i++) {
-			this.trees.add(new RandomTree(params, this));
+			this.trees.add(new RandomTree(params, this, i));
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class RandomForest {
 	 */
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
 		for(int i=0; i<trees.size(); i++) {
-			Log.write(i + ": Growing tree to depth " + maxDepth);
+			Log.write("Growing tree " + i + " to depth " + maxDepth);
 			trees.get(i).grow(sampler.getSample(), maxDepth);
 		}
 		if (params.maxNumOfThreads > 0) {
