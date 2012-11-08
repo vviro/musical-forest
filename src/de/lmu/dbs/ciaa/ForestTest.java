@@ -126,7 +126,10 @@ public class ForestTest {
 			
 			// Create result folder
 			File resultDir = new File(params.workingFolder);
-			resultDir.mkdirs();
+			if (!params.loadForest) {
+				FileUtils.deleteDirectory(new File(params.workingFolder));
+				resultDir.mkdirs();
+			}
 			Log.open(params.workingFolder + File.separator + logFile);
 			m.measure("Created target folder and opened log");
 			
