@@ -144,4 +144,9 @@ public class FeatureHarmonic2 extends Feature {
 		data[x][y]++;
 	}
 
+	@Override
+	public int getMaxValue() {
+		return (Byte.MAX_VALUE-1) * 3;
+	}
+
 }

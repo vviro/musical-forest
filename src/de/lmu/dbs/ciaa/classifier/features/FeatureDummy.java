@@ -86,4 +86,9 @@ public class FeatureDummy extends Feature {
 		int y = 0;
 		data[x][y]++;
 	}
+
+	@Override
+	public int getMaxValue() {
+		return Byte.MAX_VALUE-1;
+	}
 }

@@ -107,4 +107,9 @@ public class FeatureKinect5 extends Feature {
 		data[x][y]++;
 	}
 
+	@Override
+	public int getMaxValue() {
+		return (Byte.MAX_VALUE-1) * 3;
+	}
+
 }
