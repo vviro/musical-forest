@@ -220,7 +220,7 @@ public class ForestTest {
 			m.measure("Saved feature visualization to " + featuresFile);
 
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
-			FileUtils.deleteQuietly(new File(copyToDir));
+			FileUtils.deleteDirectory(new File(copyToDir));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
 			
