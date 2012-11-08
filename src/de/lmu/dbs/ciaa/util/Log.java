@@ -34,6 +34,13 @@ public class Log {
 		FileWriter fstream = new FileWriter(logfile);
 		out = new BufferedWriter(fstream);
 	}
+
+	/**
+	 * Open log to write to stdout.
+	 * 
+	 */
+	public static void open() {
+	}
 	
 	/**
 	 * Write a line to the log file.
@@ -42,8 +49,12 @@ public class Log {
 	 * @throws Exception
 	 */
 	public static void write(String message) throws Exception {
-		if (out == null) throw new Exception("Log not open.");
-		out.write(timeStampFormatter.format(new Date()) + ": " + message + "\n");
+		String msg = timeStampFormatter.format(new Date()) + ": " + message;
+		if (out == null) {
+			System.out.println(msg);
+		} else {
+			out.write(msg + "\n");
+		}
 	}
 	
 	/**
@@ -52,7 +63,7 @@ public class Log {
 	 * @throws Exception
 	 */
 	public static void close() throws Exception {
-		if (out == null) throw new Exception("Log not open.");
+		if (out == null) return; // throw new Exception("Log not open.");
 		out.flush();
 		out.close();
 		out = null;

@@ -81,12 +81,11 @@ public class RandomForest {
 						if (!params.debugThreadPolling) break;
 					}
 				}
-				if (params.debugThreadPolling) System.out.println("");
+				if (params.debugThreadPolling) System.out.println(" (sum: " + this.getThreadsActive() + ")");
 				if (ret) break;
 			}
 		}
 		// Debug tree stats
-		//System.out.println("### Forest stats ###");
 		Log.write("Number of leafs:");
 		for(int i=0; i<trees.size(); i++) {
 			Log.write("Tree " + i + ": " + trees.get(i).getNumOfLeafs());

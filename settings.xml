@@ -21,15 +21,15 @@
 		thresholdMax: Maximum for threshold generation. Thresholds will be created in range [0, thresholdMax].
 		
 		### Multithreading parameters
-		threadDepth:    Level of Multithreading. The amount of threads per tree calculates to 2^threadDepth. 
-	                    A value of -1 does no multithreading at all, zero will create one thread per tree.
-		threadWaitTime: Milliseconds interval to check growth status in the forest.
+		maxNumOfThreads: Maximum amount of extra threads that can help growing the forest. For effective
+		                 calculation, at least each tree should have its own helping thread.
+		threadWaitTime:  Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
 		forestSize="5"
 		maxDepth="5"
 		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="1"
+		numOfRandomFeatures="100"
 		thresholdCandidatesPerFeature="10"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
 
@@ -50,8 +50,8 @@
 		frequencyTableFile: Path to the frequency table file, usually located beneath the test data folders. The file
 		                    holds a table of frequencies corresponding to the bins of the spectral transformation output.
 		                    
-		debugProgress:      Show little progress info while growing.
-		debugNodeInfo:      Show more details for each node growed on the console.
+		logProgress:        Show/log little progress info while growing.
+		logNodeInfo:        Show/log more details for each node growed on the console.
 		debugThreadForking: Show a message every time a new thread is created.
 		debugThreadPolling: Show thread polling status information.
 	-->
@@ -63,6 +63,7 @@
 		
 		logProgress="true"
 		logNodeInfo="true"
+		
 		debugThreadForking="false"
 		debugThreadPolling="true"
 	></General>

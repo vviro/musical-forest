@@ -225,7 +225,7 @@ public class ForestTest {
 			m.measure("Copied results to " + copyToDir);
 			
 			Log.close();
-			m.measure("Saved log to " + logFile);
+			m.measure("Saved log file");
 			
 		} catch (Exception e) {
 			e.printStackTrace();

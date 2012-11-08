@@ -43,7 +43,8 @@ public class ForestParameters {
 	public int maxDepth = -1;
 	
 	/**
-	 * Maximum amount of threads.
+	 * Maximum amount of extra threads that can help growing the forest. For effective 
+	 * calculation, at least each tree should have its own helping thread.
 	 */
 	public int maxNumOfThreads = 0;
 	
