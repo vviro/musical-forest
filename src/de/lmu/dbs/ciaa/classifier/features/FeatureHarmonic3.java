@@ -112,9 +112,9 @@ public class FeatureHarmonic3 extends Feature {
 		int ivY = y+vY;
 		if (ivY >= 0 && ivY < data[0].length) v = true; 
 		
-		if (u && v) return data[iuX][iuY] + data[ivX][ivY] + 2*data[x][y]; 
-		if (u) return data[iuX][iuY] + 2*data[x][y];
-		if (v) return data[ivX][ivY] + 2*data[x][y];
+		if (u && v) return data[iuX][iuY] + data[ivX][ivY] + 5*data[x][y]; 
+		if (u) return data[iuX][iuY] + 5*data[x][y];
+		if (v) return data[ivX][ivY] + 5*data[x][y];
 		return Integer.MIN_VALUE; // All out of range
 	}
 	
@@ -155,7 +155,7 @@ public class FeatureHarmonic3 extends Feature {
 
 	@Override
 	public int getMaxValue() {
-		return (Byte.MAX_VALUE-1) * 4;
+		return (Byte.MAX_VALUE-1) * 7;
 	}
 
 }
