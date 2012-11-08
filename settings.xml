@@ -53,7 +53,7 @@
 		logProgress:        Show/log little progress info while growing.
 		logNodeInfo:        Show/log more details for each node growed on the console.
 		debugThreadForking: Show a message every time a new thread is created.
-		debugThreadPolling: Show thread polling status information.
+		debugThreadPolling: Show thread polling and status information in regular intervals.
 	-->
 	<General
 		loadForest="false" 
