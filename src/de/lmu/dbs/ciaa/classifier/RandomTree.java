@@ -223,14 +223,16 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfThreads)) {
-			// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
-			// watched with the isGrown method of the original RandomTree instance.
-			Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
-			if (params.debugThreadForking) System.out.println("--> Forking new thread at depth " + depth);
-			root.incThreadsActive();
-			t.start();
-			return;
+		synchronized (root.forest) { 
+			if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfThreads)) {
+				// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
+				// watched with the isGrown method of the original RandomTree instance.
+				Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
+				if (params.debugThreadForking) System.out.println("--> Forking new thread at depth " + depth);
+				root.incThreadsActive();
+				t.start();
+				return;
+			}
 		}
 		
 		// Debug
