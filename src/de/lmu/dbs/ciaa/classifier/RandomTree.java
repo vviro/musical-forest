@@ -330,12 +330,12 @@ public class RandomTree extends Thread {
 		node.feature = paramSet.get(winner); 
 
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
-		List<byte[][]> classificationNextR = null;
-		int forestThreads = root.forest.getThreadsActive();
+		//List<byte[][]> classificationNextR = null;
+		/*int forestThreads = root.forest.getThreadsActive();
 		if (forestThreads < params.maxNumOfThreads) {
 			// For multithreaded use. In this case, we need an individual classification buffer for right recursion.
 			classificationNextR = new ArrayList<byte[][]>(sampler.getPoolSize());
-		} 
+		} */
 		
 		// Split values by winner feature for deeper branches
 		for(int i=0; i<poolSize; i++) {
@@ -343,29 +343,29 @@ public class RandomTree extends Thread {
 			byte[][] data = dataset.getSpectrum();
 			byte[][] cla = classification.get(i);
 			byte[][] claNext = new byte[data.length][params.frequencies.length];
-			byte[][] claNextR = null;
+			/*byte[][] claNextR = null;
 			if (forestThreads < params.maxNumOfThreads) {
 				claNextR = new byte[data.length][params.frequencies.length];
-			}
+			}*/
 			
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<params.frequencies.length; y++) {
 					if (mode == cla[x][y]) {
 						if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 							claNext[x][y] = 1; // Left
-							if (claNextR != null) claNextR[x][y] = 1;
+							//if (claNextR != null) claNextR[x][y] = 1;
 						} else {
 							claNext[x][y] = 2; // Right
-							if (claNextR != null) claNextR[x][y] = 2;
+							//if (claNextR != null) claNextR[x][y] = 2;
 						}
 					}
 				}
 			}
 			
 			classificationNext.add(claNext);
-			if (claNextR != null) {
+			/*if (claNextR != null) {
 				classificationNextR.add(claNextR);
-			}
+			}*/
 		}
 		
 		// Debug //////////////////////////////////////////
@@ -382,11 +382,11 @@ public class RandomTree extends Thread {
 		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
 
 		node.right = new Node();
-		if (forestThreads < params.maxNumOfThreads) {
+		/*if (forestThreads < params.maxNumOfThreads) {
 			growRec(root, sampler, classificationNextR, node.right, 2, depth+1, maxDepth, true);
-		} else {
+		} else {*/
 			growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
-		}
+		//}
 	}
 	
 	/**
