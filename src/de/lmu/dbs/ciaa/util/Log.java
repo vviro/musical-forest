@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa.util;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -55,6 +56,18 @@ public class Log {
 		} else {
 			out.write(msg + "\n");
 		}
+	}
+	
+	/**
+	 * Additionally to write, this also doubles the message to out.
+	 * 
+	 * @param message
+	 * @param out
+	 * @throws Exception
+	 */
+	public static void write(String message, PrintStream out) throws Exception {
+		write(message);
+		out.println(message);
 	}
 	
 	/**

@@ -56,6 +56,8 @@ public class RandomForest {
 	 */
 	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
 	
+	private long startTime;
+	
 	/**
 	 * Grows the forest. 
 	 * 
@@ -63,6 +65,7 @@ public class RandomForest {
 	 * @throws Exception
 	 */
 	public void grow(final Sampler<Dataset> sampler) throws Exception {
+		startTime = System.currentTimeMillis();
 		for(int i=0; i<trees.size(); i++) {
 			Log.write("Growing tree " + i + " to depth " + params.maxDepth);
 			trees.get(i).grow(sampler.getSample(), params.maxDepth);
@@ -85,11 +88,15 @@ public class RandomForest {
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive(0) + " ");
 					}
-					System.out.print("  Active worker threads: ");
-					for(int i=0; i<trees.size(); i++) {
-						System.out.print(trees.get(i).getThreadsActive(1) + " ");
-					}
-					System.out.println(" (sums: " + getThreadsActive(0) + "/" + getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+					/*if (params.maxNumOfEvaluationThreads > 0) {
+						System.out.print("  Active worker threads: ");
+						for(int i=0; i<trees.size(); i++) {
+							System.out.print(trees.get(i).getThreadsActive(1) + " ");
+						}
+						System.out.println(" (sums: " + getThreadsActive(0) + "/" + getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+					} else {*/
+						System.out.println(" (sum: " + getThreadsActive(0) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+					//}
 				}
 				if (ret) break;
 			}
@@ -104,8 +111,12 @@ public class RandomForest {
 	 */
 	public void logTreeStats() throws Exception {
 		Log.write("");
-		Log.write("### Forest stats ###");
-		//Log.write("Avg. time per node: " + )
+		Log.write("### Forest stats ###", System.out);
+		int count = getNodeCount();
+		Log.write("Num of nodes: " + count, System.out);
+		long delta = System.currentTimeMillis() - startTime;
+		Log.write("Time elapsed: " + delta/1000.0, System.out);
+		Log.write("Avg. time per node: " + (delta/count)/1000.0, System.out);
 		int poss = (int)Math.pow(2, params.maxDepth);
 		for(int i=0; i<trees.size(); i++) {
 			RandomTreeAnalyzable t = (RandomTreeAnalyzable)trees.get(i);
@@ -116,6 +127,22 @@ public class RandomForest {
 		}
 	}
 
+	/**
+	 * Returns the amount of nodes in the forest
+	 * 
+	 * @return
+	 */
+	public int getNodeCount() {
+		int ret = 0;
+		for(int i=0; i<trees.size(); i++) {
+			int[] d = ((RandomTreeAnalyzable)trees.get(i)).getDepthCounts();
+			for(int j=0; j<d.length; j++) {
+				ret+= d[j];
+			}
+		}
+		return ret; 
+	}
+	
 	/**
 	 * Returns the probability for event(s) on value x/y.
 	 * 
