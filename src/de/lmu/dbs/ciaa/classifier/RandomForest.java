@@ -81,7 +81,7 @@ public class RandomForest {
 						if (!params.debugThreadPolling) break;
 					}
 				}
-				if (params.debugThreadPolling) System.out.println(" (sum: " + this.getThreadsActive() + "); Heap: " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
+				if (params.debugThreadPolling) System.out.println(" (sum: " + this.getThreadsActive() + "); Heap: " + ((double)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
 				if (ret) break;
 			}
 		}
