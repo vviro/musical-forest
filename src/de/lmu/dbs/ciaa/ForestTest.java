@@ -222,13 +222,13 @@ public class ForestTest {
 			imgF.save(new File(featuresFile));
 			m.measure("Saved feature visualization to " + featuresFile);
 
+			Log.close();
+			m.measure("Saved log file");
+			
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
 			FileUtils.deleteDirectory(new File(copyToDir));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
-			
-			Log.close();
-			m.measure("Saved log file");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
