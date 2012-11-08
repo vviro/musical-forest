@@ -73,7 +73,7 @@ public class Statistic {
 	public String getDistribution(int bins, int maxL) {
 		String ret = "";
 		double[] s = new double[bins];
-		double f = bins / (max - min);
+		double f = (bins-1) / (max - min);
 		double maxS = Double.MIN_VALUE;
 		for(int i=0; i<entries.size(); i++) {
 			s[(int)(entries.get(i)*f)] ++;
