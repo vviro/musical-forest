@@ -82,7 +82,7 @@ public class Statistic {
 			if (s[index] > maxS) maxS = s[index];
 		}
 		maxS/= (double)maxL;
-		DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
+		DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00000000" );
 		for(int i=0; i<s.length; i++) {
 			s[i]/=maxS;
 			ret += df2.format((i/f)+min) + ": ";
