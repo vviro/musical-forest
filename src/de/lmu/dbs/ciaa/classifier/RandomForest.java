@@ -72,16 +72,25 @@ public class RandomForest {
 			// TODO: Busy waiting, can be done more effectively, but not critical for this application
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
-				if (params.debugThreadPolling) System.out.print(timeStampFormatter.format(new Date()) + ": Active threads (node/eval): ");
 				boolean ret = true;
 				for(int i=0; i<trees.size(); i++) {
-					if (params.debugThreadPolling) System.out.print(trees.get(i).getThreadsActive(0) + "/" + trees.get(i).getThreadsActive(1) + " ");
 					if (!trees.get(i).isGrown()) {
 						ret = false;
 						if (!params.debugThreadPolling) break;
 					}
 				}
-				if (params.debugThreadPolling) System.out.println(" (sum: " + this.getThreadsActive(0) + "/" + this.getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+				if (params.debugThreadPolling) {
+					// Debug output
+					System.out.print(timeStampFormatter.format(new Date()) + ": Active node threads: ");
+					for(int i=0; i<trees.size(); i++) {
+						System.out.print(trees.get(i).getThreadsActive(0) + " ");
+					}
+					System.out.print("  Active eval threads: ");
+					for(int i=0; i<trees.size(); i++) {
+						System.out.print(trees.get(i).getThreadsActive(1) + " ");
+					}
+					System.out.println(" (sums: " + this.getThreadsActive(0) + "/" + this.getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+				}
 				if (ret) break;
 			}
 		}
