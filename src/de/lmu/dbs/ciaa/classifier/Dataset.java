@@ -9,6 +9,7 @@ import java.util.List;
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.FileIO;
 import de.lmu.dbs.ciaa.util.PostfixFilenameFilter;
 
@@ -106,6 +107,7 @@ public class Dataset {
 		MIDIAdapter ma = new MIDIAdapter(midiFile);
 		long duration = spectrum.length * step;
 		midi = ma.toDataArray(spectrum.length, duration, frequencies);
+		ArrayUtils.blur(midi, 0);
 		loaded = true;
 	}
 	

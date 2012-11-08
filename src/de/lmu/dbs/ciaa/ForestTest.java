@@ -14,6 +14,8 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * Generated data: ************************************************************************
  * 
+ * Last revision w/ pixelwise clasification: 943, ab da: multiclass
+ * 
  * Forests:
  * 0: 1/4/0.3/1/1 - Feature bei Ausreisser: Exceptions (Ignore bzw. rec. Right)
  * 1: 1/6/1.0/10/4 - Feature bei Ausreisser: MIN_VALUE

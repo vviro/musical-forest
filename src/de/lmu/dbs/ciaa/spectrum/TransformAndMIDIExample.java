@@ -32,7 +32,7 @@ public class TransformAndMIDIExample {
 		
 		// PNG parameters
 		int fspread = 1; // Scale factor for freq scale
-		String imgFile = "testimages/ciaa.png"; // PNG file
+		String imgFile = "testimages/ciaa2.png"; // PNG file
 		
 		// Transformation general parameters 
 		String wavFile = "WaveFiles/Test8_Mix.wav"; //args[1]; // WAV file
@@ -85,6 +85,7 @@ public class TransformAndMIDIExample {
 			MIDIAdapter midi = new MIDIAdapter(new File(midiFile));
 			long duration = (long)(mono.length*1000.0/src.getSampleRate()); // Audio length in milliseconds
 			byte[][] midiData = midi.toDataArray(data.length, duration, transformation.getFrequencies());
+			ArrayUtils.blur(midiData, 0);
 			m.measure("Finished loading and extracting MIDI from " + midiFile);
 			
 			// Save PNG image of the results

@@ -11,6 +11,43 @@ import java.nio.ByteBuffer;
 public class ArrayUtils {
 	
 	/**
+	 * Surrounds each value > threshold with a copy of it.
+	 * Used to broaden data arrays, i.e. to enlarge MIDI notes in spectra
+	 * to match their original bandwidth.
+	 * 
+	 * @param data
+	 * @param threshold
+	 */
+	public static void blur(byte[][] data, final int threshold) {
+		byte[][] ind = new byte[data.length][data[0].length];
+		for(int x=0; x<data.length; x++) {
+			for(int y=0; y<data[0].length; y++) {
+				if (data[x][y] > threshold) {
+					ind[x][y] = 1;
+				}
+			}
+		}
+		for(int x=0; x<data.length; x++) {
+			for(int y=0; y<data[0].length; y++) {
+				if (ind[x][y] > 0) {
+					try {
+						data[x-1][y] = data[x][y];
+					} catch (Exception e) {}
+					try {
+						data[x+1][y] = data[x][y];
+					} catch (Exception e) {}
+					try {
+						data[x][y-1] = data[x][y];
+					} catch (Exception e) {}
+					try {
+						data[x][y+1] = data[x][y];
+					} catch (Exception e) {}
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Uses a scaling instance on all array elements. these have all to be in the range [0,1].
 	 * 
 	 * @param data
