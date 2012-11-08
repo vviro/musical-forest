@@ -272,11 +272,12 @@ public class RandomTree extends Thread {
 		long[] noteRight = new long[paramSet.size()];
 		
 		int poolSize = sampler.getPoolSize();
-		List<RandomTreeWorker> workers = null;
-		if (params.evaluationThreadsLimit >= depth && params.maxNumOfEvaluationThreads > 0) workers = new ArrayList<RandomTreeWorker>();
+		//List<RandomTreeWorker> workers = null;
+		//if (params.evaluationThreadsLimit >= depth && params.maxNumOfEvaluationThreads > 0) workers = new ArrayList<RandomTreeWorker>();
 		for(int i=0; i<poolSize; i++) {
 
-			// Try to start a worker thread
+			// Try to start a worker thread (DISABLED because too much overhead, no performance gain)
+			/*
 			if (workers != null) {
 				synchronized (root.forest) { 
 					if (root.forest.getThreadsActive(1) < params.maxNumOfEvaluationThreads) {
@@ -288,7 +289,7 @@ public class RandomTree extends Thread {
 						continue;
 					}
 				}
-			}
+			}*/
 			
 			// Each dataset...load spectral data and midi
 			Dataset dataset = sampler.get(i);
@@ -326,6 +327,7 @@ public class RandomTree extends Thread {
 			}
 		}
 		// Wait for remaining workers
+		/*
 		if (workers != null && workers.size() > 0) {
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
@@ -351,6 +353,7 @@ public class RandomTree extends Thread {
 				}
 			}
 		}
+		*/
 
 		// Calculate shannon entropy for all parameter sets to get the best set
 		double[] gain = new double[paramSet.size()];

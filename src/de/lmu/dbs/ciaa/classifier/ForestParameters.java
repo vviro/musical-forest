@@ -43,18 +43,24 @@ public class ForestParameters {
 	public int maxDepth = -1;
 	
 	/**
-	 * Maximum amount of extra threads that can help growing the forest. For effective 
+	 * Maximum amount of extra threads that can help growing the forest. These 
+	 * threads take over the calculation of a complete node to its end. For effective 
 	 * calculation, at least each tree should have its own helping thread.
 	 */
 	public int maxNumOfNodeThreads = 0;
 	
 	/**
-	 * Maximum amount of worker threads that assist the nodes to grow. 
+	 * Maximum amount of evaluation threads. These Worker threads are dynamically 
+	 * created by the node classification algorithm. 
+	 * <br><br>
+	 * UNUSED: No performance gain, overhead more than gain... 
 	 */
 	public int maxNumOfEvaluationThreads = 0;
 	
 	/**
-	 * Maximum depth to use evaluation threads.
+	 * Dont use evaluation threads below that depth. 
+	 * <br><br>
+	 * UNUSED.
 	 */
 	public int evaluationThreadsLimit = 0;
 	
