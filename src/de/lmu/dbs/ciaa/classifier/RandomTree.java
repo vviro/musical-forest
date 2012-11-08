@@ -228,7 +228,6 @@ public class RandomTree extends Thread {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
 					Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
-					if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new thread at depth " + depth);
 					root.incThreadsActive(0);
 					t.start();
 					return;
@@ -484,8 +483,12 @@ public class RandomTree extends Thread {
 	 */
 	public void run() {
 		try {
+			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
+			
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive(0);
+			
+			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": <-- Thread at depth " + newThreadDepth + " released.");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

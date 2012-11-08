@@ -41,10 +41,12 @@ public class RandomTreeWorker extends Thread {
 	 */
 	public void run() {
 		try {
-			System.out.println("Started worker from tree " + root.num);
+			if (root.params.debugThreadForking) System.out.println("T" + root.num + ": Started new worker");
+			
 			result = work();
 			root.decThreadsActive(1);
-			System.out.println("Released worker from tree " + root.num);
+			
+			if (root.params.debugThreadForking) System.out.println("T" + root.num + ": Released worker");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

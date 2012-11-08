@@ -89,7 +89,7 @@ public class RandomForest {
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive(1) + " ");
 					}
-					System.out.println(" (sums: " + this.getThreadsActive(0) + "/" + this.getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+					System.out.println(" (sums: " + getThreadsActive(0) + "/" + getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
 				}
 				if (ret) break;
 			}
