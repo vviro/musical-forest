@@ -115,8 +115,8 @@ public class RandomForest {
 		int count = getNodeCount();
 		Log.write("Num of nodes: " + count, System.out);
 		long delta = System.currentTimeMillis() - startTime;
-		Log.write("Time elapsed: " + delta/1000.0, System.out);
-		Log.write("Avg. time per node: " + (delta/count)/1000.0, System.out);
+		Log.write("Time elapsed: " + delta/1000.0 + " sec", System.out);
+		Log.write("Avg. time per node: " + (delta/count)/1000.0 + " sec", System.out);
 		int poss = (int)Math.pow(2, params.maxDepth);
 		for(int i=0; i<trees.size(); i++) {
 			RandomTreeAnalyzable t = (RandomTreeAnalyzable)trees.get(i);
