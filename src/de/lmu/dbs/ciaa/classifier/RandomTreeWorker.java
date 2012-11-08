@@ -43,6 +43,7 @@ public class RandomTreeWorker extends Thread {
 		try {
 			result = work();
 			root.decThreadsActive(1);
+			System.out.println("Released worker from tree " + root.num);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

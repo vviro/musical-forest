@@ -85,7 +85,7 @@ public class RandomForest {
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive(0) + " ");
 					}
-					System.out.print("  Active eval threads: ");
+					System.out.print("  Active worker threads: ");
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive(1) + " ");
 					}
