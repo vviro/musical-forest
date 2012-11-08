@@ -1,5 +1,6 @@
 package de.lmu.dbs.ciaa.util;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,13 +77,15 @@ public class Statistic {
 		double f = (bins-1) / (max - min);
 		double maxS = Double.MIN_VALUE;
 		for(int i=0; i<entries.size(); i++) {
-			s[(int)(entries.get(i)*f)] ++;
-			if (s[(int)(entries.get(i)*f)] > maxS) maxS = s[(int)(entries.get(i)*f)];
+			int index = (int)((entries.get(i)-min)*f);
+			s[index] ++;
+			if (s[index] > maxS) maxS = s[index];
 		}
 		maxS/= (double)maxL;
+		DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
 		for(int i=0; i<s.length; i++) {
 			s[i]/=maxS;
-			ret += f*s[i] + ": ";
+			ret += df2.format((f*i)+min) + ": ";
 			for(int j=0; j<s[i]; j++) ret += "#";
 			ret += "\n";
 		}
