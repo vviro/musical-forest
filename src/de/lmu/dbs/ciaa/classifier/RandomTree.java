@@ -468,7 +468,7 @@ public class RandomTree extends Thread {
 	 * @param b
 	 * @return
 	 */
-	protected double getEntropy(final long a, final long b) {
+	public static double getEntropy(final long a, final long b) {
 		long all = a+b;
 		if(all <= 0) return 0;
 		double pa = (double)a/all;
