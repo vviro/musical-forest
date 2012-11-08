@@ -79,7 +79,7 @@ public class Statistic {
 			s[(int)(entries.get(i)*f)] ++;
 			if (s[(int)(entries.get(i)*f)] > maxS) maxS = s[(int)(entries.get(i)*f)];
 		}
-		maxS*= maxL;
+		maxS/= (double)maxL;
 		for(int i=0; i<s.length; i++) {
 			s[i]/=maxS;
 			ret += f*i + ": ";
