@@ -29,10 +29,10 @@
 	-->
 	<Forest
 		forestSize="2"
-		maxDepth="3"
-		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="1000"
-		thresholdCandidatesPerFeature="25"
+		maxDepth="4"
+		percentageOfRandomValuesPerFrame="0.2"
+		numOfRandomFeatures="500"
+		thresholdCandidatesPerFeature="20"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
 		entropyThreshold="5E-5"
 		
