@@ -42,8 +42,9 @@
 		yMax="0"
 		thresholdMax="0"
 		
-		maxNumOfNodeThreads="0"
+		maxNumOfNodeThreads="16"
 		maxNumOfEvaluationThreads="16"
+		evaluationThreadsLimit="0"
 		threadWaitTime="3000"
 	></Forest>
 

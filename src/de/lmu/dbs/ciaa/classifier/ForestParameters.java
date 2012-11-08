@@ -54,6 +54,11 @@ public class ForestParameters {
 	public int maxNumOfEvaluationThreads = 0;
 	
 	/**
+	 * Maximum depth to use evaluation threads.
+	 */
+	public int evaluationThreadsLimit = 0;
+	
+	/**
 	 * Milliseconds interval to check growth status in the forest.
 	 */
 	public long threadWaitTime = -1;

@@ -273,7 +273,7 @@ public class RandomTree extends Thread {
 		
 		int poolSize = sampler.getPoolSize();
 		List<RandomTreeWorker> workers = null;
-		if (params.maxNumOfEvaluationThreads > 0) workers = new ArrayList<RandomTreeWorker>();
+		if (params.evaluationThreadsLimit >= depth && params.maxNumOfEvaluationThreads > 0) workers = new ArrayList<RandomTreeWorker>();
 		for(int i=0; i<poolSize; i++) {
 
 			// Try to start a worker thread
