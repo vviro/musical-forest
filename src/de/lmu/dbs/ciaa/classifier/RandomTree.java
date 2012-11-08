@@ -330,14 +330,15 @@ public class RandomTree extends Thread {
 		if (workers != null && workers.size() > 0) {
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
-				if (params.debugThreadPolling) System.out.println(timeStampFormatter.format(new Date()) + ": Tree " + root.num + " waiting for total of " + workers.size() + " workers");
 				boolean fin = true;
+				int alive = 0;
 				for(int i=0; i<workers.size(); i++) {
 					if (!workers.get(i).isDone()) {
 						fin = false;
-						break;
-					}
+						//break;
+					} else alive++;
 				}
+				if (params.debugThreadPolling) System.out.println(timeStampFormatter.format(new Date()) + ": Tree " + root.num + " waiting for total of " + alive + " workers");
 				if (fin) break;
 			}
 			// Get workers results and add them to the local ones
