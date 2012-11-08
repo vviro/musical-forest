@@ -21,6 +21,16 @@ import de.lmu.dbs.ciaa.util.Statistic;
 public class RandomTree extends Thread {
 
 	/**
+	 * Statistic about the trees information gain.
+	 */
+	public Statistic infoGain;
+	
+	/**
+	 * Index of the tree in its forest.
+	 */
+	protected int num = -1;
+	
+	/**
 	 * Reference to the parent forest (only set in root tree instances, not in threaded recursion).
 	 */
 	protected RandomForest forest;
@@ -39,11 +49,6 @@ public class RandomTree extends Thread {
 	 * Log to base 2 for better performance
 	 */
 	public static final double LOG2 = Math.log(2);
-	
-	/**
-	 * Statistic about the trees information gain.
-	 */
-	public Statistic infoGain;
 	
 	/**
 	 * Number of active threads in this tree, excluding the calling thread.
@@ -92,11 +97,6 @@ public class RandomTree extends Thread {
 	protected int newThreadMaxDepth;
 	
 	/**
-	 * Index of the tree in a forest.
-	 */
-	protected int num = -1;
-	
-	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
 	 * the arguments of growRec to the new thread. See method growRec source code.
 	 * 
@@ -115,7 +115,7 @@ public class RandomTree extends Thread {
 	}
 	
 	/**
-	 * Creates a tree.
+	 * Creates a tree (main constructor).
 	 * 
 	 * @throws Exception 
 	 * 
@@ -198,32 +198,6 @@ public class RandomTree extends Thread {
 			}
 		}
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
-	}
-
-	/**
-	 * Wraps the growRec() method for multithreaded tree growing, using the 
-	 * instance attributes postfixed with "newThread".
-	 * Represents an "anonymous" RandomTree instance to wrap the growRec method. 
-	 * Results have to be watched with the isGrown method of the original RandomTree instance.
-	 * 
-	 */
-	public void run() {
-		try {
-			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			newThreadRoot.decThreadsActive();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
-	
-	/**
-	 * Returns if the tree is grown. For multithreading mode.
-	 * 
-	 * @return
-	 */
-	public boolean isGrown() {
-		return (threadsActive == 0);
 	}
 
 	/**
@@ -340,8 +314,18 @@ public class RandomTree extends Thread {
 				winner = i;
 			}
 		}
-		node.feature = paramSet.get(winner); 
-
+		// See in info gain is sufficient:
+		if (gain[winner] >= params.entropyThreshold) {
+			// Yes, save feature and continue recursion
+			node.feature = paramSet.get(winner);
+		} else {
+			// No, make leaf and return
+			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			return;
+		}
+		
+		
+		// Split values by winner feature for deeper branches
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
 		//List<byte[][]> classificationNextR = null;
 		/*int forestThreads = root.forest.getThreadsActive();
@@ -349,8 +333,6 @@ public class RandomTree extends Thread {
 			// For multithreaded use. In this case, we need an individual classification buffer for right recursion.
 			classificationNextR = new ArrayList<byte[][]>(sampler.getPoolSize());
 		} */
-		
-		// Split values by winner feature for deeper branches
 		for(int i=0; i<poolSize; i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
@@ -360,7 +342,6 @@ public class RandomTree extends Thread {
 			if (forestThreads < params.maxNumOfThreads) {
 				claNextR = new byte[data.length][params.frequencies.length];
 			}*/
-			
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<params.frequencies.length; y++) {
 					if (mode == cla[x][y]) {
@@ -374,7 +355,6 @@ public class RandomTree extends Thread {
 					}
 				}
 			}
-			
 			classificationNext.add(claNext);
 			/*if (claNextR != null) {
 				classificationNextR.add(claNextR);
@@ -457,6 +437,32 @@ public class RandomTree extends Thread {
 	}
 	
 	/**
+	 * Wraps the growRec() method for multithreaded tree growing, using the 
+	 * instance attributes postfixed with "newThread".
+	 * Represents an "anonymous" RandomTree instance to wrap the growRec method. 
+	 * Results have to be watched with the isGrown method of the original RandomTree instance.
+	 * 
+	 */
+	public void run() {
+		try {
+			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
+			newThreadRoot.decThreadsActive();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+	
+	/**
+	 * Returns if the tree is grown. For multithreading mode.
+	 * 
+	 * @return
+	 */
+	public boolean isGrown() {
+		return (threadsActive == 0);
+	}
+
+	/**
 	 * Saves the tree to a file.
 	 * 
 	 * @param file
@@ -483,35 +489,6 @@ public class RandomTree extends Thread {
 		ret.tree = (Node)ois.readObject();
 		ois.close();
 		return ret;
-	}
-	
-	/**
-	 * Returns a visualization of all node features of the forest. For debugging use.
-	 * 
-	 * @param data the array to store results (additive)
-	 */
-	public void visualize(int[][] data) {
-		tree.visualize(data);
-	}
-
-	/**
-	 * Returns the number of leafs in the tree.
-	 * 
-	 * @return
-	 */
-	public int getNumOfLeafs() {
-		return getNumOfLeafs(tree.left) + getNumOfLeafs(tree.right);
-	}
-	
-	/**
-	 * Returns the number of leafs in the tree. (Internal)
-	 * 
-	 * @param node
-	 * @return
-	 */
-	protected int getNumOfLeafs(Node node) {
-		if (node.isLeaf()) return 1;
-		return getNumOfLeafs(node.left) + getNumOfLeafs(node.right);
 	}
 	
 	/**

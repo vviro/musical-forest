@@ -65,13 +65,17 @@ import de.lmu.dbs.ciaa.util.*;
  * 
  * Optimierung:
  * 		- Make the application distributable
- * 		- lookup table für feature.evaluate? (später)
  * 
  * Testdaten:
  * 		- Performances von Vladimir
  * 
+ * Design:
+ * 		- Visualization etc. in getrennte klassen
+ * 
  * Forest:
- *		- Visualize Forest Nodes (Features)! Siehe Test 25, alles dieselben Parameter! Was ist am besten? 
+ * 		- Vladimir letzte email! -> f0 mit multi-class
+ *		- Visualize whole trees in image 
+ * 		- Information gain threshold !!
  * 		Feature:
  * 			- u und v auf gleicher frequenz (probieren)
  * 			- harmonics über eine verteilung verteilen? -> weil je weiter oben desto besser das ergebnis
@@ -80,7 +84,6 @@ import de.lmu.dbs.ciaa.util.*;
  * 		Allgemein:
  * 			- Entropy: Wird wirklich der maximale Infogehalt ermittelt?
  * 				-> Mit aktuelleren Features nochmal testen
- * 			- Information gain threshold?
  * 			- Mehrere verschiedene feaure-typen?
  * 				- f0-feature
  * 				- noteOn-feature (basiert auf fuzzy attacks)
@@ -110,6 +113,7 @@ public class ForestTest {
 		// Debug params (all others are loaded from settings.xml)
 		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
 		String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
+		//String treeImgFile = "featuresOverviewY.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
 		
@@ -149,20 +153,24 @@ public class ForestTest {
 			m.measure("Finished generating " + initialSet.size() + " initial data samples");
 
 			// Split data into training and testing parts (1:1)
-			List<Sampler<Dataset>> samplers = sampler.split(2);
+			/*List<Sampler<Dataset>> samplers = sampler.split(2);
 			out("Initial sampler size: " + sampler.getPoolSize());
 			out("Training sampler size: " + samplers.get(0).getPoolSize());
 			out("Testing sampler size: " + samplers.get(1).getPoolSize());
 			m.measure("Finished splitting training and test data");
+			*/
 			
 			// Grow forest with training part of data
 			RandomForest forest;
 			if (!params.loadForest) {
 				// Grow
 				forest= new RandomForest(params.forestSize, params);
-				forest.grow(samplers.get(0), params.maxDepth);
-				
+				//forest.grow(samplers.get(0));
+				forest.grow(sampler);
 				m.measure("Finished growing random forest");
+
+				forest.logTreeStats();
+				m.measure("Finished logging forest stats");
 	
 				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);
 				m.measure("Finished saving forest to file: " + params.workingFolder);
@@ -222,6 +230,18 @@ public class ForestTest {
 			imgF.save(new File(featuresFile));
 			m.measure("Saved feature visualization to " + featuresFile);
 
+			// Visualize features (tree, y only)
+			/*List<int[]> treeVisualization = forest.visualizeTree(params);
+			int[][] treeVisualizationGrid = new int[treeVisualization.size()][featuresVisualization[0].length];
+			for(int i=0; i<featuresVisualizationGrid.length; i++) {
+				treeVisualizationGrid[i] = treeVisualization.get(i);
+			}
+			String treeFile = params.workingFolder + File.separator + treeImgFile;
+			SpectrumToImage imgY = new SpectrumToImage(treeVisualizationGrid.length, treeVisualizationGrid[0].length, 1, 1);
+			imgY.add(featuresVisualizationGrid, Color.BLUE, null, 0);
+			imgY.save(new File(featuresFile));
+			m.measure("Saved feature visualization to " + featuresFile);
+*/
 			Log.close();
 			m.measure("Saved log file");
 			

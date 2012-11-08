@@ -100,6 +100,13 @@ public class ForestParameters {
 	public int thresholdCandidatesPerFeature = -1;
 	
 	/**
+	 * Threshold for information gain of the winner feature in growing a node. If info gain is 
+	 * below entropyThreshold, the node will become a leaf. Values below zero will disable the
+	 * threshold and calculate all nodes down to maxDepth. 
+	 */
+	public double entropyThreshold = -1;
+	
+	/**
 	 * Number of frequency bins per octave. Has to be equal to the CQT equivalent parameter.
 	 */
 	public double binsPerOctave = -1;

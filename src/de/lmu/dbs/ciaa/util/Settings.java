@@ -84,6 +84,7 @@ public class Settings {
 		r.threadWaitTime = Integer.parseInt(forest.getAttributeValue("threadWaitTime"));
 		r.percentageOfRandomValuesPerFrame = Double.parseDouble(forest.getAttributeValue("percentageOfRandomValuesPerFrame"));
 		r.numOfRandomFeatures = Integer.parseInt(forest.getAttributeValue("numOfRandomFeatures"));
+		r.entropyThreshold = Double.parseDouble(forest.getAttributeValue("entropyThreshold"));
 		r.xMin = Integer.parseInt(forest.getAttributeValue("xMin"));
 		r.xMax = Integer.parseInt(forest.getAttributeValue("xMax"));
 		r.yMin = Integer.parseInt(forest.getAttributeValue("yMin"));

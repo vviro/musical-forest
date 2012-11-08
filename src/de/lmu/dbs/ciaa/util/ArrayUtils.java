@@ -307,9 +307,34 @@ public class ArrayUtils {
 	 * @param end
 	 */
 	public static <T> void out(T[] in, int start, int end) {
+		System.out.println(toString(in, start, end));
+	}
+	
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param <T>
+	 * @param in
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static <T> String toString(T[] in, int start, int end) {
+		String ret = "";
 		for(int i=start; i<=end && i<in.length; i++) {
-			System.out.println(i + ": " + in[i]);
+			ret+= i + ": " + in[i] + "\n";
 		}
+		return ret;
+	}
+	
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static <T> String toString(T[] in) {
+		return toString(in, 0, in.length-1);
 	}
 
 	/**
@@ -339,11 +364,35 @@ public class ArrayUtils {
 	 * @param end
 	 */
 	public static void out(int[] in, int start, int end) {
-		for(int i=start; i<=end && i<in.length; i++) {
-			System.out.println(i + ": " + in[i]);
-		}
+		System.out.println(toString(in, start, end));
 	}
 
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String toString(int[] in, int start, int end) {
+		String ret = "";
+		for(int i=start; i<=end && i<in.length; i++) {
+			ret += i + ": " + in[i] + "\n";
+		}
+		return ret;
+	}
+	
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static String toString(int[] in) {
+		return toString(in, 0, in.length-1);
+	}
+	
 	/**
 	 * Print array to System.out.
 	 * 
@@ -371,9 +420,33 @@ public class ArrayUtils {
 	 * @param end
 	 */
 	public static void out(long[] in, int start, int end) {
+		System.out.println(toString(in,start, end));
+	}
+
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static String toString(long[] in) {
+		return toString(in, 0, in.length-1);
+	}
+
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String toString(long[] in, int start, int end) {
+		String ret = "";
 		for(int i=start; i<=end && i<in.length; i++) {
-			System.out.println(i + ": " + in[i]);
+			ret+= i + ": " + in[i] + "\n";
 		}
+		return ret;
 	}
 
 	/**
@@ -403,8 +476,32 @@ public class ArrayUtils {
 	 * @param end
 	 */
 	public static void out(double[] in, int start, int end) {
+		System.out.println(toString(in, start, end));
+	}
+
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static String toString(double[] in) {
+		return toString(in, 0, in.length-1);
+	}
+
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String toString(double[] in, int start, int end) {
+		String ret = "";
 		for(int i=start; i<=end && i<in.length; i++) {
-			System.out.println(i + ": " + in[i]);
+			ret+= i + ": " + in[i] + "\n";
 		}
+		return ret;
 	}
 }

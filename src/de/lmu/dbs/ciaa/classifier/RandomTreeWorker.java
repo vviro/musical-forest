@@ -4,6 +4,12 @@ import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.Feature;
 
+/**
+ * UNUSED
+ * 
+ * @author tom
+ *
+ */
 public class RandomTreeWorker extends Thread {
 
 	protected List<Feature> paramSet = null;

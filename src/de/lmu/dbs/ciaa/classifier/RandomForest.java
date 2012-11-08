@@ -37,7 +37,7 @@ public class RandomForest {
 		// Generate trees
 		this.trees = new ArrayList<RandomTree>();
 		for(int i=0; i<numTrees; i++) {
-			this.trees.add(new RandomTree(params, this, i));
+			this.trees.add(new RandomTreeAnalyzable(params, this, i));
 		}
 	}
 	
@@ -62,10 +62,10 @@ public class RandomForest {
 	 * @param sampler data provider
 	 * @throws Exception
 	 */
-	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
+	public void grow(final Sampler<Dataset> sampler) throws Exception {
 		for(int i=0; i<trees.size(); i++) {
-			Log.write("Growing tree " + i + " to depth " + maxDepth);
-			trees.get(i).grow(sampler.getSample(), maxDepth);
+			Log.write("Growing tree " + i + " to depth " + params.maxDepth);
+			trees.get(i).grow(sampler.getSample(), params.maxDepth);
 		}
 		if (params.maxNumOfThreads > 0) {
 			// Multithreading is active, so wait for the results 
@@ -85,13 +85,24 @@ public class RandomForest {
 				if (ret) break;
 			}
 		}
-		// Debug tree stats
+	}
+	
+	/**
+	 * Debug tree stats to Log.
+	 * 
+	 * @throws Exception 
+	 * 
+	 */
+	public void logTreeStats() throws Exception {
 		Log.write("");
 		Log.write("### Forest stats ###");
-		int poss = (int)Math.pow(2, maxDepth);
+		int poss = (int)Math.pow(2, params.maxDepth);
 		for(int i=0; i<trees.size(); i++) {
-			Log.write("Tree " + i + ": " + trees.get(i).getNumOfLeafs() +  " leafs of possible " + poss + "; Information gain: " + trees.get(i).infoGain);
-			Log.write("Distribution of gains:\n" + trees.get(i).infoGain.getDistribution(20, 80));
+			RandomTreeAnalyzable t = (RandomTreeAnalyzable)trees.get(i);
+			Log.write("Tree " + i + ": " + t.getNumOfLeafs() +  " leafs of possible " + poss + "; Information gain: " + t.infoGain);
+			Log.write("Count nodes at depths:\n" + t.getDepthCountsString());
+			Log.write("Tree structure:\n" + t.getTreeVisualization());
+			Log.write("Distribution of gains:\n" + t.infoGain.getDistributionString(20, 80));
 		}
 	}
 
@@ -166,7 +177,7 @@ public class RandomForest {
 	public int[][] visualize(ForestParameters params) {
 		int[][] ret = new int[(params.xMax - params.xMin + 1)*2][params.frequencies.length];
 		for(int i=0; i<trees.size(); i++) {
-			trees.get(i).visualize(ret);
+			((RandomTreeAnalyzable)trees.get(i)).visualize(ret);
 		}
 		return ret;
 	}

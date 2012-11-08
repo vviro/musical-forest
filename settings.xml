@@ -11,7 +11,9 @@
 		percentageOfRandomValuesPerFrame: Percentage of vlaues randomly picked from the test data per frame. Has to be in range [0,1].
 		numOfRandomFeatures:              Number of randomly created feature candidates to be evaluated in each node while growing the forest. 
 		thresholdCandidatesPerFeature:    Number of thresholds for each generated feature candidate.
-		featureFactoryClass:              Class name of the feature to be used. 
+		featureFactoryClass:              Class name of the feature to be used.
+		entropyThreshold:                 Threshold for information gain of the winner feature in growing a node. If info gain is below 
+		                                  entropyThreshold, the node will become a leaf. 
 
 		### Feature parameters ###
 		xMin:         Min x deviation
@@ -26,13 +28,14 @@
 		threadWaitTime:  Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
-		forestSize="8"
+		forestSize="4"
 		maxDepth="4"
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="100"
 		thresholdCandidatesPerFeature="20"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3"
-
+		entropyThreshold="1E-6"
+		
 		xMin="0"
 		xMax="0"
 		yMin="0"
