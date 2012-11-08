@@ -42,7 +42,7 @@ public class RandomTreeWorker extends Thread {
 	public void run() {
 		try {
 			result = work();
-			root.decThreadsActive();
+			root.decThreadsActive(1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

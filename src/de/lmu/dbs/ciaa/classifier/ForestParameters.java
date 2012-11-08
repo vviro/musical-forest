@@ -46,16 +46,17 @@ public class ForestParameters {
 	 * Maximum amount of extra threads that can help growing the forest. For effective 
 	 * calculation, at least each tree should have its own helping thread.
 	 */
-	public int maxNumOfThreads = 0;
+	public int maxNumOfNodeThreads = 0;
+	
+	/**
+	 * Maximum amount of worker threads that assist the nodes to grow. 
+	 */
+	public int maxNumOfEvaluationThreads = 0;
 	
 	/**
 	 * Milliseconds interval to check growth status in the forest.
 	 */
 	public long threadWaitTime = -1;
-
-	public boolean enableNodeThreading = false;
-	
-	public boolean enableEvaluationThreading = false;
 	
 	/**
 	 * For each data frame, this represents the percentage of the values to be picked initially
@@ -193,7 +194,8 @@ public class ForestParameters {
 		if (fMax < 1) throw new Exception("You have to set the maximum frequency of spectral data");
 		if (forestSize < 1) throw new Exception("Forest must have at least one tree: " + forestSize);
 		if (maxDepth < 1) throw new Exception("Maximum tree depth has to be at least 1: " + maxDepth);
-		if (maxNumOfThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfThreads);
+		if (maxNumOfNodeThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfNodeThreads);
+		if (maxNumOfEvaluationThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfEvaluationThreads);
 		if (threadWaitTime < 10) throw new Exception("Thread wait time too short: " + threadWaitTime);
 		if (step < 1) throw new Exception("Frame step in samples too low: " + step);
 		if (threshold < 0) throw new Exception("CQT transformation threshold is too low: " + threshold);

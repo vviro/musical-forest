@@ -53,9 +53,14 @@ public class RandomTree extends Thread {
 	public static final double LOG2 = Math.log(2);
 	
 	/**
-	 * Number of active threads in this tree, excluding the calling thread.
+	 * Number of active node threads in this tree, excluding the calling thread.
 	 */
-	protected int threadsActive = 0;
+	protected int nodeThreadsActive = 0;
+	
+	/**
+	 * Number of active evaluation worker threads in this tree, excluding the calling thread.
+	 */
+	protected int evaluationThreadsActive = 0;
 	
 	/**
 	 * The attributes with prefix "newThread" are used to transport parameters
@@ -217,14 +222,14 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		if (params.enableNodeThreading) {
+		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
-				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfThreads)) {
+				if (multithreading && (root.forest.getThreadsActive(0) < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
 					Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
 					if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new thread at depth " + depth);
-					root.incThreadsActive();
+					root.incThreadsActive(0);
 					t.start();
 					return;
 				}
@@ -269,16 +274,16 @@ public class RandomTree extends Thread {
 		
 		int poolSize = sampler.getPoolSize();
 		List<RandomTreeWorker> workers = null;
-		if (params.enableEvaluationThreading) workers = new ArrayList<RandomTreeWorker>();
+		if (params.maxNumOfEvaluationThreads > 0) workers = new ArrayList<RandomTreeWorker>();
 		for(int i=0; i<poolSize; i++) {
 
 			// Try to start a worker thread
 			if (workers != null) {
 				synchronized (root.forest) { 
-					if (root.forest.getThreadsActive() < params.maxNumOfThreads) {
+					if (root.forest.getThreadsActive(1) < params.maxNumOfEvaluationThreads) {
 						RandomTreeWorker t = new RandomTreeWorker(root, paramSet, sampler, classification, mode);
 						if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new worker thread at depth " + depth + " for pool entry " + i);
-						root.incThreadsActive();
+						root.incThreadsActive(1);
 						t.start();
 						workers.add(t);
 						continue;
@@ -325,7 +330,7 @@ public class RandomTree extends Thread {
 		if (workers != null && workers.size() > 0) {
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
-				if (params.debugThreadPolling) System.out.print(timeStampFormatter.format(new Date()) + ": Tree " + root.num + " waiting for total of " + workers.size() + " workers");
+				if (params.debugThreadPolling) System.out.println(timeStampFormatter.format(new Date()) + ": Tree " + root.num + " waiting for total of " + workers.size() + " workers");
 				boolean fin = true;
 				for(int i=0; i<workers.size(); i++) {
 					if (!workers.get(i).isDone()) {
@@ -479,7 +484,7 @@ public class RandomTree extends Thread {
 	public void run() {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			newThreadRoot.decThreadsActive();
+			newThreadRoot.decThreadsActive(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -492,7 +497,7 @@ public class RandomTree extends Thread {
 	 * @return
 	 */
 	public boolean isGrown() {
-		return (threadsActive == 0);
+		return (nodeThreadsActive == 0) && (evaluationThreadsActive == 0);
 	}
 
 	/**
@@ -527,29 +532,53 @@ public class RandomTree extends Thread {
 	/**
 	 * Returns the amount of active threads for this tree.
 	 * 
+	 * @param mode: 0: node, 1: evaluation
 	 * @return
+	 * @throws Exception 
 	 */
-	public synchronized int getThreadsActive() {
-		return threadsActive;
+	public synchronized int getThreadsActive(int mode) throws Exception {
+		if (mode == 0) return nodeThreadsActive;
+		if (mode == 1) return evaluationThreadsActive;
+		throw new Exception("Invalid mode: " + mode);
 	}
 	
 	/**
 	 * Decreases the thread counter for this tree.
 	 * 
+	 * @param mode: 0: node, 1: evaluation
 	 * @throws Exception
 	 */
-	protected synchronized void incThreadsActive() throws Exception {
-		threadsActive++;
-		if (threadsActive > params.maxNumOfThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfThreads + ": " + threadsActive);
+	protected synchronized void incThreadsActive(int mode) throws Exception {
+		if (mode == 0) {
+			nodeThreadsActive++;
+			if (nodeThreadsActive > params.maxNumOfNodeThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfNodeThreads + ": " + nodeThreadsActive);
+			return;
+		}
+		if (mode == 1) {
+			evaluationThreadsActive++;
+			if (evaluationThreadsActive > params.maxNumOfEvaluationThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfEvaluationThreads + ": " + evaluationThreadsActive);
+			return;
+		}
+		throw new Exception("Invalid mode: " + mode);
 	}
 
 	/**
 	 * Increases the thread counter for this tree.
 	 * 
+	 * @param mode: 0: node, 1: evaluation
 	 * @throws Exception
 	 */
-	protected synchronized void decThreadsActive() throws Exception {
-		threadsActive--;
-		if (threadsActive < 0) throw new Exception("Thread amount below zero: " + threadsActive);
+	protected synchronized void decThreadsActive(int mode) throws Exception {
+		if (mode == 0) {
+			nodeThreadsActive--;
+			if (nodeThreadsActive < 0) throw new Exception("Thread amount below zero: " + nodeThreadsActive);
+			return;
+		}
+		if (mode == 1) {
+			evaluationThreadsActive--;
+			if (evaluationThreadsActive < 0) throw new Exception("Thread amount below zero: " + evaluationThreadsActive);
+			return;
+		}
+		throw new Exception("Invalid mode: " + mode);
 	}
 }

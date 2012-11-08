@@ -67,21 +67,21 @@ public class RandomForest {
 			Log.write("Growing tree " + i + " to depth " + params.maxDepth);
 			trees.get(i).grow(sampler.getSample(), params.maxDepth);
 		}
-		if (params.maxNumOfThreads > 0) {
+		if (params.maxNumOfNodeThreads > 0) {
 			// Multithreading is active, so wait for the results 
 			// TODO: Busy waiting, can be done more effectively, but not critical for this application
 			while(true) {
 				Thread.sleep(params.threadWaitTime);
+				if (params.debugThreadPolling) System.out.print(timeStampFormatter.format(new Date()) + ": Active threads (node/eval): ");
 				boolean ret = true;
-				if (params.debugThreadPolling) System.out.print(timeStampFormatter.format(new Date()) + ": Active threads: ");
 				for(int i=0; i<trees.size(); i++) {
-					if (params.debugThreadPolling) System.out.print(trees.get(i).getThreadsActive() + " ");
+					if (params.debugThreadPolling) System.out.print(trees.get(i).getThreadsActive(0) + "/" + trees.get(i).getThreadsActive(1) + " ");
 					if (!trees.get(i).isGrown()) {
 						ret = false;
 						if (!params.debugThreadPolling) break;
 					}
 				}
-				if (params.debugThreadPolling) System.out.println(" (sum: " + this.getThreadsActive() + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+				if (params.debugThreadPolling) System.out.println(" (sum: " + this.getThreadsActive(0) + "/" + this.getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
 				if (ret) break;
 			}
 		}
@@ -185,12 +185,14 @@ public class RandomForest {
 	/**
 	 * Returns the overall amount of threads being active.
 	 * 
+	 * @param mode: 0: node, 1: evaluation
 	 * @return
+	 * @throws Exception 
 	 */
-	public synchronized int getThreadsActive() {
+	public synchronized int getThreadsActive(int mode) throws Exception {
 		int ret = 0;
 		for(int i=0; i<trees.size(); i++) {
-			ret += trees.get(i).getThreadsActive();
+			ret += trees.get(i).getThreadsActive(mode);
 		}
 		return ret;
 	}
