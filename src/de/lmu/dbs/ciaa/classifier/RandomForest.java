@@ -87,8 +87,9 @@ public class RandomForest {
 		}
 		// Debug tree stats
 		Log.write("Number of leafs:");
+		int poss = (int)Math.pow(2, maxDepth);
 		for(int i=0; i<trees.size(); i++) {
-			Log.write("Tree " + i + ": " + trees.get(i).getNumOfLeafs());
+			Log.write("Tree " + i + ": " + trees.get(i).getNumOfLeafs() +  " of " + poss + "; Information gain: " + trees.get(i).infoGain);
 		}
 	}
 

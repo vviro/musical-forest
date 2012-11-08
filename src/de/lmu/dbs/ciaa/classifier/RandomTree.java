@@ -10,6 +10,7 @@ import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.util.Log;
+import de.lmu.dbs.ciaa.util.Statistic;
 
 /**
  * Represents one random decision tree.
@@ -38,6 +39,11 @@ public class RandomTree extends Thread {
 	 * Log to base 2 for better performance
 	 */
 	public static final double LOG2 = Math.log(2);
+	
+	/**
+	 * Statistic about the trees information gain.
+	 */
+	public Statistic infoGain;
 	
 	/**
 	 * Number of active threads in this tree, excluding the calling thread.
@@ -119,6 +125,7 @@ public class RandomTree extends Thread {
 		this.params = params;
 		this.forest = forest;
 		this.num = num;
+		this.infoGain = new Statistic();
 	}
 	
 	/**
@@ -375,6 +382,7 @@ public class RandomTree extends Thread {
 		}
 		
 		// Debug //////////////////////////////////////////
+		root.infoGain.add(gain[winner]);
 		if (params.logNodeInfo) {
 			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner] + " Threshold: " + paramSet.get(winner).threshold);
 			Log.write(pre + "Left: " + silenceLeft[winner] + " + " + noteLeft[winner] + " = " + (silenceLeft[winner]+noteLeft[winner]));
