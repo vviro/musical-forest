@@ -68,7 +68,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	public float classify(final byte[][] data, final int x, final int y) throws Exception {
-		return classifyRec(data, tree, x, y);
+		return classifyRec(data, tree, 0, x, y);
 	}
 	
 	/**
@@ -81,14 +81,14 @@ public class RandomTree extends Tree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float classifyRec(final byte[][] data, final Node node, final int x, final int y) throws Exception {
+	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
-			return node.probabilities[y];
+			return (mode==1) ? 1 : 0; //node.probabilities[y];
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				return 1; //classifyRec(data, node.left, x, y);
+				return classifyRec(data, node.left, 1, x, y);
 			} else {
-				return 0; //classifyRec(data, node.right, x, y);
+				return classifyRec(data, node.right, 2, x, y);
 			}
 		}
 	}
