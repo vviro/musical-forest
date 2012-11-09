@@ -123,7 +123,7 @@ public class Forest {
 			Tree t = trees.get(i);
 			Log.write("Tree " + i + ": " + ana.getNumOfLeafs(t) +  " leafs of possible " + poss + "; Information gain: " + t.getInfoGain());
 			Log.write("Count nodes at depths:\n" + ana.getDepthCountsString(t));
-			//Log.write("Tree structure:\n" + t.getTreeVisualization());
+			Log.write("Tree structure:\n" + ana.getTreeVisualization(t));
 			Log.write("Distribution of gains:\n" + t.getInfoGain().getDistributionString(20, 80));
 		}
 	}

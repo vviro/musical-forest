@@ -32,7 +32,7 @@ public class Node implements Serializable {
 	/**
 	 * If the node is a leaf, here the probabilities for each frequency are stored
 	 */
-	public float[] probabilities = null; 
+	//public float[] probabilities = null; 
 	
 	public float probability = 0;
 	
@@ -42,7 +42,8 @@ public class Node implements Serializable {
 	 * @return
 	 */
 	public boolean isLeaf() {
-		return (probabilities != null);
+		//return (probabilities != null);
+		return (left == null) && (right == null);
 	}
 	
 	/**

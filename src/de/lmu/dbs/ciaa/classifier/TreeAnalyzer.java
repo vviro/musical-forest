@@ -119,7 +119,7 @@ public class TreeAnalyzer {
 		int div = (int)Math.pow(2, depth);
 		int x = (all/div) * part;
 		int i = x + (all/div)/2 + 2;
-		String c = node.isLeaf() ? "#" : ((mode==0) ? "0" : ((mode==1) ? "L" : "R"));
+		String c = node.isLeaf() ? ""+node.probability : ((mode==0) ? "0" : ((mode==1) ? "L" : "R"));
 		s[depth] = s[depth].substring(0, i) + c + s[depth].substring(i+1, s[depth].length());
 		
 		if (!node.isLeaf()) {
