@@ -259,7 +259,6 @@ public class RandomTree extends Tree {
 		int winnerThreshold = 0;
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				root.infoGain.add(gain[i][j]);
 				if(gain[i][j] > max) {
 					max = gain[i][j];
 					winner = i;
@@ -269,7 +268,7 @@ public class RandomTree extends Tree {
 		}
 
 		// Debug //////////////////////////////////////////
-		//root.infoGain.add(gain[winner][winnerThreshold]);
+		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
 			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold] + " Threshold: " + thresholds[winner][winnerThreshold]);
 			Log.write(pre + "Left: " + silenceLeft[winner][winnerThreshold] + " + " + noteLeft[winner][winnerThreshold] + " = " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]));
