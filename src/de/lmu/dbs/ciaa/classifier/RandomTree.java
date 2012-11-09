@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,99 +13,13 @@ import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.Statistic;
 
 /**
- * Represents one random decision tree.
+ * Represents one random decision tree, with pixelwise classification.
  * 
  * @author Thomas Weber
  *
  */
-public class RandomTree extends Thread {
+public class RandomTree extends Tree {
 
-	/**
-	 * Statistic about the trees information gain.
-	 */
-	public Statistic infoGain;
-	
-	/**
-	 * Index of the tree in its forest.
-	 */
-	protected int num = -1;
-	
-	/**
-	 * Reference to the parent forest (only set in root tree instances, not in threaded recursion).
-	 */
-	protected RandomForest forest;
-	
-	/**
-	 * The actual tree structure
-	 */
-	protected Node tree = new Node();
-	
-	/**
-	 * The parameter set used to grow the tree
-	 */
-	protected ForestParameters params = null;
-
-	/**
-	 * Log to base 2 for better performance
-	 */
-	public static final double LOG2 = Math.log(2);
-	
-	/**
-	 * Number of active node threads in this tree, excluding the calling thread.
-	 */
-	protected int nodeThreadsActive = 0;
-	
-	/**
-	 * Number of active evaluation worker threads in this tree, excluding the calling thread.
-	 */
-	protected int evaluationThreadsActive = 0;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected Sampler<Dataset> newThreadSampler;
-
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected List<byte[][]> newThreadClassification;
-
-	/**
-	 * Root tree instance, used for multithreading to watch active threads.
-	 */
-	protected RandomTree newThreadRoot;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected Node newThreadNode;
-
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected int newThreadMode;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected int newThreadDepth;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected int newThreadMaxDepth;
-	
-	/**
-	 * Date formatter for debug output.
-	 */
-	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
-	
 	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
 	 * the arguments of growRec to the new thread. See method growRec source code.
@@ -114,8 +27,8 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth) throws Exception {
-		this(params, null, -1);
+	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth) throws Exception {
+		this(params, -1);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -131,10 +44,9 @@ public class RandomTree extends Thread {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, RandomForest forest, int num) throws Exception {
+	public RandomTree(ForestParameters params, int num) throws Exception {
 		params.check();
 		this.params = params;
-		this.forest = forest;
 		this.num = num;
 		this.infoGain = new Statistic();
 	}
@@ -220,14 +132,14 @@ public class RandomTree extends Thread {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
+	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
 		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
-				if (multithreading && (root.forest.getThreadsActive(0) < params.maxNumOfNodeThreads)) {
+				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Thread t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
-					root.incThreadsActive(0);
+					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
+					root.incThreadsActive();
 					t.start();
 					return;
 				}
@@ -275,21 +187,6 @@ public class RandomTree extends Thread {
 		//if (params.evaluationThreadsLimit >= depth && params.maxNumOfEvaluationThreads > 0) workers = new ArrayList<RandomTreeWorker>();
 		for(int i=0; i<poolSize; i++) {
 
-			// Try to start a worker thread (DISABLED because too much overhead, no performance gain)
-			/*
-			if (workers != null) {
-				synchronized (root.forest) { 
-					if (root.forest.getThreadsActive(1) < params.maxNumOfEvaluationThreads) {
-						RandomTreeWorker t = new RandomTreeWorker(root, paramSet, sampler, classification, mode);
-						if (params.debugThreadForking) System.out.println("T" + root.num + ": --> Forking new worker thread at depth " + depth + " for pool entry " + i);
-						root.incThreadsActive(1);
-						t.start();
-						workers.add(t);
-						continue;
-					}
-				}
-			}*/
-			
 			// Each dataset...load spectral data and midi
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
@@ -325,34 +222,6 @@ public class RandomTree extends Thread {
 				}
 			}
 		}
-		// Wait for remaining workers
-		/*
-		if (workers != null && workers.size() > 0) {
-			while(true) {
-				Thread.sleep(params.threadWaitTime);
-				boolean fin = true;
-				int alive = 0;
-				for(int i=0; i<workers.size(); i++) {
-					if (!workers.get(i).isDone()) {
-						fin = false;
-						//break;
-					} else alive++;
-				}
-				//if (params.debugThreadPolling) System.out.println(timeStampFormatter.format(new Date()) + ": Tree " + root.num + " waiting for total of " + alive + " workers");
-				if (fin) break;
-			}
-			// Get workers results and add them to the local ones
-			for(int i=0; i<workers.size(); i++) {
-				RandomTreeWorker w = workers.get(i);
-				for (int j=0; j<paramSet.size(); j++) {
-					silenceLeft[j] += w.result[0][j];
-					noteLeft[j] += w.result[1][j];
-					silenceRight[j] += w.result[2][j];
-					noteRight[j] += w.result[3][j];
-				}
-			}
-		}
-		*/
 
 		// Calculate shannon entropy for all parameter sets to get the best set
 		double[] gain = new double[paramSet.size()];
@@ -486,36 +355,6 @@ public class RandomTree extends Thread {
 	}
 	
 	/**
-	 * Wraps the growRec() method for multithreaded tree growing, using the 
-	 * instance attributes postfixed with "newThread".
-	 * Represents an "anonymous" RandomTree instance to wrap the growRec method. 
-	 * Results have to be watched with the isGrown method of the original RandomTree instance.
-	 * 
-	 */
-	public void run() {
-		try {
-			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
-			
-			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			newThreadRoot.decThreadsActive(0);
-			
-			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": <-- Thread at depth " + newThreadDepth + " released.");
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
-	
-	/**
-	 * Returns if the tree is grown. For multithreading mode.
-	 * 
-	 * @return
-	 */
-	public boolean isGrown() {
-		return (nodeThreadsActive == 0) && (evaluationThreadsActive == 0);
-	}
-
-	/**
 	 * Saves the tree to a file.
 	 * 
 	 * @param file
@@ -544,56 +383,4 @@ public class RandomTree extends Thread {
 		return ret;
 	}
 	
-	/**
-	 * Returns the amount of active threads for this tree.
-	 * 
-	 * @param mode: 0: node, 1: evaluation
-	 * @return
-	 * @throws Exception 
-	 */
-	public synchronized int getThreadsActive(int mode) throws Exception {
-		if (mode == 0) return nodeThreadsActive;
-		if (mode == 1) return evaluationThreadsActive;
-		throw new Exception("Invalid mode: " + mode);
-	}
-	
-	/**
-	 * Decreases the thread counter for this tree.
-	 * 
-	 * @param mode: 0: node, 1: evaluation
-	 * @throws Exception
-	 */
-	protected synchronized void incThreadsActive(int mode) throws Exception {
-		if (mode == 0) {
-			nodeThreadsActive++;
-			if (nodeThreadsActive > params.maxNumOfNodeThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfNodeThreads + ": " + nodeThreadsActive);
-			return;
-		}
-		if (mode == 1) {
-			evaluationThreadsActive++;
-			if (evaluationThreadsActive > params.maxNumOfEvaluationThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfEvaluationThreads + ": " + evaluationThreadsActive);
-			return;
-		}
-		throw new Exception("Invalid mode: " + mode);
-	}
-
-	/**
-	 * Increases the thread counter for this tree.
-	 * 
-	 * @param mode: 0: node, 1: evaluation
-	 * @throws Exception
-	 */
-	protected synchronized void decThreadsActive(int mode) throws Exception {
-		if (mode == 0) {
-			nodeThreadsActive--;
-			if (nodeThreadsActive < 0) throw new Exception("Thread amount below zero: " + nodeThreadsActive);
-			return;
-		}
-		if (mode == 1) {
-			evaluationThreadsActive--;
-			if (evaluationThreadsActive < 0) throw new Exception("Thread amount below zero: " + evaluationThreadsActive);
-			return;
-		}
-		throw new Exception("Invalid mode: " + mode);
-	}
 }

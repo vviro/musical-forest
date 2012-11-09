@@ -26,18 +26,15 @@
 		maxNumOfNodeThreads:       Maximum amount of extra threads that can help growing the forest. These threads
 		                           take over the calculation of a complete node to its end. For effective
 		                           calculation, at least each tree should have its own helping thread.
-		maxNumOfEvaluationThreads: UNUSED: Maximum amount of evaluation threads. These Worker threads are dynamically
-		                           created by the node classification algorithm. No performance gain, overhead is way more than gain...
-		evaluationThreadsLimit:    UNUSED: Dont use evaluation threads below that depth.  
 		threadWaitTime:            Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
 		forestSize="4"
 		maxDepth="4"
-		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="20"
-		thresholdCandidatesPerFeature="10"
-		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
+		percentageOfRandomValuesPerFrame="0.8"
+		numOfRandomFeatures="50"
+		thresholdCandidatesPerFeature="20"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic3b"
 		entropyThreshold="1E-7"
 		
 		xMin="0"
@@ -47,8 +44,6 @@
 		thresholdMax="0"
 		
 		maxNumOfNodeThreads="12"
-		maxNumOfEvaluationThreads="0"
-		evaluationThreadsLimit="0"
 		threadWaitTime="3000"
 	></Forest>
 

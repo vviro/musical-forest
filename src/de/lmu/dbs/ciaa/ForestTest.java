@@ -16,6 +16,8 @@ import de.lmu.dbs.ciaa.util.*;
  * 
  * Last revision w/ pixelwise clasification: 943, ab da: multiclass
  * 											 945 auch, mit "Fat MIDI"
+ * 											 948 auch, mit Tree usw.
+ * 											 949 auch, ohne evaluation threads/workers
  * 
  * Forests:
  * 0: 1/4/0.3/1/1 - Feature bei Ausreisser: Exceptions (Ignore bzw. rec. Right)
@@ -72,21 +74,15 @@ import de.lmu.dbs.ciaa.util.*;
  * Testdaten:
  * 		- Performances von Vladimir
  * 
- * Design:
- * 		- Visualization etc. in getrennte klassen
- * 
  * Forest:
  * 		- Vladimir letzte email! -> f0 mit multi-class
  *		- Visualize whole trees in image 
- * 		- Information gain threshold !!
  * 		Feature:
  * 			- u und v auf gleicher frequenz (probieren)
  * 			- harmonics über eine verteilung verteilen? -> weil je weiter oben desto besser das ergebnis
  * 			- peaks als zweite infoquelle für u/v-Punkte?
  * 			- notenlänge verteilung
  * 		Allgemein:
- * 			- Entropy: Wird wirklich der maximale Infogehalt ermittelt?
- * 				-> Mit aktuelleren Features nochmal testen
  * 			- Mehrere verschiedene feaure-typen?
  * 				- f0-feature
  * 				- noteOn-feature (basiert auf fuzzy attacks)
@@ -164,10 +160,14 @@ public class ForestTest {
 			*/
 			
 			// Grow forest with training part of data
-			RandomForest forest;
+			Forest forest;
 			if (!params.loadForest) {
 				// Grow
-				forest= new RandomForest(params.forestSize, params);
+				List<Tree> trees = new ArrayList<Tree>();
+				for(int i=0; i<params.forestSize; i++) {
+					trees.add(new RandomTree(params, i));
+				}
+				forest = new Forest(trees, params);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
 				m.measure("Finished growing random forest");
@@ -180,7 +180,7 @@ public class ForestTest {
 	
 			} else {
 				// Load
-				forest = RandomForest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
+				forest = Forest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 	

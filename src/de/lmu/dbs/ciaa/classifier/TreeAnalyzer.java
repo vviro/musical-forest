@@ -1,23 +1,23 @@
 package de.lmu.dbs.ciaa.classifier;
 
 /**
- * Analysis routines on top of RandomTree.
+ * Analysis routines on top of Trees.
  * 
  * @author Thomas Weber
  *
  */
-public class RandomTreeAnalyzable extends RandomTree {
+public class TreeAnalyzer {
 
+	private ForestParameters params;
+	
 	/**
-	 * See RandomTree
+	 * Create analyzer.
 	 * 
 	 * @param params
-	 * @param randomForest
-	 * @param num
 	 * @throws Exception
 	 */
-	public RandomTreeAnalyzable(ForestParameters params, RandomForest randomForest, int num) throws Exception {
-		super(params, randomForest, num);
+	public TreeAnalyzer(ForestParameters params) throws Exception {
+		this.params = params;
 	}
 
 	/**
@@ -25,8 +25,8 @@ public class RandomTreeAnalyzable extends RandomTree {
 	 * 
 	 * @param data the array to store results (additive)
 	 */
-	public void visualize(int[][] data) {
-		tree.visualize(data);
+	public void visualize(Tree rtree, int[][] data) {
+		rtree.getTree().visualize(data);
 	}
 
 	/**
@@ -34,8 +34,8 @@ public class RandomTreeAnalyzable extends RandomTree {
 	 * 
 	 * @return
 	 */
-	public int getNumOfLeafs() {
-		return getNumOfLeafs(tree.left) + getNumOfLeafs(tree.right);
+	public int getNumOfLeafs(Tree rtree) {
+		return getNumOfLeafs(rtree.getTree().left) + getNumOfLeafs(rtree.getTree().right);
 	}
 	
 	/**
@@ -44,7 +44,7 @@ public class RandomTreeAnalyzable extends RandomTree {
 	 * @param node
 	 * @return
 	 */
-	protected int getNumOfLeafs(Node node) {
+	private int getNumOfLeafs(Node node) {
 		if (node == null) return 0;
 		if (node.isLeaf()) return 1;
 		return getNumOfLeafs(node.left) + getNumOfLeafs(node.right);
@@ -56,9 +56,9 @@ public class RandomTreeAnalyzable extends RandomTree {
 	 * 
 	 * @return
 	 */
-	public int[] getDepthCounts() {
+	public int[] getDepthCounts(Tree rtree) {
 		int[] counts = new int[params.maxDepth+1];
-		getDepthCountsRec(tree, counts, 0);
+		getDepthCountsRec(rtree.getTree(), counts, 0);
 		return counts;
 	}
 	
@@ -82,9 +82,9 @@ public class RandomTreeAnalyzable extends RandomTree {
 	 * 
 	 * @return
 	 */
-	public String getDepthCountsString() {
+	public String getDepthCountsString(Tree rtree) {
 		String ret = "";
-		int[] counts = getDepthCounts();
+		int[] counts = getDepthCounts(rtree);
 		for(int i=0; i<counts.length; i++) {
 			ret += i + ": " + counts[i] + " (of possible " + (int)Math.pow(2, i) + ")" + "\n";
 		}
@@ -96,13 +96,13 @@ public class RandomTreeAnalyzable extends RandomTree {
 	 * 
 	 * @return
 	 */
-	public String getTreeVisualization() {
+	public String getTreeVisualization(Tree rtree) {
 		String[] s = new String[params.maxDepth+1];
 		int b = (int)Math.pow(2, params.maxDepth) * 2;
 		for(int i=0; i<s.length; i++) {
 			s[i] = multiplyString(b+10, " ");
 		}
-		getTreeVisualizationRec(tree, s, 0, 0, 0, b);
+		getTreeVisualizationRec(rtree.getTree(), s, 0, 0, 0, b);
 		String ret = "";
 		for(int i=0; i<s.length; i++) {
 			ret += i + ": " + s[i]+"\n";

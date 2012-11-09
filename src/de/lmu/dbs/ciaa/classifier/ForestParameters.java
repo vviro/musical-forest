@@ -50,21 +50,6 @@ public class ForestParameters {
 	public int maxNumOfNodeThreads = 0;
 	
 	/**
-	 * Maximum amount of evaluation threads. These Worker threads are dynamically 
-	 * created by the node classification algorithm. 
-	 * <br><br>
-	 * UNUSED: No performance gain, overhead more than gain... 
-	 */
-	public int maxNumOfEvaluationThreads = 0;
-	
-	/**
-	 * Dont use evaluation threads below that depth. 
-	 * <br><br>
-	 * UNUSED.
-	 */
-	public int evaluationThreadsLimit = 0;
-	
-	/**
 	 * Milliseconds interval to check growth status in the forest.
 	 */
 	public long threadWaitTime = -1;
@@ -206,7 +191,6 @@ public class ForestParameters {
 		if (forestSize < 1) throw new Exception("Forest must have at least one tree: " + forestSize);
 		if (maxDepth < 1) throw new Exception("Maximum tree depth has to be at least 1: " + maxDepth);
 		if (maxNumOfNodeThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfNodeThreads);
-		if (maxNumOfEvaluationThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfEvaluationThreads);
 		if (threadWaitTime < 10) throw new Exception("Thread wait time too short: " + threadWaitTime);
 		if (step < 1) throw new Exception("Frame step in samples too low: " + step);
 		if (threshold < 0) throw new Exception("CQT transformation threshold is too low: " + threshold);
