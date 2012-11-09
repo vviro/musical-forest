@@ -86,9 +86,9 @@ public class RandomTree extends Tree {
 			return node.probabilities[y];
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				return classifyRec(data, node.left, x, y);
+				return 1; //classifyRec(data, node.left, x, y);
 			} else {
-				return classifyRec(data, node.right, x, y);
+				return 0; //classifyRec(data, node.right, x, y);
 			}
 		}
 	}
