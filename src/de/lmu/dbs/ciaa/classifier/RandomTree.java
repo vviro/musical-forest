@@ -83,7 +83,7 @@ public class RandomTree extends Tree {
 	 */
 	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
-			return node.probabilities[y]; //(mode==1) ? data[x][y] : 0; //
+			return node.probability; //ies[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				return classifyRec(data, node.left, 1, x, y);
@@ -168,7 +168,8 @@ public class RandomTree extends Tree {
 
 		// Leaf: Calculate probabilities
 		if (depth >= maxDepth) {
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			return;
 		}
 		
@@ -284,7 +285,8 @@ public class RandomTree extends Tree {
 			node.feature.threshold = thresholds[winner][winnerThreshold];
 		} else {
 			// No, make leaf and return
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			return;
 		}
 		
@@ -354,6 +356,47 @@ public class RandomTree extends Tree {
 		return ret;
 	}
 	
+	/**
+	 * Calculates leaf probability.
+	 * 
+	 * @param sampler
+	 * @param mode
+	 * @param depth
+	 * @return
+	 * @throws Exception
+	 */
+	protected float calculateLeaf2(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
+		float ret = 0;
+		float not = 0;
+		// Collect inverse
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			Dataset dataset = sampler.get(i);
+			byte[][] midi = dataset.getMidi();
+			byte[][] cla = classification.get(i);
+			
+			for(int x=0; x<midi.length; x++) {
+				for(int y=0; y<midi[0].length; y++) {
+					if (mode == cla[x][y]) { 
+						if (midi[x][y] > 0) {
+							// f0 is present
+							ret++;
+						} else {
+							not++;
+						}
+					}
+				}
+			}
+		}
+		/*
+		// Invert back and normalize
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = (maxP - ret[i]) / maxP; 
+		}
+		return ret;
+		*/
+		return ret/(ret+not);
+	}
+
 	/**
 	 * Calculates shannon entropy for binary alphabet (two possible values),  
 	 * while a and b represent the count of each of the two "letters". 

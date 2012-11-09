@@ -34,6 +34,8 @@ public class Node implements Serializable {
 	 */
 	public float[] probabilities = null; 
 	
+	public float probability = 0;
+	
 	/**
 	 * Determines whether the node is a leaf or not.
 	 * 
