@@ -55,7 +55,7 @@ public class FeatureHarmonic3b extends Feature {
 	 * Create feature with random threshold, all other parameters are derived from 
 	 * another FeatureKinect instance.
 	 * 
-	 */
+	 *
 	public FeatureHarmonic3b(final FeatureHarmonic3b f) {
 		this.uX = f.uX;
 		this.uY = f.uY;
@@ -81,9 +81,9 @@ public class FeatureHarmonic3b extends Feature {
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic3b n = new FeatureHarmonic3b(params);
 			ret.add(n);
-			for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
+			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new FeatureHarmonic3b(n));
-			}
+			}*/
 		}
 		return ret;
 		

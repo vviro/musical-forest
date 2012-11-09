@@ -157,6 +157,7 @@ public class FeatureVisualizer {
 			//pa.yMax = 10;
 			Feature f = new FeatureHarmonic5(pa);
 			ArrayUtils.normalize(data, Byte.MAX_VALUE-1);
+			System.out.println(f.getMaxValue());
 			byte[][] byteData = new byte[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<data[x].length; y++) {

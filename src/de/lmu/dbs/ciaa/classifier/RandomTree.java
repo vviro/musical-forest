@@ -83,7 +83,7 @@ public class RandomTree extends Tree {
 	 */
 	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
-			return node.probabilities[y]; //(mode==1) ? data[x][y] : 0; //node.probabilities[y];
+			return node.probabilities[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				return classifyRec(data, node.left, 1, x, y);
@@ -174,13 +174,20 @@ public class RandomTree extends Tree {
 		
 		// Get random feature parameter sets
 		List<Feature> paramSet = params.featureFactory.getRandomFeatureSet(params);
-
 		int numOfFeatures = paramSet.size();
 
-		long[] silenceLeft = new long[paramSet.size()];
-		long[] noteLeft = new long[paramSet.size()];
-		long[] silenceRight = new long[paramSet.size()];
-		long[] noteRight = new long[paramSet.size()];
+		float[][] thresholds = new float[numOfFeatures][params.thresholdCandidatesPerFeature];
+		for(int i=0; i<thresholds.length; i++) {
+			for(int k=0; k<params.thresholdCandidatesPerFeature; k++) {
+				thresholds[i][k] = (float)(Math.random() * params.featureFactory.getMaxValue());
+			}
+		}
+		
+
+		long[][] silenceLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		long[][] noteLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		long[][] silenceRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		long[][] noteRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
 		
 		int poolSize = sampler.getPoolSize();
 		//List<RandomTreeWorker> workers = null;
@@ -201,20 +208,22 @@ public class RandomTree extends Tree {
 						for(int k=0; k<numOfFeatures; k++) {
 							// Each featureset candidate...
 							Feature feature = paramSet.get(k);
-							
-							if (feature.evaluate(data, x, y) >= feature.threshold) {
-								// Left
-								if (midi[x][y] > 0) {
-									noteLeft[k]++;
+							float ev = feature.evaluate(data, x, y);
+							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
+								if (ev >= thresholds[k][g]) {
+									// Left
+									if (midi[x][y] > 0) {
+										noteLeft[k][g]++;
+									} else {
+										silenceLeft[k][g]++;
+									}
 								} else {
-									silenceLeft[k]++;
-								}
-							} else {
-								// Right
-								if (midi[x][y] > 0) {
-									noteRight[k]++;
-								} else {
-									silenceRight[k]++;
+									// Right
+									if (midi[x][y] > 0) {
+										noteRight[k][g]++;
+									} else {
+										silenceRight[k][g]++;
+									}
 								}
 							}
 						}
@@ -224,43 +233,61 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate shannon entropy for all parameter sets to get the best set
-		double[] gain = new double[paramSet.size()];
+		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		long note_ = 0;
 		long silence_ = 0;
-		for(int i=0; i<paramSet.size(); i++) {
-			long note = noteLeft[i] + noteRight[i];
-			long silence = silenceLeft[i] + silenceRight[i];
-			if (i>0) {
-				// TMP check integrity
-				if (note_ != note) throw new Exception("Note: " + note_ + " != " + note);
-				if (silence_ != silence) throw new Exception("Silence: " + silence_ + " != " + silence);
+		for(int i=0; i<numOfFeatures; i++) {
+			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
+				long note = noteLeft[i][j] + noteRight[i][j];
+				long silence = silenceLeft[i][j] + silenceRight[i][j];
+				if (i>0) {
+					// TMP check integrity
+					if (note_ != note) throw new Exception("Note: " + note_ + " != " + note);
+					if (silence_ != silence) throw new Exception("Silence: " + silence_ + " != " + silence);
+				}
+				silence_ = silence;
+				note_ = note;
+				double entropyAll = getEntropy(note, silence);
+				double entropyLeft = getEntropy(noteLeft[i][j], silenceLeft[i][j]);
+				double entropyRight = getEntropy(noteRight[i][j], silenceRight[i][j]);
+				gain[i][j] = entropyAll - ((double)(noteLeft[i][j]+silenceLeft[i][j])/(note+silence))*entropyLeft - ((double)(noteRight[i][j]+silenceRight[i][j])/(note+silence))*entropyRight;
+				//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
 			}
-			silence_ = silence;
-			note_ = note;
-			double entropyAll = getEntropy(note, silence);
-			double entropyLeft = getEntropy(noteLeft[i], silenceLeft[i]);
-			double entropyRight = getEntropy(noteRight[i], silenceRight[i]);
-			gain[i] = entropyAll - ((double)(noteLeft[i]+silenceLeft[i])/(note+silence))*entropyLeft - ((double)(noteRight[i]+silenceRight[i])/(note+silence))*entropyRight;
-			//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
 		}
 		double max = Double.MIN_VALUE;
 		int winner = 0;
-		for(int i=0; i<paramSet.size(); i++) {
-			if(gain[i] > max) {
-				max = gain[i];
-				winner = i;
+		int winnerThreshold = 0;
+		for(int i=0; i<numOfFeatures; i++) {
+			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
+				root.infoGain.add(gain[i][j]);
+				if(gain[i][j] > max) {
+					max = gain[i][j];
+					winner = i;
+					winnerThreshold = j;
+				}
 			}
 		}
+
+		// Debug //////////////////////////////////////////
+		//root.infoGain.add(gain[winner][winnerThreshold]);
+		if (params.logNodeInfo) {
+			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold] + " Threshold: " + thresholds[winner][winnerThreshold]);
+			Log.write(pre + "Left: " + silenceLeft[winner][winnerThreshold] + " + " + noteLeft[winner][winnerThreshold] + " = " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]));
+			Log.write(pre + "Right: " + noteRight[winner][winnerThreshold] + " + " + silenceRight[winner][winnerThreshold] + " = " + (noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
+			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]+noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
+		}
+		//////////////////////////////////////////////////
+		
 		// See in info gain is sufficient:
-		if (gain[winner] >= params.entropyThreshold) {
+		if (gain[winner][winnerThreshold] >= params.entropyThreshold) {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
+			node.feature.threshold = thresholds[winner][winnerThreshold];
 		} else {
 			// No, make leaf and return
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			return;
 		}
-		
 		
 		// Split values by winner feature for deeper branches
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
@@ -282,16 +309,6 @@ public class RandomTree extends Tree {
 			}
 			classificationNext.add(claNext);
 		}
-		
-		// Debug //////////////////////////////////////////
-		root.infoGain.add(gain[winner]);
-		if (params.logNodeInfo) {
-			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner] + " Threshold: " + paramSet.get(winner).threshold);
-			Log.write(pre + "Left: " + silenceLeft[winner] + " + " + noteLeft[winner] + " = " + (silenceLeft[winner]+noteLeft[winner]));
-			Log.write(pre + "Right: " + noteRight[winner] + " + " + silenceRight[winner] + " = " + (noteRight[winner]+silenceRight[winner]));
-			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner]+noteLeft[winner]+noteRight[winner]+silenceRight[winner]));
-		}
-		//////////////////////////////////////////////////
 		
 		// Recursion to left and right
 		node.left = new Node();

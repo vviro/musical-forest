@@ -43,7 +43,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * Create feature with random threshold, all other parameters are derived from 
 	 * another FeatureKinect instance.
 	 * 
-	 */
+	 *
 	public FeatureHarmonic5(final FeatureHarmonic5 f) {
 		this.harmonicFactors = f.harmonicFactors;
 		this.threshold = Math.random() * getMaxValue();
@@ -66,9 +66,9 @@ public class FeatureHarmonic5 extends Feature {
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic5 n = new FeatureHarmonic5(params);
 			ret.add(n);
-			for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
+			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new FeatureHarmonic5(n));
-			}
+			}*/
 		}
 		return ret;
 		
@@ -108,13 +108,13 @@ public class FeatureHarmonic5 extends Feature {
 		double ret = 0;
 		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
 			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
-			if (ny >= data[0].length) return (int)(ret*100);
+			if (ny >= data[0].length) return (int)ret;
 			//if (data[x][ny] >= data[x][y]/10) {
 			ret+= d2*data[x][ny]*harmonicFactors[i];
 			//}
 			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
 		}
-		return (int)(ret*100);
+		return (int)ret;
 	}
 	
 	/**
@@ -157,7 +157,7 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	@Override
 	public float getMaxValue() {
-		return (float)((Byte.MAX_VALUE-1) * harmonics.length * 0.7);
+		return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1) * (harmonics.length + 1));
 	}
 
 	/**
