@@ -93,9 +93,9 @@ public class FeatureHarmonic extends Feature {
 
 		// If out of range on time axis, the evaluation is useless, so return a minimal value
 		int iuX = x+uX;
-		if (iuX < 0 || iuX >= data.length) return Integer.MIN_VALUE;
+		if (iuX < 0 || iuX >= data.length) return 0; //Integer.MIN_VALUE;
 		int ivX = x+vX;
-		if (ivX < 0 || ivX >= data.length) return Integer.MIN_VALUE;
+		if (ivX < 0 || ivX >= data.length) return 0; //Integer.MIN_VALUE;
 
 		boolean u = false;
 		boolean v = false;
@@ -104,10 +104,10 @@ public class FeatureHarmonic extends Feature {
 		int ivY = y+vY;
 		if (ivY >= 0 && ivY < data[0].length) v = true; 
 		
-		if (u && v) return data[x][y] + data[iuX][iuY] + data[ivX][ivY]; 
-		if (u) return data[x][y] + data[iuX][iuY];
-		if (v) return data[x][y] + data[ivX][ivY];
-		return data[x][y];
+		//if (u && v) return (float)(data[x][y] + data[iuX][iuY] + data[ivX][ivY]); 
+		if (u) return (float)(data[x][y] + data[iuX][iuY]);
+		if (v) return (float)(data[x][y] + data[ivX][ivY]);
+		return (float)data[x][y];
 	}
 	
 	/**

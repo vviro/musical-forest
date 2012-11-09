@@ -68,6 +68,10 @@ import de.lmu.dbs.ciaa.util.*;
  * 
  * Random generator is sick?
  * 
+ * Test on server:
+ * 	3b
+ * 	5
+ * 
  * Optimierung:
  * 		- Make the application distributable
  * 

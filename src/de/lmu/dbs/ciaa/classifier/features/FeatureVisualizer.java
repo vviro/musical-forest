@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.awt.Color;
 import java.io.File;
 
+import de.lmu.dbs.ciaa.classifier.ForestParameters;
 import de.lmu.dbs.ciaa.spectrum.*;
 import de.lmu.dbs.ciaa.spectrum.analyze.DifferentialAnalyzer;
 import de.lmu.dbs.ciaa.spectrum.analyze.F0Detector;
@@ -38,12 +39,12 @@ public class FeatureVisualizer {
 	public static void main(String[] args) {
 
 		// Feature switches
-		boolean peak = false; // show peaks on top of transformation
+		boolean peak = true; // show peaks on top of transformation
 		boolean differential = false; // show differential. This option hides the original transformation.
 		boolean f0 = false; // show basic f0-detection 
 
 		// PNG parameters
-		String imgFile = "testimages/feature2.png"; // PNG file
+		String imgFile = "testimages/feature8d.png"; // PNG file
 		int fspread = 1; // Scale factor for freq scale
 		double scaleData = 1; // Scale raw transform data visualization color. Use 1 to disable.
 		
@@ -149,12 +150,18 @@ public class FeatureVisualizer {
 				m.measure("Finished basic f0 detection");
 			}
 			
-			Feature f = new FeatureKinect();
+			ForestParameters pa = new ForestParameters();
+			pa.xMin = 0;
+			pa.xMax = 0;
+			//pa.yMin = -10;
+			//pa.yMax = 10;
+			Feature f = new FeatureHarmonic5(pa);
 			ArrayUtils.normalize(data, Byte.MAX_VALUE-1);
 			byte[][] byteData = new byte[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<data[x].length; y++) {
 					byteData[x][y] = (byte)data[x][y];
+					if (byteData[x][y] < 0 ) System.out.println("Minus!! " + byteData[x][y] + " at " + x + "/" + y);
 				}
 			}
 			float[][] fData = new float[data.length][data[0].length];
@@ -163,13 +170,44 @@ public class FeatureVisualizer {
 					fData[x][y] = f.evaluate(byteData, x, y);
 				}
 			}
+/*
+			ArrayUtils.normalize(fData, Byte.MAX_VALUE-1);
+			byteData = new byte[data.length][data[0].length];
+			for(int x=0; x<data.length; x++) {
+				for(int y=0; y<data[x].length; y++) {
+					byteData[x][y] = (byte)fData[x][y];
+					if (byteData[x][y] < 0 ) System.out.println("Minus!! " + byteData[x][y] + " at " + x + "/" + y);
+				}
+			}
+			float[][] fData2 = new float[data.length][data[0].length];
+			for(int x=0; x<data.length; x++) {
+				for(int y=0; y<data[x].length; y++) {
+					fData2[x][y] = f.evaluate(byteData, x, y);
+				}
+			}
+			fData = fData2;
+			//*/
+
+			float[][] fDataMax = new float[data.length][data[0].length];
+			for(int x=0; x<data.length; x++) {
+				float max = Float.MIN_VALUE;
+				int maxi = -1;
+				for(int y=0; y<data[x].length; y++) {
+					if (fData[x][y] > max) {
+						max = fData[x][y];
+						maxi = y;
+					}
+				}
+				if (maxi >= 0) fDataMax[x][maxi] = fData[x][maxi];
+			}
 			
 			// Save PNG image of the results
 			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
 			Scale scale = new LogScale(10);
 			Color color = new Color((int)(255*scaleData),(int)(150*scaleData),0);
 			img.add(byteData, color, scale);
-			img.add(fData, Color.GREEN, scale);
+			out("Max: " + img.add(fData, Color.GREEN, scale, 0.01));
+			//out("Max: " + img.add(fDataMax, Color.RED, scale, 0.1));
 			img.save(new File(imgFile));
 			m.measure("Saved image to " + imgFile);
 	        

@@ -491,6 +491,62 @@ public class ArrayUtils {
 	 * 
 	 * @param in
 	 */
+	public static void out(float[] in) {
+		out(in, 0, in.length-1);
+	}
+
+	/**
+	 * Print array to System.out.
+	 * 
+	 * @param in
+	 * @param start
+	 */
+	public static void out(float[] in, int start) {
+		out(in, start, in.length-1);
+	}
+
+	/**
+	 * Print array to System.out.
+	 * 
+	 * @param in
+	 * @param start
+	 * @param end
+	 */
+	public static void out(float[] in, int start, int end) {
+		System.out.println(toString(in, start, end));
+	}
+
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static String toString(float[] in) {
+		return toString(in, 0, in.length-1);
+	}
+
+	/**
+	 * Returns a string representation containing the array entries.
+	 * 
+	 * @param in
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String toString(float[] in, int start, int end) {
+		String ret = "";
+		for(int i=start; i<=end && i<in.length; i++) {
+			ret+= i + ": " + in[i] + "\n";
+		}
+		return ret;
+	}
+
+	/**
+	 * Print array to System.out.
+	 * 
+	 * @param in
+	 */
 	public static void out(double[] in) {
 		out(in, 0, in.length-1);
 	}

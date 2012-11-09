@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
-import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
  * Feature implementation for music analysis.
@@ -23,7 +22,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * Factors for calculation of overtones in log frequency spectra. 
 	 * Can be generated with the method generateHarmonicFactors().
 	 */
-	private static final double[] harmonics = {2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
+	private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
 	
 	/**
 	 * Create feature with random feature parameters.
@@ -32,7 +31,9 @@ public class FeatureHarmonic5 extends Feature {
 	public FeatureHarmonic5(final ForestParameters params) {
 		harmonicFactors = new float[harmonics.length];
 		for(int i=0; i<harmonics.length; i++) {
-			harmonicFactors[i] = (float)Math.random() * (i/harmonics.length);
+			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			//System.out.println(i + ": " + harmonicFactors[i]);
 		}
 		this.threshold = Math.random() * getMaxValue();
 		//generateHarmonicFactors(50);
@@ -81,17 +82,79 @@ public class FeatureHarmonic5 extends Feature {
 	 * @param y coordinate in data sample
 	 * @return
 	 * @throws Exception 
-	 */
+	 *
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
-		double ret = data[x][y];
-		for(int i=0; i<harmonics.length; i++) {
-			int ny =  + (int)(48*harmonics[i]); // TODO binsPerOctave
-			if (ny > data[0].length) return (int)ret;
-			ret+= data[x][ny] * harmonicFactors[i]; 
+		double ret = data[x][y]*data[x][y]; 
+		//return (int)ret*100;
+		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
+			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
+			if (ny >= data[0].length) return (int)(ret*100);
+			ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
 		}
 		return (int)(ret*100);
 	}
 	
+	/**
+	 * Feature function called to classify tree nodes.  -> feature5.png, quite good
+	 * 
+	 * @param data data sample
+	 * @param x coordinate in data sample
+	 * @param y coordinate in data sample
+	 * @return
+	 * @throws Exception 
+	 */
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
+		double d2 = data[x][y]*data[x][y];
+		double ret = 0;
+		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
+			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
+			if (ny >= data[0].length) return (int)(ret*100);
+			//if (data[x][ny] >= data[x][y]/10) {
+			ret+= d2*data[x][ny]*harmonicFactors[i];
+			//}
+			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
+		}
+		return (int)(ret*100);
+	}
+	
+	/**
+	 * 
+	 *
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
+		double d2 = (data[x][y] > 10) ? 1 : 0;
+		if (d2 == 0) return 0;
+		double ret = 0;
+		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
+			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
+			if (ny >= data[0].length) return (int)(ret*100);
+			if (data[x][ny] > 20) {
+				ret+= d2; //*data[x][ny]; //*harmonicFactors[i];
+			}
+			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
+		}
+		return (int)(ret*100);
+	}
+	
+	/**
+	 * 
+	 *
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
+		double d2 = Math.log1p((double)data[x][y]);
+		double ret = 0;
+		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
+			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
+			if (ny >= data[0].length) return (int)(ret*100);
+			//if (data[x][ny] >= data[x][y]/10) {
+			ret+= d2*d2*data[x][ny]; //*harmonicFactors[i];
+			//}
+			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
+		}
+		return (int)(ret*100);
+	}
+
+	/**
+	 * 
+	 */
 	@Override
 	public float getMaxValue() {
 		return (float)((Byte.MAX_VALUE-1) * harmonics.length);

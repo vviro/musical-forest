@@ -193,7 +193,7 @@ public class RandomTree extends Tree {
 			byte[][] midi = dataset.getMidi();
 			byte[][] cla = classification.get(i);
 			
-			// get feature results and split data
+			// get feature results 
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<params.frequencies.length; y++) {
 					// Each random value from the subframe

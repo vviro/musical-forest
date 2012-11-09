@@ -101,9 +101,9 @@ public class FeatureHarmonic3b extends Feature {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		// If out of range on time axis, the evaluation is useless, so return a minimal value
 		int iuX = x+uX;
-		if (iuX < 0 || iuX >= data.length) return Integer.MIN_VALUE;
+		if (iuX < 0 || iuX >= data.length) return 0; //Integer.MIN_VALUE;
 		int ivX = x+vX;
-		if (ivX < 0 || ivX >= data.length) return Integer.MIN_VALUE;
+		if (ivX < 0 || ivX >= data.length) return 0; //Integer.MIN_VALUE;
 
 		boolean u = false;
 		boolean v = false;
@@ -112,10 +112,11 @@ public class FeatureHarmonic3b extends Feature {
 		int ivY = y+vY;
 		if (ivY >= 0 && ivY < data[0].length) v = true; 
 		
-		if (u && v) return data[iuX][iuY] + data[ivX][ivY] + data[x][y]; 
-		if (u) return data[iuX][iuY] + data[x][y];
-		if (v) return data[ivX][ivY] + data[x][y];
-		return Integer.MIN_VALUE; // All out of range
+		float d2 = data[x][y] * data[x][y];
+		if (u && v) return (data[iuX][iuY] + data[ivX][ivY]) * d2; 
+		if (u) return data[iuX][iuY]*d2;
+		if (v) return data[ivX][ivY]*d2;
+		return 0; //Integer.MIN_VALUE; // All out of range
 	}
 	
 	@Override
