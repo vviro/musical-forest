@@ -89,7 +89,7 @@ public class FeatureHarmonic2 extends Feature {
 	 * @return
 	 * @throws Exception 
 	 */
-	public int evaluate(final byte[][] data, final int x, final int y) throws Exception {
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		// If out of range on time axis, the evaluation is useless, so return a minimal value
 		int iuX = x+uX;
 		if (iuX < 0 || iuX >= data.length) return Integer.MIN_VALUE;
@@ -145,7 +145,7 @@ public class FeatureHarmonic2 extends Feature {
 	}
 
 	@Override
-	public int getMaxValue() {
+	public float getMaxValue() {
 		return (Byte.MAX_VALUE-1) * 3;
 	}
 

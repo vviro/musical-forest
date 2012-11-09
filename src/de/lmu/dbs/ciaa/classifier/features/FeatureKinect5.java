@@ -80,7 +80,7 @@ public class FeatureKinect5 extends Feature {
 	 * @return
 	 * @throws Exception 
 	 */
-	public int evaluate(final byte[][] data, final int x, final int y) throws Exception {
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		//if (data[x][y] <= 0) return 0; //Integer.MIN_VALUE;
 		int iuX = x+uX; ///data[x][y];
 		if (iuX < 0 || iuX >= data.length) return 0; //Integer.MIN_VALUE;
@@ -108,7 +108,7 @@ public class FeatureKinect5 extends Feature {
 	}
 
 	@Override
-	public int getMaxValue() {
+	public float getMaxValue() {
 		return (Byte.MAX_VALUE-1) * 3;
 	}
 

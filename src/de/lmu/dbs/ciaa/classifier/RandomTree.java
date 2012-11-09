@@ -356,9 +356,18 @@ public class RandomTree extends Thread {
 
 		// Calculate shannon entropy for all parameter sets to get the best set
 		double[] gain = new double[paramSet.size()];
+		long note_ = 0;
+		long silence_ = 0;
 		for(int i=0; i<paramSet.size(); i++) {
 			long note = noteLeft[i] + noteRight[i];
 			long silence = silenceLeft[i] + silenceRight[i];
+			if (i>0) {
+				// TMP check integrity
+				if (note_ != note) throw new Exception("Note: " + note_ + " != " + note);
+				if (silence_ != silence) throw new Exception("Silence: " + silence_ + " != " + silence);
+			}
+			silence_ = silence;
+			note_ = note;
 			double entropyAll = getEntropy(note, silence);
 			double entropyLeft = getEntropy(noteLeft[i], silenceLeft[i]);
 			double entropyRight = getEntropy(noteRight[i], silenceRight[i]);

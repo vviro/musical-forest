@@ -22,7 +22,7 @@ public class FeatureHarmonic5 extends Feature {
 	//public int vX;
 	//public int vY;
 
-	public double[] harmonicFactors;
+	public float[] harmonicFactors;
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
@@ -49,11 +49,11 @@ public class FeatureHarmonic5 extends Feature {
 		}*/
 		//this.uY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
 		//this.vY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
-		harmonicFactors = new double[harmonics.length];
+		harmonicFactors = new float[harmonics.length];
 		for(int i=0; i<harmonics.length; i++) {
-			harmonicFactors[i] = Math.random();
+			harmonicFactors[i] = (float)Math.random() * ((harmonics.length-i)/harmonics.length);
 		}
-		this.threshold = RandomUtils.randomInt(getMaxValue());
+		this.threshold = Math.random() * getMaxValue();
 		//generateHarmonicFactors(50);
 	}
 	
@@ -68,7 +68,7 @@ public class FeatureHarmonic5 extends Feature {
 		//this.vX = f.vX;
 		//this.vY = f.vY;
 		this.harmonicFactors = f.harmonicFactors;
-		this.threshold = RandomUtils.randomInt(getMaxValue());
+		this.threshold = Math.random() * getMaxValue();
 	}
 	
 	/**
@@ -105,19 +105,19 @@ public class FeatureHarmonic5 extends Feature {
 	 * @return
 	 * @throws Exception 
 	 */
-	public int evaluate(final byte[][] data, final int x, final int y) throws Exception {
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		double ret = data[x][y];
 		for(int i=0; i<harmonics.length; i++) {
-			int ny =  + (int)(48*harmonics[i]);
+			int ny =  + (int)(48*harmonics[i]); // TODO binsPerOctave
 			if (ny > data[0].length) return (int)ret;
-			ret+= data[x][ny] * harmonicFactors[i]; // TODO binsPerOctave
+			ret+= data[x][ny] * harmonicFactors[i]; 
 		}
-		return (int)ret;
+		return (int)(ret*100);
 	}
 	
 	@Override
-	public int getMaxValue() {
-		return (Byte.MAX_VALUE-1) * 21;
+	public float getMaxValue() {
+		return (float)((Byte.MAX_VALUE-1) * 21);
 	}
 
 	/**

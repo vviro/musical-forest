@@ -72,7 +72,7 @@ public class FeatureDummy extends Feature {
 	 * @return
 	 * @throws Exception 
 	 */
-	public int evaluate(final byte[][] data, final int x, final int y) throws Exception {
+	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		return data[x][y];
 	}
 	
@@ -88,7 +88,7 @@ public class FeatureDummy extends Feature {
 	}
 
 	@Override
-	public int getMaxValue() {
+	public float getMaxValue() {
 		return Byte.MAX_VALUE-1;
 	}
 }

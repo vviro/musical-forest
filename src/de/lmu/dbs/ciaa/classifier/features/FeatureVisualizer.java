@@ -157,7 +157,7 @@ public class FeatureVisualizer {
 					byteData[x][y] = (byte)data[x][y];
 				}
 			}
-			int[][] fData = new int[data.length][data[0].length];
+			float[][] fData = new float[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<data[x].length; y++) {
 					fData[x][y] = f.evaluate(byteData, x, y);

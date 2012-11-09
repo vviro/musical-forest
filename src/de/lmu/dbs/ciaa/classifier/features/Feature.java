@@ -19,7 +19,7 @@ public abstract class Feature implements Serializable {
 	/**
 	 * Threshold to compare to the feature functions output value.
 	 */
-	public int threshold;
+	public double threshold;
 	
 	/**
 	 * Returns a list of generated features.
@@ -38,7 +38,7 @@ public abstract class Feature implements Serializable {
 	 * @return
 	 * @throws Exception 
 	 */
-	public abstract int evaluate(final byte[][] data, final int x, final int y) throws Exception;
+	public abstract float evaluate(final byte[][] data, final int x, final int y) throws Exception;
 
 	/**
 	 * Returns a visualization of all node features of the forest. For debugging use.
@@ -52,5 +52,5 @@ public abstract class Feature implements Serializable {
 	 * 
 	 * @return
 	 */
-	public abstract int getMaxValue();
+	public abstract float getMaxValue();
 }
