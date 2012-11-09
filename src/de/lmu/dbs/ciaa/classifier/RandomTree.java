@@ -83,7 +83,7 @@ public class RandomTree extends Tree {
 	 */
 	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
-			return (mode==1) ? data[x][y] : 0; //node.probabilities[y];
+			return data[x][y] * node.probabilities[y]; //(mode==1) ? data[x][y] : 0; //node.probabilities[y];
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				return classifyRec(data, node.left, 1, x, y);
