@@ -276,6 +276,7 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Left: " + silenceLeft[winner][winnerThreshold] + " + " + noteLeft[winner][winnerThreshold] + " = " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]));
 			Log.write(pre + "Right: " + noteRight[winner][winnerThreshold] + " + " + silenceRight[winner][winnerThreshold] + " = " + (noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
 			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]+noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
+			Log.write(pre + "Feature data: " + node.feature);
 		}
 		//////////////////////////////////////////////////
 		

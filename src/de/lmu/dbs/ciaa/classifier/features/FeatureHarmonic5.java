@@ -35,7 +35,7 @@ public class FeatureHarmonic5 extends Feature {
 			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}
-		this.threshold = Math.random() * getMaxValue();
+		//this.threshold = Math.random() * getMaxValue();
 		//generateHarmonicFactors(50);
 	}
 	
@@ -193,6 +193,14 @@ public class FeatureHarmonic5 extends Feature {
 			if (ny > data[0].length) break;
 			data[x][ny]+= harmonicFactors[i]*100; // TODO binsPerOctave
 		}
+	}
+	
+	public String toString() {
+		String ret = "";
+		for(int i=0; i<harmonicFactors.length; i++) {
+			ret+= i + ": " + harmonicFactors[i] + ", ";
+		}
+		return ret;
 	}
 
 }

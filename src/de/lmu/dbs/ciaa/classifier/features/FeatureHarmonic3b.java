@@ -47,7 +47,7 @@ public class FeatureHarmonic3b extends Feature {
 		}
 		this.uY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
 		this.vY = (int)(params.binsPerOctave * harmonics[RandomUtils.randomInt(harmonics.length-1)]);
-		this.threshold = (int)RandomUtils.randomInt((int)getMaxValue());
+		//this.threshold = (int)RandomUtils.randomInt((int)getMaxValue());
 		//generateHarmonicFactors(50);
 	}
 	
@@ -158,5 +158,5 @@ public class FeatureHarmonic3b extends Feature {
 		y = vY;
 		data[x][y]++;
 	}
-
+	
 }
