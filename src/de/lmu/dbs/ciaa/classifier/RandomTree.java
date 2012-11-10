@@ -431,7 +431,11 @@ public class RandomTree extends Tree {
 		}
 		return ret;
 		*/
-		return ret/(ret+not);
+		if (mode == 1) {
+			return ret/(ret+not);
+		} else {
+			return 1-(ret/(ret+not));
+		}
 	}
 
 	/**
