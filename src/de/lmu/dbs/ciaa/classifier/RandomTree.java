@@ -370,7 +370,7 @@ public class RandomTree extends Tree {
 	protected float calculateLeaf2(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float ret = 0;
 		float not = 0;
-		// Collect inverse
+		// See how much was judged right
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] midi = dataset.getMidi();
