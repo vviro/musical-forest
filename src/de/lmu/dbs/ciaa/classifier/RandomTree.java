@@ -381,9 +381,17 @@ public class RandomTree extends Tree {
 					if (mode == cla[x][y]) { 
 						if (midi[x][y] > 0) {
 							// f0 is present
-							ret++;
+							if (mode == 1) {
+								ret++;
+							} else {
+								not++;
+							}
 						} else {
-							not++;
+							if (mode == 2) {
+								not++;
+							} else {
+								ret++;
+							}
 						}
 					}
 				}
