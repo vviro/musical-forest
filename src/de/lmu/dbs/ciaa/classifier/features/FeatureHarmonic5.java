@@ -196,11 +196,11 @@ public class FeatureHarmonic5 extends Feature {
 	}
 	
 	public String toString() {
-		String ret = "";
+		String ret = "{";
 		for(int i=0; i<harmonicFactors.length; i++) {
-			ret+= i + ": " + harmonicFactors[i] + ", ";
+			ret+= harmonicFactors[i] + ", ";
 		}
-		return ret;
+		return ret + "}";
 	}
 
 }
