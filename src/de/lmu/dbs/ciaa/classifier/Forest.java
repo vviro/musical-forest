@@ -177,7 +177,7 @@ public class Forest {
 				dataForest[x][y] = classify(data, x, y);
 			}
 		}
-		ArrayUtils.normalize(dataForest);
+		//ArrayUtils.normalize(dataForest);
 		return dataForest;
 	}
 	
