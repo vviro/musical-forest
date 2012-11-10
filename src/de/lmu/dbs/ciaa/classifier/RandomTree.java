@@ -276,7 +276,6 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Left: " + silenceLeft[winner][winnerThreshold] + " + " + noteLeft[winner][winnerThreshold] + " = " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]));
 			Log.write(pre + "Right: " + noteRight[winner][winnerThreshold] + " + " + silenceRight[winner][winnerThreshold] + " = " + (noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
 			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]+noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
-			Log.write(pre + "Feature data: " + node.feature);
 		}
 		//////////////////////////////////////////////////
 		
@@ -285,11 +284,12 @@ public class RandomTree extends Tree {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
+			if (params.logNodeInfo) Log.write(pre + "Feature data: " + node.feature);
 		} else {
 			// No, make leaf and return
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) Log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
 			return;
 		}
 		
