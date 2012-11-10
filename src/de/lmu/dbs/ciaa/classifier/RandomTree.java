@@ -278,7 +278,7 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]+noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
 			String thr = "";
 			for(int i=0; i<thresholds[winner].length; i++) {
-				thr += thresholds[winner][winnerThreshold] + ", ";
+				thr += thresholds[winner][i] + ", ";
 			}
 			Log.write(pre + "Tested winner thresholds: " + thr);
 		}
