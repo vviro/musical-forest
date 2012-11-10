@@ -242,7 +242,7 @@ public class RandomTree extends Tree {
 			}
 		}
 
-		// Calculate shannon entropy for all parameter sets to get the best set
+		// Calculate shannon entropy for all parameter sets to get the best set TODO optimizeable (note / silence sind immer gleich)
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
