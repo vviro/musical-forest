@@ -158,15 +158,13 @@ public class FeatureVisualizer {
 			FeatureHarmonic5 f = new FeatureHarmonic5(pa);
 			float[] hf = {(float) 0.0, (float) 0.0, (float) 9.903322, (float) 0.0, (float) 0.0, (float) 0.0, (float) 2.6849601, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 6.452658, (float) 0.0, (float) 5.2687445, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0};
 			f.harmonicFactors = hf;
-			ArrayUtils.normalize(data, Byte.MAX_VALUE-1);
-			System.out.println(f.getMaxValue());
-			byte[][] byteData = new byte[data.length][data[0].length];
-			for(int x=0; x<data.length; x++) {
-				for(int y=0; y<data[x].length; y++) {
-					byteData[x][y] = (byte)data[x][y];
-					if (byteData[x][y] < 0 ) System.out.println("Minus!! " + byteData[x][y] + " at " + x + "/" + y);
-				}
-			}
+			
+			
+			ArrayUtils.normalize(data); // Normalize to [0,1]
+			Scale scale = new LogScale(10);
+			ArrayUtils.scale(data, scale); // Log scale
+			ArrayUtils.normalize(data, (double)Byte.MAX_VALUE-1);
+			byte[][] byteData = ArrayUtils.toByteArray(data);
 			float[][] fData = new float[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<data[x].length; y++) {
@@ -207,10 +205,9 @@ public class FeatureVisualizer {
 			*/
 			// Save PNG image of the results
 			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
-			Scale scale = new LogScale(10);
 			Color color = new Color((int)(255*scaleData),(int)(150*scaleData),0);
-			img.add(byteData, color, scale);
-			out("Max: " + img.add(fData, Color.GREEN, scale));
+			img.add(byteData, color);
+			out("Max: " + img.add(fData, Color.GREEN));
 			//out("Max: " + img.add(fDataMax, Color.RED, scale, 0.1));
 			img.save(new File(imgFile));
 			m.measure("Saved image to " + imgFile);

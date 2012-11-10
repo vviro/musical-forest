@@ -276,6 +276,11 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Left: " + silenceLeft[winner][winnerThreshold] + " + " + noteLeft[winner][winnerThreshold] + " = " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]));
 			Log.write(pre + "Right: " + noteRight[winner][winnerThreshold] + " + " + silenceRight[winner][winnerThreshold] + " = " + (noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
 			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]+noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
+			String thr = "";
+			for(int i=0; i<thresholds[winner].length; i++) {
+				thr += thresholds[winner][winnerThreshold] + ", ";
+			}
+			Log.write(pre + "Tested winner thresholds: " + thr);
 		}
 		//////////////////////////////////////////////////
 		
@@ -284,7 +289,7 @@ public class RandomTree extends Tree {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) Log.write(pre + "Feature data: " + node.feature);
+			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);

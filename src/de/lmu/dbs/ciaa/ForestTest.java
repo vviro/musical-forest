@@ -207,7 +207,7 @@ public class ForestTest {
 			Scale scale = new LogScale(10);
 			ArrayUtils.normalize(dataOobD); // Normalize to [0,1]
 			ArrayUtils.scale(dataOobD, scale); // Log scale
-			ArrayUtils.normalize(dataOobD, (double)Byte.MAX_VALUE); // Normalize back to [0,MAX_VALUE] 
+			ArrayUtils.normalize(dataOobD, (double)Byte.MAX_VALUE-1); // Normalize back to [0,MAX_VALUE] 
 			byte[][] dataOob = ArrayUtils.toByteArray(dataOobD); // To byte array to use with forest
 			m.measure("Finished transformation and scaling");
 			
