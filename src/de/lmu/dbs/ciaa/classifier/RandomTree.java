@@ -283,12 +283,14 @@ public class RandomTree extends Tree {
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
+			double noteLeftWCorr = noteLeftW/noteRatio;
 			long silenceRightW = silenceRight[winner][winnerThreshold]; 
 			long noteRightW = noteRight[winner][winnerThreshold];
+			double noteRightWCorr = noteRightW/noteRatio;
 			long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
 			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold] + " Threshold: " + thresholds[winner][winnerThreshold]);
-			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + noteLeftW/noteRatio + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s: " + ((double)noteLeftW/silenceLeftW));
-			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightW/noteRatio + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s: " + ((double)noteRightW/silenceRightW));
+			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + noteLeftWCorr + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s(corr): " + (noteLeftWCorr/silenceLeftW));
+			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightWCorr + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s(corr): " + (noteRightWCorr/silenceRightW));
 			Log.write(pre + "Amount of counted samples: " + allW);
 			//String thr = "";
 			float tmin = Float.MAX_VALUE;
