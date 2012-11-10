@@ -361,6 +361,28 @@ public class Dataset {
 		return Arrays.asList(dir.listFiles(filter));
 	}
 	
+	/**
+	 * Returns the ratio between notes and silence of the midi file.
+	 * 
+	 * @return
+	 * @throws Exception 
+	 */
+	public synchronized double getRatio() throws Exception {
+		if (!loaded) load();
+		long notes = 0;
+		long silence = 0;
+		for(int x=0; x<midi.length; x++) {
+			for(int y=0; y<midi[0].length; y++) {
+				if (midi[x][y] > 0) {
+					notes++;
+				} else {
+					silence++;
+				}
+			}
+		}
+		return (double)notes/silence;
+	}
+	
 	@Override
 	public String toString() {
 		return "Dataset: MIDI file " + midiFile.getAbsolutePath() + "; Spectrum file: " + spectrumFile.getAbsolutePath();

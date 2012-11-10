@@ -120,7 +120,13 @@ public class RandomTree extends Tree {
 				classification.add(new byte[sampler.get(i).getSpectrum().length][sampler.get(i).getSpectrum()[0].length]);
 			}
 		}
-		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
+		double noteRatio = 0;
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			Dataset d = sampler.get(i);
+			noteRatio += d.getRatio();
+		}
+		noteRatio/=sampler.getPoolSize();
+		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true, noteRatio);
 	}
 
 	/**
@@ -132,7 +138,7 @@ public class RandomTree extends Tree {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
+	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading, double noteRatio) throws Exception {
 		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
@@ -250,9 +256,10 @@ public class RandomTree extends Tree {
 				}
 				silence_ = silence;
 				note_ = note;
-				double entropyAll = getEntropy(note, silence);
-				double entropyLeft = getEntropy(noteLeft[i][j], silenceLeft[i][j]);
-				double entropyRight = getEntropy(noteRight[i][j], silenceRight[i][j]);
+				//double ndivs = (double)note/silence;
+				double entropyAll = getEntropy((long)(note/noteRatio), silence);
+				double entropyLeft = getEntropy((long)(noteLeft[i][j]/noteRatio), silenceLeft[i][j]);
+				double entropyRight = getEntropy((long)(noteRight[i][j]/noteRatio), silenceRight[i][j]);
 				gain[i][j] = entropyAll - ((double)(noteLeft[i][j]+silenceLeft[i][j])/(note+silence))*entropyLeft - ((double)(noteRight[i][j]+silenceRight[i][j])/(note+silence))*entropyRight;
 				//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
 			}
@@ -279,8 +286,8 @@ public class RandomTree extends Tree {
 			long noteRightW = noteRight[winner][winnerThreshold];
 			long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
 			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold] + " Threshold: " + thresholds[winner][winnerThreshold]);
-			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s: " + ((double)noteLeftW/silenceLeftW));
-			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s: " + ((double)noteRightW/silenceRightW));
+			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + noteLeftW/noteRatio + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s: " + ((double)noteLeftW/silenceLeftW));
+			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightW/noteRatio + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s: " + ((double)noteRightW/silenceRightW));
 			Log.write(pre + "Amount of counted samples: " + allW);
 			//String thr = "";
 			float tmin = Float.MAX_VALUE;
@@ -332,10 +339,10 @@ public class RandomTree extends Tree {
 		
 		// Recursion to left and right
 		node.left = new Node();
-		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
+		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true, noteRatio);
 
 		node.right = new Node();
-		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
+		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true, noteRatio);
 	}
 	
 	/**
@@ -468,5 +475,5 @@ public class RandomTree extends Tree {
 		ois.close();
 		return ret;
 	}
-	
+
 }

@@ -131,7 +131,7 @@ public abstract class Tree extends Thread {
 	 * @param multithreading this is used to disable the threading part, if called from the run method. 
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
-	 */
+	 *
 	protected abstract void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
 
 	/**
