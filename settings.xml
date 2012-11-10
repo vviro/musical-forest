@@ -35,7 +35,7 @@
 		numOfRandomFeatures="10"
 		thresholdCandidatesPerFeature="50"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
-		entropyThreshold="1E-30"
+		entropyThreshold="-1"
 		
 		xMin="0"
 		xMax="0"
