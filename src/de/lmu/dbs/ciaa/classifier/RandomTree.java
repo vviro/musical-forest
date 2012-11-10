@@ -288,10 +288,14 @@ public class RandomTree extends Tree {
 			long noteRightW = noteRight[winner][winnerThreshold];
 			double noteRightWCorr = noteRightW/noteRatio;
 			long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
-			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold] + " Threshold: " + thresholds[winner][winnerThreshold]);
+			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold]);
 			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + noteLeftWCorr + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s(corr): " + (noteLeftWCorr/silenceLeftW));
 			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightWCorr + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s(corr): " + (noteRightWCorr/silenceRightW));
 			Log.write(pre + "Amount of counted samples: " + allW);
+			// TMP
+			for(int i=0; i<thresholds[0].length; i++) {
+				Log.write(pre + "Thr. " + i + ": " + thresholds[0][i] + ", Gain: " + gain[0][i] + "LEFT Notes: " + noteLeft[0][i] + " Silence: " + silenceLeft[0][i] + "; RIGHT Notes: " + noteRight[0][i] + " Silence: " + silenceRight[0][i]);
+			}
 			//String thr = "";
 			float tmin = Float.MAX_VALUE;
 			float tmax = Float.MIN_VALUE;
