@@ -178,6 +178,7 @@ public class RandomTree extends Tree {
 		List<Feature> paramSet = params.featureFactory.getRandomFeatureSet(params);
 		int numOfFeatures = paramSet.size();
 
+		// Generate random thresholds for each feature param set
 		float[][] thresholds = new float[numOfFeatures][params.thresholdCandidatesPerFeature];
 		for(int i=0; i<thresholds.length; i++) {
 			for(int k=0; k<params.thresholdCandidatesPerFeature; k++) {
