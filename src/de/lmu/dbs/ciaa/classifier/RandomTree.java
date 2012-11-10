@@ -244,25 +244,25 @@ public class RandomTree extends Tree {
 
 		// Calculate shannon entropy for all parameter sets to get the best set
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		long note_ = 0;
-		long silence_ = 0;
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
 				long note = noteLeft[i][j] + noteRight[i][j];
 				long silence = silenceLeft[i][j] + silenceRight[i][j];
-				if (i>0) {
-					// TMP check integrity
-					if (note_ != note) throw new Exception("Note: " + note_ + " != " + note);
-					if (silence_ != silence) throw new Exception("Silence: " + silence_ + " != " + silence);
-				}
-				silence_ = silence;
-				note_ = note;
-				//double ndivs = (double)note/silence;
 				double entropyAll = getEntropy((long)(note/noteRatio), silence);
 				double entropyLeft = getEntropy((long)(noteLeft[i][j]/noteRatio), silenceLeft[i][j]);
 				double entropyRight = getEntropy((long)(noteRight[i][j]/noteRatio), silenceRight[i][j]);
 				gain[i][j] = entropyAll - ((double)(noteLeft[i][j]+silenceLeft[i][j])/(note+silence))*entropyLeft - ((double)(noteRight[i][j]+silenceRight[i][j])/(note+silence))*entropyRight;
 				//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
+				// */
+				/*
+				long right = noteLeft[i][j] + silenceRight[i][j];
+				long wrong = silenceLeft[i][j] + noteRight[i][j];
+				double entropyAll = getEntropy(right, wrong);
+				double entropyLeft = getEntropy(noteLeft[i][j], silenceLeft[i][j]);
+				double entropyRight = getEntropy(noteRight[i][j], silenceRight[i][j]);
+				gain[i][j] = entropyAll - ((double)(noteLeft[i][j]+silenceLeft[i][j])/(wrong+right))*entropyLeft - ((double)(noteRight[i][j]+silenceRight[i][j])/(wrong+right))*entropyRight;
+				//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
+				 * */
 			}
 		}
 		double max = Double.MIN_VALUE;
@@ -415,9 +415,9 @@ public class RandomTree extends Tree {
 							}
 						} else {
 							if (mode == 2) {
-								not++;
-							} else {
 								ret++;
+							} else {
+								not++;
 							}
 						}
 					}
