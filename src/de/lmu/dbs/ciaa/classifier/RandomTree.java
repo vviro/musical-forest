@@ -170,6 +170,7 @@ public class RandomTree extends Tree {
 		if (depth >= maxDepth) {
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
+			if (params.logNodeInfo) Log.write(pre + "Leaf; Probability " + node.probability);
 			return;
 		}
 		
@@ -287,6 +288,7 @@ public class RandomTree extends Tree {
 			// No, make leaf and return
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
+			if (params.logNodeInfo) Log.write(pre + "Leaf; Probability " + node.probability);
 			return;
 		}
 		

@@ -196,7 +196,7 @@ public class ForestTest {
 			Transform transformation = new ConstantQTransform((double)src.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtBufferLocation);
 			
 			m.measure("Initialized transformation");
-			out("--> Window size: " + transformation.getWindowSize());
+			out("-> Window size: " + transformation.getWindowSize());
 			
 			// Make mono
 			int[] mono = src.getLeftBuffer();
@@ -218,8 +218,8 @@ public class ForestTest {
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
 			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length);
-			img.add(dataOobD, new Color(255,150,0), null);
-			img.add(dataForest, Color.GREEN, null, imgThreshold);
+			out("-> Max data: " +  + img.add(dataOobD, new Color(255,150,0), null));
+			out("-> Max forest: " + img.add(dataForest, Color.GREEN, null, imgThreshold));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
 			
@@ -233,22 +233,10 @@ public class ForestTest {
 			String featuresFile = params.workingFolder + File.separator + featureImgFile;
 			SpectrumToImage imgF = new SpectrumToImage(featuresVisualization.length, featuresVisualization[0].length, 2, 20);
 			imgF.add(featuresVisualizationGrid, Color.BLUE, null, 0);
-			out("Maximum feature point overlay: " + imgF.add(featuresVisualization, Color.WHITE, null, 0));
+			out("-> Maximum feature point overlay: " + imgF.add(featuresVisualization, Color.WHITE, null, 0));
 			imgF.save(new File(featuresFile));
 			m.measure("Saved feature visualization to " + featuresFile);
 
-			// Visualize features (tree, y only)
-			/*List<int[]> treeVisualization = forest.visualizeTree(params);
-			int[][] treeVisualizationGrid = new int[treeVisualization.size()][featuresVisualization[0].length];
-			for(int i=0; i<featuresVisualizationGrid.length; i++) {
-				treeVisualizationGrid[i] = treeVisualization.get(i);
-			}
-			String treeFile = params.workingFolder + File.separator + treeImgFile;
-			SpectrumToImage imgY = new SpectrumToImage(treeVisualizationGrid.length, treeVisualizationGrid[0].length, 1, 1);
-			imgY.add(featuresVisualizationGrid, Color.BLUE, null, 0);
-			imgY.save(new File(featuresFile));
-			m.measure("Saved feature visualization to " + featuresFile);
-*/
 			Log.close();
 			m.measure("Saved log file");
 			
