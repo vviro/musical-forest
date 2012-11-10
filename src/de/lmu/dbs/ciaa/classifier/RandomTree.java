@@ -282,16 +282,16 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s: " + ((double)noteLeftW/silenceLeftW));
 			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s: " + ((double)noteRightW/silenceRightW));
 			Log.write(pre + "Amount of counted samples: " + allW);
-			String thr = "";
+			//String thr = "";
 			float tmin = Float.MAX_VALUE;
 			float tmax = Float.MIN_VALUE;
 			for(int i=0; i<thresholds[winner].length; i++) {
-				thr += thresholds[winner][i] + ", ";
+				//thr += thresholds[winner][i] + ", ";
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
 			Log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
-			Log.write(pre + "Tested winner thresholds: " + thr);
+			//Log.write(pre + "Tested winner thresholds: " + thr);
 		}
 		//////////////////////////////////////////////////
 		
