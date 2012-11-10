@@ -107,7 +107,7 @@ public class Dataset {
 		MIDIAdapter ma = new MIDIAdapter(midiFile);
 		long duration = spectrum.length * step;
 		midi = ma.toDataArray(spectrum.length, duration, frequencies);
-		ArrayUtils.blur(midi, 0);
+		//ArrayUtils.blur(midi, 0);
 		loaded = true;
 	}
 	
