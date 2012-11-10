@@ -44,7 +44,7 @@ public class FeatureVisualizer {
 		boolean f0 = false; // show basic f0-detection 
 
 		// PNG parameters
-		String imgFile = "testimages/feature8d.png"; // PNG file
+		String imgFile = "testimages/feature9.png"; // PNG file
 		int fspread = 1; // Scale factor for freq scale
 		double scaleData = 1; // Scale raw transform data visualization color. Use 1 to disable.
 		
@@ -155,7 +155,9 @@ public class FeatureVisualizer {
 			pa.xMax = 0;
 			//pa.yMin = -10;
 			//pa.yMax = 10;
-			Feature f = new FeatureHarmonic5(pa);
+			FeatureHarmonic5 f = new FeatureHarmonic5(pa);
+			float[] hf = {(float) 0.0, (float) 0.0, (float) 9.903322, (float) 0.0, (float) 0.0, (float) 0.0, (float) 2.6849601, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 6.452658, (float) 0.0, (float) 5.2687445, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0};
+			f.harmonicFactors = hf;
 			ArrayUtils.normalize(data, Byte.MAX_VALUE-1);
 			System.out.println(f.getMaxValue());
 			byte[][] byteData = new byte[data.length][data[0].length];
@@ -168,7 +170,7 @@ public class FeatureVisualizer {
 			float[][] fData = new float[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<data[x].length; y++) {
-					fData[x][y] = f.evaluate(byteData, x, y);
+					fData[x][y] = (f.evaluate(byteData, x, y) >= 55650.37) ? 1 : 0;
 				}
 			}
 /*
@@ -189,6 +191,7 @@ public class FeatureVisualizer {
 			fData = fData2;
 			//*/
 
+			/*
 			float[][] fDataMax = new float[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				float max = Float.MIN_VALUE;
@@ -201,13 +204,13 @@ public class FeatureVisualizer {
 				}
 				if (maxi >= 0) fDataMax[x][maxi] = fData[x][maxi];
 			}
-			
+			*/
 			// Save PNG image of the results
 			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
 			Scale scale = new LogScale(10);
 			Color color = new Color((int)(255*scaleData),(int)(150*scaleData),0);
 			img.add(byteData, color, scale);
-			out("Max: " + img.add(fData, Color.GREEN, scale, 0.01));
+			out("Max: " + img.add(fData, Color.GREEN, scale));
 			//out("Max: " + img.add(fDataMax, Color.RED, scale, 0.1));
 			img.save(new File(imgFile));
 			m.measure("Saved image to " + imgFile);
