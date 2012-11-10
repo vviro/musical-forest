@@ -273,10 +273,15 @@ public class RandomTree extends Tree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
+			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
+			long noteLeftW = noteLeft[winner][winnerThreshold];
+			long silenceRightW = silenceRight[winner][winnerThreshold]; 
+			long noteRightW = noteRight[winner][winnerThreshold];
+			long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
 			Log.write(pre + "Winner: " + winner + "; Information gain: " + gain[winner][winnerThreshold] + " Threshold: " + thresholds[winner][winnerThreshold]);
-			Log.write(pre + "Left: " + silenceLeft[winner][winnerThreshold] + " + " + noteLeft[winner][winnerThreshold] + " = " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]));
-			Log.write(pre + "Right: " + noteRight[winner][winnerThreshold] + " + " + silenceRight[winner][winnerThreshold] + " = " + (noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
-			Log.write(pre + "Amount of counted samples: " + (silenceLeft[winner][winnerThreshold]+noteLeft[winner][winnerThreshold]+noteRight[winner][winnerThreshold]+silenceRight[winner][winnerThreshold]));
+			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", n/s: " + ((double)noteLeftW/silenceLeftW));
+			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", n/s: " + ((double)noteRightW/silenceRightW));
+			Log.write(pre + "Amount of counted samples: " + allW);
 			String thr = "";
 			float tmin = Float.MAX_VALUE;
 			float tmax = Float.MIN_VALUE;
