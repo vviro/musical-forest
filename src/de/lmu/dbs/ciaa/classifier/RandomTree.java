@@ -27,7 +27,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth) throws Exception {
+	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, double noteRatio) throws Exception {
 		this(params, -1);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -36,6 +36,7 @@ public class RandomTree extends Tree {
 		this.newThreadMode = mode;
 		this.newThreadDepth = depth;
 		this.newThreadMaxDepth = maxDepth;
+		this.newThreadNoteRatio = noteRatio;
 	}
 	
 	/**
@@ -144,7 +145,7 @@ public class RandomTree extends Tree {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth);
+					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, noteRatio);
 					root.incThreadsActive();
 					t.start();
 					return;
