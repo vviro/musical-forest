@@ -279,9 +279,12 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));
 			Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
-			for(int i=0; i<thresholds[0].length; i++) {
-				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[0][i]) + ", Gain: " + decimalFormat.format(gain[0][i]) + "      LEFT Notes: " + noteLeft[0][i] + " (corr: " + noteLeft[0][i]/noteRatio + ") Silence: " + silenceLeft[0][i] + ";      RIGHT Notes: " + noteRight[0][i] + "(corr: " + noteRight[0][i]/noteRatio + ") Silence: " + silenceRight[0][i]);
+			/*for(int i=0; i<thresholds[winner].length; i++) {
+				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
 			}
+			
+			TODO Histogram X: gains accu, Y: thresholds in 10 zeilen
+			
 			//*/
 			//String thr = "";
 			float tmin = Float.MAX_VALUE;
