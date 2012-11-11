@@ -12,7 +12,7 @@ import de.lmu.dbs.ciaa.classifier.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic5 extends Feature {
+public class FeatureHarmonic5Static extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -28,11 +28,11 @@ public class FeatureHarmonic5 extends Feature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureHarmonic5(final ForestParameters params) {
+	public FeatureHarmonic5Static(final ForestParameters params) {
 		harmonicFactors = new float[harmonics.length];
 		for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
-			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			harmonicFactors[i] = 5; //(Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}
 		//this.threshold = Math.random() * getMaxValue();
@@ -52,7 +52,7 @@ public class FeatureHarmonic5 extends Feature {
 	/**
 	 * 
 	 */
-	public FeatureHarmonic5() {
+	public FeatureHarmonic5Static() {
 	}
 
 	/**
@@ -64,11 +64,8 @@ public class FeatureHarmonic5 extends Feature {
 	public List<Feature> getRandomFeatureSet(ForestParameters params) {
 		List<Feature> ret = new ArrayList<Feature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureHarmonic5 n = new FeatureHarmonic5(params);
+			FeatureHarmonic5Static n = new FeatureHarmonic5Static(params);
 			ret.add(n);
-			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
-				ret.add(new FeatureHarmonic5(n));
-			}*/
 		}
 		return ret;
 		
@@ -154,7 +151,7 @@ public class FeatureHarmonic5 extends Feature {
 	}
 
 	/**
-	 * TODO Festwert
+	 * TODO Festwert 
 	 */
 	@Override
 	public float getMaxValue() {

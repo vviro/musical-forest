@@ -241,7 +241,7 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains(paramSet, noteLeft, noteRight, silenceLeft, silenceRight, noteRatio);
+		double[][] gain = getGains2(paramSet, noteLeft, noteRight, silenceLeft, silenceRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = Double.MIN_VALUE;
@@ -267,8 +267,10 @@ public class RandomTree extends Tree {
 			long noteRightW = noteRight[winner][winnerThreshold];
 			double noteRightWCorr = noteRightW/noteRatio;
 			long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
-			double leftGainW = ((double)noteLeft[winner][winnerThreshold]/noteRatio) / silenceLeft[winner][winnerThreshold]; // TODO find better function, best case now is NaN !!!
-			double rightGainW = silenceRight[winner][winnerThreshold] / ((double)noteRight[winner][winnerThreshold]/noteRatio);
+			double note = noteLeft[0][0] + noteRight[0][0];
+			double silence = silenceLeft[0][0] + silenceRight[0][0];
+			double leftGainW = (double)noteLeft[winner][winnerThreshold] / note - (double)silenceLeft[winner][winnerThreshold] / silence;
+			double rightGainW= (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
 			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + noteLeftWCorr + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + leftGainW); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
 			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightWCorr + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + rightGainW); //s/n(corr): " + (silenceRightW/noteRightWCorr));
@@ -346,7 +348,7 @@ public class RandomTree extends Tree {
 	 * @param silenceRight
 	 * @return
 	 */
-	protected double[][] getGains_01(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight) {
+	private double[][] getGains_01(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		double note = noteLeft[0][0] + noteRight[0][0];
 		double silence = silenceLeft[0][0] + silenceRight[0][0];
@@ -374,7 +376,7 @@ public class RandomTree extends Tree {
 	 * @param noteRatio
 	 * @return
 	 */
-	protected double[][] getGains(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
+	private double[][] getGains(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		//double note = noteLeft[0][0] + noteRight[0][0];
 		//double silence = silenceLeft[0][0] + silenceRight[0][0];
@@ -384,6 +386,32 @@ public class RandomTree extends Tree {
 				double leftGain = ((double)noteLeft[i][j]/noteRatio) / silenceLeft[i][j]; // TODO find better function, best case now is NaN !!!
 				double rightGain = silenceRight[i][j] / ((double)noteRight[i][j]/noteRatio);
 				gain[i][j] = leftGain * rightGain;
+			}
+		}
+		return gain;
+	}
+
+	/**
+	 * Info gain calculation. Uses an error-unfriendly [-oo,2] algo. Stabilizes at good thrs.
+	 * 
+	 * @param paramSet
+	 * @param noteLeft
+	 * @param noteRight
+	 * @param silenceLeft
+	 * @param silenceRight
+	 * @param noteRatio
+	 * @return
+	 */
+	private double[][] getGains2(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
+		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
+		double note = noteLeft[0][0] + noteRight[0][0];
+		double silence = silenceLeft[0][0] + silenceRight[0][0];
+		int numOfFeatures = paramSet.size();
+		for(int i=0; i<numOfFeatures; i++) {
+			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
+				double leftGain = (double)noteLeft[i][j] / note - (double)silenceLeft[i][j] / silence;
+				double rightGain= (double)silenceRight[i][j] / silence - (double)noteRight[i][j] / note;
+				gain[i][j] = leftGain + rightGain;
 			}
 		}
 		return gain;
@@ -400,7 +428,7 @@ public class RandomTree extends Tree {
 	 * @param noteRatio
 	 * @return
 	 */
-	protected double[][] getGains_Kinect(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
+	private double[][] getGains_Kinect(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
 		// Calculate shannon entropy for all parameter sets to get the best set TODO optimizeable (note / silence sind immer gleich)
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		int numOfFeatures = paramSet.size();
