@@ -32,7 +32,7 @@ public class FeatureHarmonic5 extends Feature {
 		harmonicFactors = new float[harmonics.length];
 		for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
-			harmonicFactors[i] = 5; //(Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}
 		//this.threshold = Math.random() * getMaxValue();
