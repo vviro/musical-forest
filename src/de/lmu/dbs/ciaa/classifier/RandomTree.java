@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import de.lmu.dbs.ciaa.util.Statistic;
  */
 public class RandomTree extends Tree {
 
+	private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
+	
 	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
 	 * the arguments of growRec to the new thread. See method growRec source code.
@@ -271,13 +274,13 @@ public class RandomTree extends Tree {
 			double silence = silenceLeft[0][0] + silenceRight[0][0];
 			double leftGainW = (double)noteLeft[winner][winnerThreshold] / note - (double)silenceLeft[winner][winnerThreshold] / silence;
 			double rightGainW= (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
-			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
-			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + noteLeftWCorr + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + leftGainW); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
-			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightWCorr + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + rightGainW); //s/n(corr): " + (silenceRightW/noteRightWCorr));
+			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
+			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
+			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));
 			Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
 			for(int i=0; i<thresholds[0].length; i++) {
-				Log.write(pre + "Thr. " + i + ": " + thresholds[0][i] + ", Gain: " + gain[0][i] + "      LEFT Notes: " + noteLeft[0][i] + " (corr: " + noteLeft[0][i]/noteRatio + ") Silence: " + silenceLeft[0][i] + ";      RIGHT Notes: " + noteRight[0][i] + "(corr: " + noteRight[0][i]/noteRatio + ") Silence: " + silenceRight[0][i]);
+				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[0][i]) + ", Gain: " + decimalFormat.format(gain[0][i]) + "      LEFT Notes: " + noteLeft[0][i] + " (corr: " + noteLeft[0][i]/noteRatio + ") Silence: " + silenceLeft[0][i] + ";      RIGHT Notes: " + noteRight[0][i] + "(corr: " + noteRight[0][i]/noteRatio + ") Silence: " + silenceRight[0][i]);
 			}
 			//*/
 			//String thr = "";
@@ -288,7 +291,7 @@ public class RandomTree extends Tree {
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
-			Log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
+			Log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			//Log.write(pre + "Tested winner thresholds: " + thr);
