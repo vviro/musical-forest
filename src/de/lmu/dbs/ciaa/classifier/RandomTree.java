@@ -276,7 +276,7 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + noteRightWCorr + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + rightGainW); //s/n(corr): " + (silenceRightW/noteRightWCorr));
 			Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
-			/*for(int i=0; i<thresholds[0].length; i++) {
+			for(int i=0; i<thresholds[0].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + thresholds[0][i] + ", Gain: " + gain[0][i] + "      LEFT Notes: " + noteLeft[0][i] + " (corr: " + noteLeft[0][i]/noteRatio + ") Silence: " + silenceLeft[0][i] + ";      RIGHT Notes: " + noteRight[0][i] + "(corr: " + noteRight[0][i]/noteRatio + ") Silence: " + silenceRight[0][i]);
 			}
 			//*/
