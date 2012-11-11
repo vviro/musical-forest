@@ -32,7 +32,7 @@ public class FeatureHarmonic5 extends Feature {
 		harmonicFactors = new float[harmonics.length];
 		for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
-			harmonicFactors[i] = 5; //(Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}
 		//this.threshold = Math.random() * getMaxValue();
@@ -106,6 +106,7 @@ public class FeatureHarmonic5 extends Feature {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		double d2 = data[x][y]*data[x][y];
 		double ret = 0;
+		//if (true) return 0;
 		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
 			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
 			if (ny >= data[0].length) return (int)ret;
@@ -157,7 +158,7 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	@Override
 	public float getMaxValue() {
-		return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
+		return 5000000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
 		//return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1) * (harmonics.length + 1) * 10);
 	}
 

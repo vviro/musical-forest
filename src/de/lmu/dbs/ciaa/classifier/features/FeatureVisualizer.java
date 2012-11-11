@@ -49,7 +49,7 @@ public class FeatureVisualizer {
 		double scaleData = 1; // Scale raw transform data visualization color. Use 1 to disable.
 		
 		// Transformation general parameters 
-		String wavFile = "WaveFiles/Test8_Mix.wav"; //args[1]; // WAV file
+		String wavFile = "testdata/mono/wav/mono3.wav";//WaveFiles/Test8_Mix.wav"; //args[1]; // WAV file
 		Transformations mode = Transformations.CQT; // Transformation to use (FFT or CQT)
 		int step = 256; // Samples per frame
 
@@ -150,25 +150,29 @@ public class FeatureVisualizer {
 				m.measure("Finished basic f0 detection");
 			}
 			
+			Scale scale = new LogScale(10);
+			ArrayUtils.normalize(data);
+			ArrayUtils.scale(data, scale);
+			
 			ForestParameters pa = new ForestParameters();
 			pa.xMin = 0;
 			pa.xMax = 0;
 			//pa.yMin = -10;
 			//pa.yMax = 10;
 			FeatureHarmonic5 f = new FeatureHarmonic5(pa);
-			float[] hf = {(float) 0.0, (float) 0.0, (float) 9.903322, (float) 0.0, (float) 0.0, (float) 0.0, (float) 2.6849601, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 6.452658, (float) 0.0, (float) 5.2687445, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0};
-			f.harmonicFactors = hf;
+			//float[] hf = {(float) 0.0, (float) 0.0, (float) 9.903322, (float) 0.0, (float) 0.0, (float) 0.0, (float) 2.6849601, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 6.452658, (float) 0.0, (float) 5.2687445, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0, (float) 0.0};
+			//f.harmonicFactors = hf;
 			
-			
-			ArrayUtils.normalize(data); // Normalize to [0,1]
+			/*ArrayUtils.normalize(data); // Normalize to [0,1]
 			Scale scale = new LogScale(10);
 			ArrayUtils.scale(data, scale); // Log scale
+			*/
 			ArrayUtils.normalize(data, (double)Byte.MAX_VALUE-1);
 			byte[][] byteData = ArrayUtils.toByteArray(data);
 			float[][] fData = new float[data.length][data[0].length];
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<data[x].length; y++) {
-					fData[x][y] = (f.evaluate(byteData, x, y) >= 55650.37) ? 1 : 0;
+					fData[x][y] = (f.evaluate(byteData, x, y) >= 1900865.2) ? 1 : 0;
 				}
 			}
 /*
@@ -205,9 +209,9 @@ public class FeatureVisualizer {
 			*/
 			// Save PNG image of the results
 			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
-			Color color = new Color((int)(255*scaleData),(int)(150*scaleData),0);
-			img.add(byteData, color);
-			out("Max: " + img.add(fData, Color.GREEN));
+			//Color color = new Color((int)(255*scaleData),(int)(150*scaleData),0);
+			img.add(byteData, Color.WHITE);
+			out("Max: " + img.add(fData, Color.GREEN, null, 0));
 			//out("Max: " + img.add(fDataMax, Color.RED, scale, 0.1));
 			img.save(new File(imgFile));
 			m.measure("Saved image to " + imgFile);

@@ -67,7 +67,7 @@ public class Forest {
 		startTime = System.currentTimeMillis();
 		for(int i=0; i<trees.size(); i++) {
 			Log.write("Growing tree " + i + " to depth " + params.maxDepth);
-			trees.get(i).grow(sampler.getSample(), params.maxDepth);
+			trees.get(i).grow((trees.size() == 1) ? sampler : sampler.getSample(), params.maxDepth);
 		}
 		if (params.maxNumOfNodeThreads > 0) {
 			// Multithreading is active, so wait for the results 
@@ -123,7 +123,7 @@ public class Forest {
 			Log.write("Tree " + i + ": " + ana.getNumOfLeafs(t) +  " leafs of possible " + poss + "; Information gain: " + t.getInfoGain());
 			Log.write("Count nodes at depths:\n" + ana.getDepthCountsString(t));
 			Log.write("Tree structure:\n" + ana.getTreeVisualization(t));
-			Log.write("Distribution of gains:\n" + t.getInfoGain().getDistributionString(20, 80));
+			Log.write("Distribution of gains upon all nodes in tree " + i + ":\n" + t.getInfoGain().getDistributionString(20, 80));
 		}
 	}
 

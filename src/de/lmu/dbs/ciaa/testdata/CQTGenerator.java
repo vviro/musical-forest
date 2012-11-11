@@ -117,7 +117,7 @@ public class CQTGenerator {
 
 				if (savePeak) {
 					io.save(peakfile.getAbsolutePath(), peakData);
-					m.measure("Saved raw cqt data to " + cqtfile.getName());
+					m.measure("Saved raw cqt data to " + peakfile.getName());
 				}
 
 				// Save PNG image of the results
