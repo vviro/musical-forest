@@ -16,7 +16,7 @@ public class FeatureHarmonic5 extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
-	public double[] harmonicFactors = {5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+	public double[] harmonicFactors = {0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
