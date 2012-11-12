@@ -66,11 +66,13 @@ import de.lmu.dbs.ciaa.util.*;
  * 
  * TODO *************************************************************************************
  * 
- * Random generator is sick?
- * 
- * Test on server:
+ * Test on server features:
  * 	3b
  * 	5
+ * 
+ * 11112012: 
+ * 		- Werte für erste node austarieren
+ * 		- sobald wie mögl. depth erhöhen (features brauchts nicht viel, threshold muss nur richtig gewählt sein)
  * 
  * Optimierung:
  * 		- Make the application distributable

@@ -83,7 +83,7 @@ public class Forest {
 				}
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(timeStampFormatter.format(new Date()) + ": Active node threads: ");
+					System.out.print(timeStampFormatter.format(new Date()) + ": Threads: ");
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive() + " ");
 					}
@@ -94,7 +94,7 @@ public class Forest {
 						}
 						System.out.println(" (sums: " + getThreadsActive(0) + "/" + getThreadsActive(1) + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
 					} else {*/
-						System.out.println(" (sum: " + getThreadsActive() + "); Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+						System.out.println("Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
 					//}
 				}
 				if (ret) break;
