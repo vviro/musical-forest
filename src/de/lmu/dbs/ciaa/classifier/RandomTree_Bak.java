@@ -265,7 +265,7 @@ public class RandomTree_Bak extends Tree {
 				 * */
 			}
 		}
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE; //Double.MIN_VALUE;
 		int winner = 0;
 		int winnerThreshold = 0;
 		for(int i=0; i<numOfFeatures; i++) {

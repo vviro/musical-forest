@@ -15,35 +15,27 @@ public class Statistic {
 	/**
 	 * Number of entries
 	 */
-	private int count;
+	private int count = 0;
 	
 	/**
 	 * Sum of all entries;
 	 */
-	private double sum;
+	private double sum = 0;
 	
 	/**
 	 * Maximum of all entries
 	 */
-	private double max = Double.MIN_VALUE;
+	private double maximum = -Double.MAX_VALUE;
 
 	/**
 	 * Minimum of all entries
 	 */
-	private double min = Double.MAX_VALUE;
+	private double minimum = Double.MAX_VALUE;
 	
 	/**
 	 * List containing all entries
 	 */
-	private List<Double> entries;
-	
-	/**
-	 * Create a statistic for one value´s distribution.
-	 * 
-	 */
-	public Statistic() {
-		entries = new ArrayList<Double>();
-	}
+	private List<Double> entries = new ArrayList<Double>();
 	
 	/**
 	 * Add a value to the statistic.
@@ -51,11 +43,11 @@ public class Statistic {
 	 * @param value
 	 */
 	public void add(double value) {
+		entries.add(value);
+		if (value < minimum) minimum = value;
+		if (value > maximum) maximum = value;
 		sum += value;
 		count++;
-		if (value > max) max = value;
-		if (value < min) min = value;
-		entries.add(value);
 	}
 	
 	/**
@@ -118,7 +110,7 @@ public class Statistic {
 	 * @return
 	 */
 	public double getMaximum() {
-		return max;
+		return maximum;
 	}
 	
 	/**
@@ -127,7 +119,7 @@ public class Statistic {
 	 * @return
 	 */
 	public double getMinimum() {
-		return min;
+		return minimum;
 	}
 	
 	/**
@@ -136,7 +128,7 @@ public class Statistic {
 	 */
 	@Override
 	public String toString() {
-		return "Min: " + min + "; Max: " + max + "; Avg: " + getAverage(); 
+		return "Min: " + minimum + "; Max: " + maximum + "; Avg: " + getAverage(); 
 	}
 	
 	/**
@@ -149,17 +141,17 @@ public class Statistic {
 	public String getDistributionString(int bins, int maxL) {
 		String ret = "";
 		double[] s = new double[bins];
-		double f = (bins-1) / (max - min);
+		double f = (bins-1) / (maximum - minimum);
 		double maxS = Double.MIN_VALUE;
 		for(int i=0; i<entries.size(); i++) {
-			int index = (int)((entries.get(i)-min)*f);
+			int index = (int)((entries.get(i)-minimum)*f);
 			s[index] ++;
 			if (s[index] > maxS) maxS = s[index];
 		}
 		maxS/= (double)maxL;
 		DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00000000" );
 		for(int i=0; i<s.length; i++) {
-			ret += df2.format((i/f)+min) + ": ";
+			ret += df2.format((i/f)+minimum) + ": ";
 			int scaled = (int)(s[i]/maxS);
 			for(int j=0; j<scaled; j++) ret += "#";
 			ret += " (" + (int)s[i] + ")\n";

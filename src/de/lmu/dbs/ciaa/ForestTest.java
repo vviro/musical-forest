@@ -121,6 +121,15 @@ public class ForestTest {
 		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
+			/*Statistic2d s = new Statistic2d();
+			for(int i=0; i<10000; i++) { 
+				s.add(Math.random()*10-5, Math.random()*100-50);
+				s.add(Math.random()*2-1, Math.random()*100-50);
+			}
+			s.saveDistributionImage("teststat.png", 400, 400);
+			System.exit(0);
+			*/
+			
 			System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
 			
 			// Create profiling tool

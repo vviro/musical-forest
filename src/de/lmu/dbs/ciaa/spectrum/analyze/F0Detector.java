@@ -38,7 +38,7 @@ public class F0Detector {
 			data[i] = in[i];
 		}
 		double[][] f0s = new double[voices][]; // 0:bin, 1:magnitude
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE; //Double.MIN_VALUE;
 		for(int i=0; i<voices; i++) {
 			f0s[i] = getF0(data);
 			if (f0s[i][1] > max) max = f0s[i][1];
@@ -78,7 +78,7 @@ public class F0Detector {
 				if (bin >= 0 && in[f] > threshold) mag[f]+= in[bin];
 			}
 		}
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		int maxBin = -1;
 		for(int i=0; i<mag.length; i++) {
 			// Get max only

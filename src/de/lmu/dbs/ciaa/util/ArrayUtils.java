@@ -79,7 +79,7 @@ public class ArrayUtils {
 	 */
 	public static void normalize(double[][] data, final double ceil) {
 	    // Get maximum
-	    double max = Double.MIN_VALUE;
+	    double max = -Double.MAX_VALUE;
 	    for(int i=0; i<data.length; i++) {
 		    for(int j=0; j<data[i].length; j++) {
 		    	if (data[i][j] > max) max = data[i][j];

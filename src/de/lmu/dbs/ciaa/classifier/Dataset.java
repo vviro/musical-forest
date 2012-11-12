@@ -9,7 +9,6 @@ import java.util.List;
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.FileIO;
 import de.lmu.dbs.ciaa.util.PostfixFilenameFilter;
 

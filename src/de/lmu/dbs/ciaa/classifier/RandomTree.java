@@ -249,7 +249,7 @@ public class RandomTree extends Tree {
 		double[][] gain = getGains2(paramSet, noteLeft, noteRight, silenceLeft, silenceRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		int winner = 0;
 		int winnerThreshold = 0;
 		Statistic2d gainStat = new Statistic2d();
@@ -267,7 +267,9 @@ public class RandomTree extends Tree {
 		
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
-		gainStat.saveDistributionImage(params.workingFolder + File.separator + "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode + ".png", 400, 400);
+		String nf = "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode + ".png";
+		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400);
+		Log.write(pre + "Saved node thresholds/gains diagram to " + nf);
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
@@ -287,14 +289,11 @@ public class RandomTree extends Tree {
 			// TMP
 			/*for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
-			}*/
-			
-			//TODO Histogram X: gains accu, Y: thresholds in 10 zeilen
-			
+			}
 			//*/
 			//String thr = "";
 			float tmin = Float.MAX_VALUE;
-			float tmax = Float.MIN_VALUE;
+			float tmax = -Float.MAX_VALUE;
 			for(int i=0; i<thresholds[winner].length; i++) {
 				//thr += thresholds[winner][i] + ", ";
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];

@@ -2,8 +2,6 @@ package de.lmu.dbs.ciaa.util;
 
 import java.awt.Color;
 import java.io.File;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,8 +104,8 @@ public class Statistic2d {
 		List<Double> entries2 = var2.getEntries();
 		double m1 = var1.getMinimum();
 		double m2 = var2.getMinimum();
-		double xfactor = (double)width-1 / (var1.getMaximum()-m1);
-		double yfactor = (double)height-1 / (var2.getMaximum()-m2);
+		double xfactor = ((double)width-1) / (var1.getMaximum()-m1);
+		double yfactor = ((double)height-1) / (var2.getMaximum()-m2);
 		for(int i=0; i<entries1.size(); i++) {
 			int x = (int)((entries1.get(i)-m1) * xfactor);
 			int y = (int)((entries2.get(i)-m2) * yfactor);
@@ -126,8 +124,8 @@ public class Statistic2d {
 			}
 		}
 		SpectrumToImage img = new SpectrumToImage(width, height);
-		img.add(grid, Color.BLUE, null, 0);
-		img.add(data, Color.WHITE);
+		img.add(grid, Color.BLUE);
+		img.add(data, Color.WHITE, null, 0);
 		img.save(new File(filename));
 	}
 }
