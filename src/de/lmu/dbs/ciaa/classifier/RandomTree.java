@@ -1,6 +1,7 @@
 package de.lmu.dbs.ciaa.classifier;
 
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
+import de.lmu.dbs.ciaa.util.SpectrumToImage;
 import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
@@ -90,12 +92,17 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
+		if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+		
 		if (node.isLeaf()) {
+			node.debugTree[x][y] = node.probability;
 			return node.probability; //ies[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
+				node.debugTree[x][y] = 1;
 				return classifyRec(data, node.left, 1, x, y);
 			} else {
+				node.debugTree[x][y] = 2;
 				return classifyRec(data, node.right, 2, x, y);
 			}
 		}
@@ -571,6 +578,28 @@ public class RandomTree extends Tree {
 		double pa = (double)a/all;
 		double pb = (double)b/all;
 		return - pa * (Math.log(pa)/LOG2) - pb * (Math.log(pb)/LOG2);
+	}
+
+	/**
+	 * Saves the current debugTree for visualization of the nodes decisions 
+	 * at the last classification run.
+	 * 
+	 * @param filename
+	 * @throws Exception 
+	 */
+	public void saveDebugTree() throws Exception {
+		saveDebugTreeRec(tree, 0, 0);
+	}
+	
+	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
+		String nf = "T" + num + "_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+		SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
+		img.add(node.debugTree, Color.YELLOW);
+		img.save(new File(nf));
+		if (!node.isLeaf()) {
+			saveDebugTreeRec(node.left, depth+1, 1);
+			saveDebugTreeRec(node.right, depth+1, 2);
+		}
 	}
 	
 	/**

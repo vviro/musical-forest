@@ -1,8 +1,11 @@
 package de.lmu.dbs.ciaa.classifier;
 
+import java.awt.Color;
+import java.io.File;
 import java.io.Serializable;
 
 import de.lmu.dbs.ciaa.classifier.features.Feature;
+import de.lmu.dbs.ciaa.util.SpectrumToImage;
 
 /**
  * A node in the decision tree.
@@ -11,14 +14,22 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  *
  */
 public class Node implements Serializable {
-
+	
 	private static final long serialVersionUID = 2L;
+
+	/**
+	 * Stores the last classification done by this node. For debugging.
+	 */
+	public double[][] debugTree = null;
 
 	/**
 	 * Individual (ascending) node id (just for debugging)
 	 */
 	public long id = -1;
 	
+	/**
+	 * Next node id
+	 */
 	public static long nextId = 0;
 	
 	/**
@@ -40,7 +51,6 @@ public class Node implements Serializable {
 	 * If the node is a leaf, here the probabilities for each frequency are stored
 	 */
 	//public float[] probabilities = null; 
-	
 	public float probability = 0;
 	
 	public Node() {
@@ -48,6 +58,19 @@ public class Node implements Serializable {
 			this.id = nextId;
 			nextId++;
 		}
+	}
+	
+	/**
+	 * Saves the current debugTree for visualization of the nodes decisions 
+	 * at the last classification run.
+	 * 
+	 * @param filename
+	 * @throws Exception 
+	 */
+	public void saveDebugTree(String filename) throws Exception {
+		SpectrumToImage img = new SpectrumToImage(debugTree.length, debugTree[0].length);
+		img.add(debugTree, Color.YELLOW);
+		img.save(new File(filename));
 	}
 	
 	/**

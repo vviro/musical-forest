@@ -236,4 +236,14 @@ public class Forest {
 		}
 		return ret;
 	}
+
+	/**
+	 * Returns the tree list.
+	 * 
+	 * @return
+	 */
+	public List<Tree> getTrees() {
+		return trees;
+	}
+
 }

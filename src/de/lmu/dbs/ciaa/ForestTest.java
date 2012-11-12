@@ -227,6 +227,13 @@ public class ForestTest {
 			float[][] dataForest = forest.classify(dataOob); 
 			m.measure("Finished testing forest");
 			
+			// Save node images
+			for(int i=0; i<forest.getTrees().size(); i++) {
+				RandomTree t = (RandomTree)forest.getTrees().get(i);
+				t.saveDebugTree();
+			}
+			m.measure("Saved node visualization images");
+			
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
 			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length);
