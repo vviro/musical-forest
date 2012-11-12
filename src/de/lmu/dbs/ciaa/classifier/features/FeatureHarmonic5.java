@@ -16,7 +16,7 @@ public class FeatureHarmonic5 extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
-	public double[] harmonicFactors = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
+	public double[] harmonicFactors = null; //{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
@@ -29,10 +29,10 @@ public class FeatureHarmonic5 extends Feature {
 	 * 
 	 */
 	public FeatureHarmonic5(final ForestParameters params) {
-		//harmonicFactors = new double[harmonics.length];
+		harmonicFactors = new double[harmonics.length];
 		for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
-			//harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}
 		//this.threshold = Math.random() * getMaxValue();
