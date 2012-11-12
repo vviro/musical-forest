@@ -254,7 +254,10 @@ public class RandomTree extends Tree {
 		double max = -Double.MAX_VALUE;
 		int winner = 0;
 		int winnerThreshold = 0;
-		Statistic2d gainStat = new Statistic2d();
+
+		double min = Double.MAX_VALUE; // TMP
+		Statistic2d gainStat = new Statistic2d(); // TMP
+		
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
 				if(gain[i][j] > max) {
@@ -263,16 +266,14 @@ public class RandomTree extends Tree {
 					winnerThreshold = j;
 				}
 				// TMP
-				gainStat.add(thresholds[i][j], gain[i][j]);  
+				if(gain[i][j] < min) min = gain[i][j];
+				gainStat.add(thresholds[i][j], gain[i][j]);
+				// /TMP
 			}
 		}
 		
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
-		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-		Scale s = new LogScale(10);
-		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
-		Log.write(pre + "Saved node thresholds/gains diagram to " + nf, System.out);
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
@@ -289,6 +290,7 @@ public class RandomTree extends Tree {
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
 			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));
+			Log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
 			Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
 			for(int i=0; i<thresholds[winner].length; i++) {
@@ -308,6 +310,10 @@ public class RandomTree extends Tree {
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			//Log.write(pre + "Tested winner thresholds: " + thr);
 		}
+		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+		Scale s = new LogScale(10);
+		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
+		Log.write(pre + "Saved node thresholds/gains diagram to " + nf, System.out);
 		//////////////////////////////////////////////////
 		
 		// See in info gain is sufficient:
