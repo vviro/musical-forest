@@ -292,7 +292,7 @@ public class RandomTree extends Tree {
 			double note = noteLeft[0][0] + noteRight[0][0];
 			double silence = silenceLeft[0][0] + silenceRight[0][0];
 			double leftGainW = (double)noteLeft[winner][winnerThreshold] / note - (double)silenceLeft[winner][winnerThreshold] / silence;
-			double rightGainW= (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
+			double rightGainW = (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
 			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
