@@ -1,5 +1,7 @@
 package de.lmu.dbs.ciaa.util;
 
+import java.awt.Color;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,35 +92,38 @@ public class Statistic2d {
 	}
 	
 	/**
-	 * Returns the distribution histogram of entries for console/file output.
+	 * Saves a visualization of the 2d distribution to a png file.
 	 * 
 	 * @param bins number of histogram bins
 	 * @param maxL width of histogram in characters
 	 * @return
+	 * @throws Exception 
 	 */
-	public String getDistributionString(int bins, int maxL) {
+	public void saveDistributionImage(String filename, int width, int height) throws Exception {
+		long[][] data = new long[width][height];
+		byte[][] grid = new byte[width][height];
 		List<Double> entries1 = var1.getEntries();
-		double min1 = var1.getMinimum();
-		double max1 = var1.getMaximum();
 		List<Double> entries2 = var2.getEntries();
-		String ret = "";
-		double[] s = new double[bins];
-		double f = (bins-1) / (max1 - min1);
-		double maxS = Double.MIN_VALUE;
+		double m1 = var1.getMinimum();
+		double m2 = var2.getMinimum();
+		double xfactor = (double)width / entries1.size();
+		double yfactor = (double)height / entries2.size();
 		for(int i=0; i<entries1.size(); i++) {
-			int index = (int)((entries1.get(i)-min1)*f);
-			s[index] += entries2.get(i);
-			if (s[index] > maxS) maxS = s[index];
+			int x = (int)((entries1.get(i)-m1) * xfactor);
+			int y = (int)((entries2.get(i)-m2) * yfactor);
+			data[x][y]++;
 		}
-		maxS/= (double)maxL;
-		DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00000000" );
-		for(int i=0; i<s.length; i++) {
-			ret += df2.format((i/f)+min1) + ": ";
-			int scaled = (int)(s[i]/maxS);
-			for(int j=0; j<scaled; j++) ret += "#";
-			ret += " (" + (int)s[i] + ")\n";
+		int gx = (int)((-m1) * xfactor);
+		int gy = (int)((-m2) * yfactor);
+		for(int i=0; i<width; i++) {
+			grid[i][gy] = 1;
 		}
-		return ret;
+		for(int i=0; i<height; i++) {
+			grid[gx][i] = 1;
+		}
+		SpectrumToImage img = new SpectrumToImage(width, height);
+		img.add(grid, Color.BLUE, null, 0);
+		img.add(data, Color.WHITE);
+		img.save(new File(filename));
 	}
-	
 }

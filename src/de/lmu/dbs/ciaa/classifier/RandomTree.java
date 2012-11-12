@@ -1,6 +1,7 @@
 package de.lmu.dbs.ciaa.classifier;
 
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -266,6 +267,7 @@ public class RandomTree extends Tree {
 		
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
+		gainStat.saveDistributionImage(params.workingFolder + File.separator + "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode, 400, 400);
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
@@ -286,8 +288,6 @@ public class RandomTree extends Tree {
 			/*for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
 			}*/
-			
-			Log.write(pre + "Gains / Thresholds: \n" + gainStat.getDistributionString(20, 80));
 			
 			//TODO Histogram X: gains accu, Y: thresholds in 10 zeilen
 			
