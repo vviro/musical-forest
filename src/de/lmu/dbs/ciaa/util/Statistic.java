@@ -167,4 +167,13 @@ public class Statistic {
 		return ret;
 	}
 	
+	/**
+	 * Returns the entries list.
+	 * 
+	 * @return
+	 */
+	public List<Double> getEntries() {
+		return entries;
+	}
+	
 }

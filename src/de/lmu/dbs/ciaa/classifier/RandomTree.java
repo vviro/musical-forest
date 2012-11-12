@@ -12,6 +12,7 @@ import java.util.List;
 import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.Statistic;
+import de.lmu.dbs.ciaa.util.Statistic2d;
 
 /**
  * Represents one random decision tree, with pixelwise classification.
@@ -250,6 +251,7 @@ public class RandomTree extends Tree {
 		double max = Double.MIN_VALUE;
 		int winner = 0;
 		int winnerThreshold = 0;
+		Statistic2d gainStat = new Statistic2d();
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
 				if(gain[i][j] > max) {
@@ -257,6 +259,8 @@ public class RandomTree extends Tree {
 					winner = i;
 					winnerThreshold = j;
 				}
+				// TMP
+				gainStat.add(thresholds[i][j], gain[i][j]);  
 			}
 		}
 		
@@ -281,9 +285,11 @@ public class RandomTree extends Tree {
 			// TMP
 			/*for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
-			}
+			}*/
 			
-			TODO Histogram X: gains accu, Y: thresholds in 10 zeilen
+			Log.write(pre + "Gains / Thresholds: \n" + gainStat.getDistributionString(20, 80));
+			
+			//TODO Histogram X: gains accu, Y: thresholds in 10 zeilen
 			
 			//*/
 			//String thr = "";
@@ -353,7 +359,7 @@ public class RandomTree extends Tree {
 	 * @param silenceLeft
 	 * @param silenceRight
 	 * @return
-	 */
+	 *
 	private double[][] getGains_01(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		double note = noteLeft[0][0] + noteRight[0][0];
@@ -381,7 +387,7 @@ public class RandomTree extends Tree {
 	 * @param silenceRight
 	 * @param noteRatio
 	 * @return
-	 */
+	 *
 	private double[][] getGains(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		//double note = noteLeft[0][0] + noteRight[0][0];
@@ -433,7 +439,7 @@ public class RandomTree extends Tree {
 	 * @param silenceRight
 	 * @param noteRatio
 	 * @return
-	 */
+	 *
 	private double[][] getGains_Kinect(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
 		// Calculate shannon entropy for all parameter sets to get the best set TODO optimizeable (note / silence sind immer gleich)
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
