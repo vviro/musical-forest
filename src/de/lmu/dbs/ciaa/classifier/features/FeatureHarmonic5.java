@@ -158,7 +158,7 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	@Override
 	public float getMaxValue() {
-		return 5000000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
+		return 5000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
 		//return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1) * (harmonics.length + 1) * 10);
 	}
 
