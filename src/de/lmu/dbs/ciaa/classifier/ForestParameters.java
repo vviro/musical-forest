@@ -1,6 +1,7 @@
 package de.lmu.dbs.ciaa.classifier;
 
 import de.lmu.dbs.ciaa.classifier.features.Feature;
+import de.lmu.dbs.ciaa.classifier.features.MCFeature;
 
 /**
  * Contains parameters for growing random trees and features. In normal 
@@ -173,6 +174,8 @@ public class ForestParameters {
 	 * Show thread polling status information.
 	 */
 	public boolean debugThreadPolling = false;
+	
+	public MCFeature mcFeatureFactory = null;
 	
 	/**
 	 * Checks value integrity.

@@ -176,14 +176,14 @@ public class ForestTest {
 			*/
 			
 			// Grow forest with training part of data
-			Forest forest;
+			MCForest forest;
 			if (!params.loadForest) {
 				// Grow
-				List<Tree> trees = new ArrayList<Tree>();
+				List<MCTree> trees = new ArrayList<MCTree>();
 				for(int i=0; i<params.forestSize; i++) {
-					trees.add(new RandomTree(params, i));
+					trees.add(new MCRandomTree(params, i));
 				}
-				forest = new Forest(trees, params);
+				forest = new MCForest(trees, params);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
 				m.measure("Finished growing random forest");
@@ -196,7 +196,7 @@ public class ForestTest {
 	
 			} else {
 				// Load
-				forest = Forest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
+				forest = MCForest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 	
@@ -229,7 +229,7 @@ public class ForestTest {
 			
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
-				RandomTree t = (RandomTree)forest.getTrees().get(i);
+				MCRandomTree t = (MCRandomTree)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
 			m.measure("Saved node visualization images");
