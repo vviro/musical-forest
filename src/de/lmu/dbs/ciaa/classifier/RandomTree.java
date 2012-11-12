@@ -269,7 +269,7 @@ public class RandomTree extends Tree {
 		
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
-		String nf = "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode + ".png";
+		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 		Scale s = new LogScale(10);
 		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
 		Log.write(pre + "Saved node thresholds/gains diagram to " + nf, System.out);
@@ -285,6 +285,7 @@ public class RandomTree extends Tree {
 			double silence = silenceLeft[0][0] + silenceRight[0][0];
 			double leftGainW = (double)noteLeft[winner][winnerThreshold] / note - (double)silenceLeft[winner][winnerThreshold] / silence;
 			double rightGainW= (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
+			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
 			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));

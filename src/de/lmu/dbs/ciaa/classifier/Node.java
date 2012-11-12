@@ -12,8 +12,15 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  */
 public class Node implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
+	/**
+	 * Individual (ascending) node id (just for debugging)
+	 */
+	public long id = -1;
+	
+	public static long nextId = 0;
+	
 	/**
 	 * The feature which classifies the node branches
 	 */
@@ -35,6 +42,13 @@ public class Node implements Serializable {
 	//public float[] probabilities = null; 
 	
 	public float probability = 0;
+	
+	public Node() {
+		synchronized(this) {
+			this.id = nextId;
+			nextId++;
+		}
+	}
 	
 	/**
 	 * Determines whether the node is a leaf or not.
