@@ -272,7 +272,7 @@ public class RandomTree extends Tree {
 		String nf = "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode + ".png";
 		Scale s = new LogScale(10);
 		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
-		Log.write(pre + "Saved node thresholds/gains diagram to " + nf);
+		Log.write(pre + "Saved node thresholds/gains diagram to " + nf, System.out);
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
