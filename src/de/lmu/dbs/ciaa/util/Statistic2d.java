@@ -88,16 +88,17 @@ public class Statistic2d {
 		ret += "Var2: Min: " + var2.getMinimum() + "; Max: " + var2.getMaximum() + "; Avg: " + var2.getAverage();
 		return ret; 
 	}
-	
+
 	/**
 	 * Saves a visualization of the 2d distribution to a png file.
 	 * 
-	 * @param bins number of histogram bins
-	 * @param maxL width of histogram in characters
-	 * @return
-	 * @throws Exception 
+	 * @param filename
+	 * @param width
+	 * @param height
+	 * @param scale
+	 * @throws Exception
 	 */
-	public void saveDistributionImage(String filename, int width, int height) throws Exception {
+	public void saveDistributionImage(String filename, int width, int height, Scale scale) throws Exception {
 		long[][] data = new long[width][height];
 		byte[][] grid = new byte[width][height];
 		List<Double> entries1 = var1.getEntries();
@@ -125,7 +126,7 @@ public class Statistic2d {
 		}
 		SpectrumToImage img = new SpectrumToImage(width, height);
 		img.add(grid, Color.BLUE);
-		img.add(data, Color.WHITE, null, 0);
+		img.add(data, Color.WHITE, scale, 0);
 		img.save(new File(filename));
 	}
 }

@@ -12,6 +12,8 @@ import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.util.Log;
+import de.lmu.dbs.ciaa.util.LogScale;
+import de.lmu.dbs.ciaa.util.Scale;
 import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
@@ -268,7 +270,8 @@ public class RandomTree extends Tree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		String nf = "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode + ".png";
-		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400);
+		Scale s = new LogScale(10);
+		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
 		Log.write(pre + "Saved node thresholds/gains diagram to " + nf);
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
