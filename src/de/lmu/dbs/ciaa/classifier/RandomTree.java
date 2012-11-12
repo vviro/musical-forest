@@ -423,8 +423,8 @@ public class RandomTree extends Tree {
 		int numOfFeatures = paramSet.size();
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = (double)noteLeft[i][j] / note - (double)silenceLeft[i][j] / silence;
-				double rightGain= (double)silenceRight[i][j] / silence - (double)noteRight[i][j] / note;
+				double leftGain = ((double)noteLeft[i][j] / note)/noteRatio - (double)silenceLeft[i][j] / silence;
+				double rightGain= (double)silenceRight[i][j] / silence - ((double)noteRight[i][j] / note)/noteRatio;
 				gain[i][j] = leftGain + rightGain;
 			}
 		}
