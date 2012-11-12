@@ -106,8 +106,8 @@ public class Statistic2d {
 		List<Double> entries2 = var2.getEntries();
 		double m1 = var1.getMinimum();
 		double m2 = var2.getMinimum();
-		double xfactor = (double)width / entries1.size();
-		double yfactor = (double)height / entries2.size();
+		double xfactor = (double)width-1 / (var1.getMaximum()-m1);
+		double yfactor = (double)height-1 / (var2.getMaximum()-m2);
 		for(int i=0; i<entries1.size(); i++) {
 			int x = (int)((entries1.get(i)-m1) * xfactor);
 			int y = (int)((entries2.get(i)-m2) * yfactor);
@@ -115,11 +115,15 @@ public class Statistic2d {
 		}
 		int gx = (int)((-m1) * xfactor);
 		int gy = (int)((-m2) * yfactor);
-		for(int i=0; i<width; i++) {
-			grid[i][gy] = 1;
+		if (gy >= 0 && gy < height) {
+			for(int i=0; i<width; i++) {
+				grid[i][gy] = 1;
+			}
 		}
-		for(int i=0; i<height; i++) {
-			grid[gx][i] = 1;
+		if (gx >= 0 && gx < width) {
+			for(int i=0; i<height; i++) {
+				grid[gx][i] = 1;
+			}
 		}
 		SpectrumToImage img = new SpectrumToImage(width, height);
 		img.add(grid, Color.BLUE, null, 0);

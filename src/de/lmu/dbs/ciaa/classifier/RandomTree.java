@@ -267,7 +267,7 @@ public class RandomTree extends Tree {
 		
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
-		gainStat.saveDistributionImage(params.workingFolder + File.separator + "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode, 400, 400);
+		gainStat.saveDistributionImage(params.workingFolder + File.separator + "T" + num + "_gainDist_Depth" + depth + "_mode_" + mode + ".png", 400, 400);
 		if (params.logNodeInfo) {
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
