@@ -15,7 +15,7 @@ public class MIDIRandomGenerator {
 	/**
 	 * Polyphonic or monophonic rendering
 	 */
-	boolean polyphonic = false;
+	boolean groups = false;
 	
 	/**
 	 * length of generated MIDI files in milliseconds
@@ -57,6 +57,8 @@ public class MIDIRandomGenerator {
 	 */
 	public long maxPauseBetween;
 	
+	public int harmonicComplexity;
+	
 	/**
 	 * Creates a polyphonic generator instance.
 	 * 
@@ -75,7 +77,7 @@ public class MIDIRandomGenerator {
 		this.length = length;
 		this.bpm = bpm;
 		this.notes = numOfNotes;
-		this.polyphonic = true;
+		this.groups = false;
 	}
 	
 	/**
@@ -85,7 +87,7 @@ public class MIDIRandomGenerator {
 	 * @param bpm beats per minute
 	 * @throws Exception
 	 */
-	public MIDIRandomGenerator(final long length, final int bpm, final long maxPauseBetween) throws Exception {
+	public MIDIRandomGenerator(final long length, final int bpm, final int harmonicComplexity, final long maxPauseBetween) throws Exception {
 		if (length <= 0) {
 			throw new Exception("Invalid length: " + length);
 		}
@@ -94,8 +96,9 @@ public class MIDIRandomGenerator {
 		}
 		this.length = length;
 		this.bpm = bpm;
-		this.polyphonic = false;
+		this.groups = true;
 		this.maxPauseBetween = maxPauseBetween;
+		this.harmonicComplexity = harmonicComplexity;
 	}
 
 	/**
@@ -145,10 +148,10 @@ public class MIDIRandomGenerator {
 		long[] not = null;
 		for(int it=0; it<numOfFiles; it++) {
 			ma = new MIDIAdapter(bpm);
-			if (polyphonic) {
-				not = ma.generateRandomNotesPoly(0, ticks, notes, minNote, maxNote, minDuration, maxDuration); // Generate to track 0
+			if (groups) {
+				not = ma.generateRandomNoteGroups(0, ticks, minNote, maxNote, minDuration, maxDuration, maxPauseBetween, harmonicComplexity); // Generate to track 0
 			} else {
-				not = ma.generateRandomNotesMono(0, ticks, minNote, maxNote, minDuration, maxDuration, maxPauseBetween); // Generate to track 0
+				not = ma.generateRandomNotesPoly(0, ticks, notes, minNote, maxNote, minDuration, maxDuration); // Generate to track 0
 			}
 			String filename = midiFilePrefix + it + midiFilePostfix;
 			ma.writeFile(new File(filename));

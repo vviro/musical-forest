@@ -21,21 +21,22 @@ public class MIDIGenerator {
 		MIDIRandomGenerator g;
 		
 		// Params
-		int numOfFiles = 5; 
-		boolean polyphonic = false;
+		int numOfFiles = 10; 
+		boolean groups = true;
 		long length = 1000 * 60 * 2; // file length in ms
 		int bpm = 120; // beats per minute
 		String targetFolder = "testdata/"; // folder for the files (with separator!)
-		String targetName = "random_poly";  // name of the new files
+		String targetName = "random_grouped";  // name of the new files
 		int minNote = 44;
 		int maxNote = 100;
 		
-		// only for polyphonic mode
+		// only for random polyphonic mode
 		double notesPerSecond = 4;
 		long maxDurationPoly = 500;
 		long minDurationPoly = 200;
 		
-		// only for monophonic mode
+		// only for grouped mode
+		int harmonicComplexity = 3; // if gt 0, this indicates the maximum timbrality per frame. Groups of notes will be created. Set to 1 to produce monophonic files.
 		long maxPauseBetween = 350;
 		long maxDuration = 500;
 		long minDuration = 130;
@@ -43,15 +44,15 @@ public class MIDIGenerator {
 		try {
 			// Create profiling tool
 			RuntimeMeasure m = new RuntimeMeasure(System.out);
-			if (polyphonic) {
+			if (groups) {
+				g = new MIDIRandomGenerator(length, bpm, harmonicComplexity, maxPauseBetween);
+				g.maxDuration = maxDuration;
+				g.minDuration = minDuration;
+			} else {
 				int numOfNotes = (int)(((double)length / 1000) * notesPerSecond); 
 				g = new MIDIRandomGenerator(length, bpm, numOfNotes);
 				g.maxDuration = maxDurationPoly;
 				g.minDuration = minDurationPoly;
-			} else {
-				g = new MIDIRandomGenerator(length, bpm, maxPauseBetween);
-				g.maxDuration = maxDuration;
-				g.minDuration = minDuration;
 			}
 			g.maxNote = maxNote;
 			g.minNote = minNote;

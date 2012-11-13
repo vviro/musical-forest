@@ -17,7 +17,7 @@
 	
 	<property name="lib-directory" location="lib" />
 	
-	<property name="main-class" value="${project-name}.testdata.MIDIGenerator" />
+	<property name="main-class" value="${project-name}.testdata.CQTGenerator" />
 	
     <path id="classpath_default">
     	<pathelement path="${lib-directory}/RasmusDSP/rasmusdsp.jar"/>

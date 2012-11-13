@@ -280,6 +280,42 @@ public class MIDI {
 	}
 	
 	/**
+	 * Generates polyphonic random note groups. Returns the amount
+	 * of created notes, in a histogram array over MIDI notes.
+	 * 
+	 * @param track the target track for the notes
+	 * @param length length of sample in ticks
+	 * @param notesCount number of notes to render
+	 * @param minNote lowest note
+	 * @param maxNote highest note
+	 * @param minDuration lowest duration
+	 * @param maxDuration highest duration
+	 * @throws Exception
+	 */
+	public long[] generateRandomNoteGroups(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration, final long maxPauseBetween, final int harmonicComplexity) throws Exception {
+		if (harmonicComplexity < 1) throw new Exception("Harmonic complexity below min value 1: " + harmonicComplexity);
+		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
+		long pos = 0;
+		while(pos < length-1) {
+			long duration = RandomUtils.randomLong(minDuration, maxDuration);
+			if (pos + duration >= length) duration = length - pos - 1;
+			int amt = RandomUtils.randomInt(1, harmonicComplexity);
+			int lastNote = -1;
+			for(int i=0; i<amt; i++) {
+				int note = lastNote;
+				while(note == lastNote) {
+					note = RandomUtils.randomInt(minNote, maxNote);
+				}
+				lastNote = note;
+				setNote(pos, duration, note, 127, track);
+				ret[note - MIN_NOTE_NUMBER]++;
+			}
+			pos+= duration + RandomUtils.randomLong(maxPauseBetween);
+		}
+		return ret;
+	}
+	
+	/**
 	 * Generates monophonic random notes. Divides the length into random chunks. Returns
 	 * the amount of created notes, in a histogram array over MIDI notes.
 	 * 
