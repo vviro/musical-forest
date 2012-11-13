@@ -97,7 +97,7 @@ public class MCRandomTree extends MCTree {
 		
 		if (node.isLeaf()) {
 			node.debugTree[x][y] = node.probabilities[y];
-			return 1 - node.probabilities[y]; //ies[y]; //(mode==1) ? data[x][y] : 0; //
+			return node.probabilities[y]; //ies[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				node.debugTree[x][y] = 1;
@@ -413,7 +413,7 @@ public class MCRandomTree extends MCTree {
 	 */
 	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float[] ret = new float[params.frequencies.length];
-		float maxP = Float.MIN_VALUE;
+		//float maxP = Float.MIN_VALUE;
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] midi = dataset.getMidi();
@@ -424,16 +424,18 @@ public class MCRandomTree extends MCTree {
 					if (mode == cla[x][y]) { 
 						if (midi[x][y] > 0) {
 							ret[y]++;
-							if (ret[y] > maxP) maxP = ret[y];
+							//if (ret[y] > maxP) maxP = ret[y];
 						}
 					}
 				}
 			}
 		}
 		// Normalize
+		/*
 		for(int i=0; i<ret.length; i++) {
 			ret[i] = ret[i] / maxP; 
 		}
+		*/
 		return ret;
 	}
 	
