@@ -449,15 +449,8 @@ public class RandomTree extends Tree {
 	}
 
 	/**
-	 * Info gain calculation upon shannon entropy. 
+	 * Info gain calculation upon shannon entropy.
 	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @param noteRatio
-	 * @return
 	 */
 	private double[][] getGains3(List<Feature> paramSet, long[][][] classificationLeft, long[][][] classificationRight, double noteRatio) {
 		// Calculate shannon entropy for all parameter sets to get the best set
