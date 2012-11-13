@@ -32,7 +32,7 @@
 		forestSize="1"
 		maxDepth="1"
 		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="1"
+		numOfRandomFeatures="15"
 		thresholdCandidatesPerFeature="300"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
 		mcFeatureFactoryClass="de.lmu.dbs.ciaa.classifier.features.MCFeatureHarmonic1"
