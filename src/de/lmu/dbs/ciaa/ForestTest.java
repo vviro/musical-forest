@@ -119,7 +119,7 @@ public class ForestTest {
 		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
 		String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		//String treeImgFile = "featuresOverviewY.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
-		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
+		String testFile = "testdata/mono/wav/mono5.wav"; // "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
