@@ -147,6 +147,8 @@ public class MCFeatureHarmonic1 extends MCFeature {
 		return 1000; //(float)(Byte.MAX_VALUE-1);         // Unused 
 	}
 	
+	public double lambda = 0.01;
+	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
@@ -154,7 +156,7 @@ public class MCFeatureHarmonic1 extends MCFeature {
 	 */
 	@Override
 	public float getRandomThreshold() {
-		return (float)Exponential.staticNextDouble(0.02);
+		return (float)Exponential.staticNextDouble(lambda);
 	}
 	
 

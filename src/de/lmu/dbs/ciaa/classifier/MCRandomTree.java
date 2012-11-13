@@ -315,7 +315,8 @@ public class MCRandomTree extends MCTree {
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
 			Log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
-			Log.write(pre + "Feature maxvalue: " + params.mcFeatureFactory.getMaxValue());
+			//Log.write(pre + "Feature maxvalue: " + params.mcFeatureFactory.getMaxValue());
+			//Log.write(pre + "Feature lambda: " + ((MCFeatureHarmonic1)params.mcFeatureFactory).lambda);
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
