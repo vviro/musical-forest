@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,7 @@ import de.lmu.dbs.ciaa.util.Statistic2d;
  */
 public class MCRandomTree extends MCTree {
 
-	private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
+	//private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
 	
 	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
@@ -478,11 +477,11 @@ public class MCRandomTree extends MCTree {
 				}
 			}
 		}
-		if (mode == 1) {
+		//if (mode == 1) {
 			return ret/(ret+not);
-		} else {
+		/*} else {
 			return 1-(ret/(ret+not));
-		}
+		}*/
 	}
 
 	/**
