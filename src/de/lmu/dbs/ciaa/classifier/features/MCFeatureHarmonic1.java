@@ -154,7 +154,7 @@ public class MCFeatureHarmonic1 extends MCFeature {
 	 */
 	@Override
 	public float getRandomThreshold() {
-		return (float)Exponential.staticNextDouble(0.5);
+		return (float)Exponential.staticNextDouble(0.2);
 	}
 	
 
