@@ -21,11 +21,11 @@ public class MIDIGenerator {
 		MIDIRandomGenerator g;
 		
 		// Params
-		int numOfFiles = 1; 
-		boolean polyphonic = true;
-		long length = 1000 * 60 * 10; // file length in ms
+		int numOfFiles = 5; 
+		boolean polyphonic = false;
+		long length = 1000 * 60 * 2; // file length in ms
 		int bpm = 120; // beats per minute
-		String targetFolder = "testdata/poly/"; // folder for the files (with separator!)
+		String targetFolder = "testdata/"; // folder for the files (with separator!)
 		String targetName = "random_poly";  // name of the new files
 		int minNote = 44;
 		int maxNote = 100;

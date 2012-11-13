@@ -193,7 +193,7 @@ public class MCRandomTree extends MCTree {
 			// Make it a leaf node
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode);
+			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode + ", probability: " + node.probability);
 			return;
 		}
 		
@@ -336,7 +336,7 @@ public class MCRandomTree extends MCTree {
 			// No, make leaf and return
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode);
+			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode + ", probability: " + node.probability);
 			return;
 		}
 		

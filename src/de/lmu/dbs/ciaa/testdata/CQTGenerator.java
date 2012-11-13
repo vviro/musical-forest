@@ -23,9 +23,9 @@ public class CQTGenerator {
 		boolean saveCqt = true;
 		boolean savePng = true;
 		boolean savePeak = true;
-		File srcFolder = new File("testdata/poly/wav/");
-		File cqtFolder = new File("testdata/poly/cqt/");
-		File pngFolder = new File("testdata/poly/png/");
+		File srcFolder = new File("testdata/");
+		File cqtFolder = new File("testdata/");
+		File pngFolder = new File("testdata/");
 		String cqtPostfix = ".cqt";
 		String peakPostfix = ".peak";
 		String pngPostfix = ".png";

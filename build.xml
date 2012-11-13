@@ -17,7 +17,7 @@
 	
 	<property name="lib-directory" location="lib" />
 	
-	<property name="main-class" value="${project-name}.ForestTest" />
+	<property name="main-class" value="${project-name}.testdata.MIDIGenerator" />
 	
     <path id="classpath_default">
     	<pathelement path="${lib-directory}/RasmusDSP/rasmusdsp.jar"/>
@@ -113,7 +113,7 @@
 
 	<target name="run" description="run the project">    
 		<java jar="${build-directory}/${jar-file}" fork="true">
-			<jvmarg value="-Xmx512m" />
+			<jvmarg value="-Xmx1024m" />
 			<!--
 			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 			-->
