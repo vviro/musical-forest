@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;

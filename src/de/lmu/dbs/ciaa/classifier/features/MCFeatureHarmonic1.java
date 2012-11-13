@@ -6,7 +6,6 @@ import java.util.List;
 import cern.jet.random.Exponential;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
-import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
  * Feature implementation with Kinect formula.
@@ -147,7 +146,11 @@ public class MCFeatureHarmonic1 extends MCFeature {
 		return 1000; //(float)(Byte.MAX_VALUE-1);         // Unused 
 	}
 	
-	public double lambda = 0.01;
+	/**
+	 * Lambda parameter for exponential distribution of randomly 
+	 * created threshold candidates
+	 */
+	public double lambda = 0.05;
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
