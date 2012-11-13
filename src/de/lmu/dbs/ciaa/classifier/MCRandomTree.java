@@ -206,7 +206,7 @@ public class MCRandomTree extends MCTree {
 		float[][] thresholds = new float[numOfFeatures][params.thresholdCandidatesPerFeature];
 		for(int i=0; i<thresholds.length; i++) {
 			for(int k=0; k<params.thresholdCandidatesPerFeature; k++) {
-				thresholds[i][k] = (float)(Math.random() * (double)params.mcFeatureFactory.getMaxValue());
+				thresholds[i][k] = params.mcFeatureFactory.getRandomThreshold();
 			}
 		}
 
@@ -302,7 +302,6 @@ public class MCRandomTree extends MCTree {
 			Log.write(pre + "Gain min: " + min + ", max: " + max);
 			//Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
-			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
 			}

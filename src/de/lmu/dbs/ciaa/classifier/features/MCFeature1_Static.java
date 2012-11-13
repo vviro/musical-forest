@@ -91,4 +91,5 @@ public class MCFeature1_Static extends MCFeature {
 	public float getMaxValue() {
 		return (float)(Byte.MAX_VALUE-1);
 	}
+	
 }

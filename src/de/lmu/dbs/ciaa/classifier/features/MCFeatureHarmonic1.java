@@ -3,6 +3,8 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import cern.jet.random.Exponential;
+
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
@@ -144,4 +146,16 @@ public class MCFeatureHarmonic1 extends MCFeature {
 	public float getMaxValue() {
 		return 1000; //(float)(Byte.MAX_VALUE-1);
 	}
+	
+	/**
+	 * Returns a randomly generated threshold candidate for the feature.
+	 * 
+	 * @return
+	 */
+	@Override
+	public float getRandomThreshold() {
+		return (float)Exponential.staticNextDouble(1);
+	}
+	
+
 }
