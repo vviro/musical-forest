@@ -50,8 +50,8 @@ public class MCNode implements Serializable {
 	/**
 	 * If the node is a leaf, here the probabilities for each frequency are stored
 	 */
-	//public float[] probabilities = null; 
-	public float probability = 0;
+	public float[] probabilities = null; 
+	//public float probability = 0;
 	
 	public MCNode() {
 		synchronized(this) {

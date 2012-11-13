@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
@@ -96,8 +97,8 @@ public class MCRandomTree extends MCTree {
 		if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
 		
 		if (node.isLeaf()) {
-			node.debugTree[x][y] = node.probability;
-			return node.probability; //ies[y]; //(mode==1) ? data[x][y] : 0; //
+			node.debugTree[x][y] = node.probabilities[y];
+			return node.probabilities[y]; //ies[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				node.debugTree[x][y] = 1;
@@ -191,9 +192,9 @@ public class MCRandomTree extends MCTree {
 		// See if we exceeded max recursion depth
 		if (depth >= maxDepth) {
 			// Make it a leaf node
-			node.probability = calculateLeaf2(sampler, classification, mode, depth);
+			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode);
 			return;
 		}
 		
@@ -205,14 +206,14 @@ public class MCRandomTree extends MCTree {
 		float[][] thresholds = new float[numOfFeatures][params.thresholdCandidatesPerFeature];
 		for(int i=0; i<thresholds.length; i++) {
 			for(int k=0; k<params.thresholdCandidatesPerFeature; k++) {
-				thresholds[i][k] = (float)(Math.random() * params.featureFactory.getMaxValue());
+				thresholds[i][k] = (float)(Math.random() * (double)params.mcFeatureFactory.getMaxValue());
 			}
 		}
 
-		long[][] silenceLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] noteLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] silenceRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] noteRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		long[][][] noteLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][params.frequencies.length];
+		long[][][] noteRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][params.frequencies.length];
+		long[][] amountLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		long[][] amountRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
 		
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
@@ -234,18 +235,16 @@ public class MCRandomTree extends MCTree {
 							float ev = feature.evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
 								if (ev >= thresholds[k][g]) {
+									amountLeft[k][g]++;
 									// Left
 									if (midi[x][y] > 0) {
-										noteLeft[k][g]++;
-									} else {
-										silenceLeft[k][g]++;
+										noteLeft[k][g][y]++;
 									}
 								} else {
+									amountRight[k][g]++;
 									// Right
 									if (midi[x][y] > 0) {
-										noteRight[k][g]++;
-									} else {
-										silenceRight[k][g]++;
+										noteRight[k][g][y]++;
 									}
 								}
 							}
@@ -256,7 +255,7 @@ public class MCRandomTree extends MCTree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains2(paramSet, noteLeft, noteRight, silenceLeft, silenceRight, noteRatio);
+		double[][] gain = getGains_MC(paramSet, noteLeft, noteRight, amountLeft, amountRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
@@ -283,6 +282,7 @@ public class MCRandomTree extends MCTree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
+			/*
 			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
 			long noteLeftW = noteLeft[winner][winnerThreshold];
 			double noteLeftWCorr = noteLeftW/noteRatio;
@@ -294,15 +294,16 @@ public class MCRandomTree extends MCTree {
 			double silence = silenceLeft[0][0] + silenceRight[0][0];
 			double leftGainW = (double)noteLeft[winner][winnerThreshold] / note - (double)silenceLeft[winner][winnerThreshold] / silence;
 			double rightGainW = (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
+			*/
 			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
-			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
-			Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
-			Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));
-			Log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
-			Log.write(pre + "Amount of counted samples: " + allW);
+			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
+			//Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
+			//Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));
+			Log.write(pre + "Gain min: " + min + ", max: " + max);
+			//Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
 			for(int i=0; i<thresholds[winner].length; i++) {
-				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
+				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
 			}
 			//*/
 			//String thr = "";
@@ -313,10 +314,10 @@ public class MCRandomTree extends MCTree {
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
-			Log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
+			Log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
+			Log.write(pre + "Feature maxvalue: " + params.mcFeatureFactory.getMaxValue());
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			//Log.write(pre + "Tested winner thresholds: " + thr);
 		}
 		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 		Scale s = new LogScale(10);
@@ -332,9 +333,9 @@ public class MCRandomTree extends MCTree {
 			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
-			node.probability = calculateLeaf2(sampler, classification, mode, depth);
+			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode);
 			return;
 		}
 		
@@ -368,85 +369,6 @@ public class MCRandomTree extends MCTree {
 	}
 	
 	/**
-	 * Info gain calculation. Uses an error-friendly [0,1] algo. Stabilizes at too low thrs (all to one side)
-	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @return
-	 *
-	private double[][] getGains_01(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		double note = noteLeft[0][0] + noteRight[0][0];
-		double silence = silenceLeft[0][0] + silenceRight[0][0];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				//double leftGain = ((double)noteLeft[i][j]/noteRatio) / silenceLeft[i][j]; // TODO find better function, best case now is NaN !!!
-				double leftGain = noteLeft[i][j] / note;
-				//double rightGain = silenceRight[i][j] / ((double)noteRight[i][j]/noteRatio);
-				double rightGain= silenceRight[i][j] / silence;
-				gain[i][j] = leftGain * rightGain;
-			}
-		}
-		return gain;
-	}
-	
-	/**
-	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
-	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @param noteRatio
-	 * @return
-	 *
-	private double[][] getGains(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		//double note = noteLeft[0][0] + noteRight[0][0];
-		//double silence = silenceLeft[0][0] + silenceRight[0][0];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = ((double)noteLeft[i][j]/noteRatio) / silenceLeft[i][j]; // TODO find better function, best case now is NaN !!!
-				double rightGain = silenceRight[i][j] / ((double)noteRight[i][j]/noteRatio);
-				gain[i][j] = leftGain * rightGain;
-			}
-		}
-		return gain;
-	}
-
-	/**
-	 * Info gain calculation. Uses an error-unfriendly [-oo,2] algo. Stabilizes at good thrs.
-	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @param noteRatio
-	 * @return
-	 */
-	private double[][] getGains2(List<MCFeature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		double note = noteLeft[0][0] + noteRight[0][0];
-		double silence = silenceLeft[0][0] + silenceRight[0][0];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = (double)noteLeft[i][j] / note - (double)silenceLeft[i][j] / silence;
-				double rightGain= (double)silenceRight[i][j] / silence - (double)noteRight[i][j] / note;
-				gain[i][j] = leftGain + rightGain;
-			}
-		}
-		return gain;
-	}
-
-	/**
 	 * Info gain calculation. Uses original Kinect algo. Mainly for multiclass use.
 	 * 
 	 * @param paramSet
@@ -456,19 +378,24 @@ public class MCRandomTree extends MCTree {
 	 * @param silenceRight
 	 * @param noteRatio
 	 * @return
-	 *
-	private double[][] getGains_Kinect(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
-		// Calculate shannon entropy for all parameter sets to get the best set TODO optimizeable (note / silence sind immer gleich)
+	 */
+	private double[][] getGains_MC(List<MCFeature> paramSet, long[][][] noteLeft, long[][][] noteRight, long amountLeft[][], long amountRight[][], double noteRatio) {
+		// Calculate shannon entropy for all parameter sets to get the best set
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
+		long[] notes = new long[params.frequencies.length];
+		for(int y=0; y<notes.length; y++) {
+			notes[y] = noteLeft[0][0][y] + noteRight[0][0][y]; 
+		}
+		//ArrayUtils.out(notes);
 		int numOfFeatures = paramSet.size();
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				long note = noteLeft[i][j] + noteRight[i][j];
-				long silence = silenceLeft[i][j] + silenceRight[i][j];
-				double entropyAll = getEntropy((long)(note/noteRatio), silence);
-				double entropyLeft = getEntropy((long)(noteLeft[i][j]/noteRatio), silenceLeft[i][j]);
-				double entropyRight = getEntropy((long)(noteRight[i][j]/noteRatio), silenceRight[i][j]);
-				gain[i][j] = entropyAll - ((double)(noteLeft[i][j]+silenceLeft[i][j])/(note+silence))*entropyLeft - ((double)(noteRight[i][j]+silenceRight[i][j])/(note+silence))*entropyRight;
+				double entropyAll = getEntropy(notes);
+				double entropyLeft = getEntropy(noteLeft[i][j]);
+				double entropyRight = getEntropy(noteRight[i][j]);
+				long all = amountLeft[i][j] + amountRight[i][j];
+				gain[i][j] = entropyAll - ((double)amountLeft[i][j]/all)*entropyLeft - ((double)amountRight[i][j]/all)*entropyRight;
+				System.out.println("Feat/Thr: " + i + "/" + j + ": gain: " + gain[i][j] + " eAll: " + entropyAll + ", eLeft: " + entropyLeft + ", eRight: " + entropyRight);
 				//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
 			}
 		}
@@ -487,7 +414,6 @@ public class MCRandomTree extends MCTree {
 	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float[] ret = new float[params.frequencies.length];
 		float maxP = Float.MIN_VALUE;
-		// Collect inverse
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] midi = dataset.getMidi();
@@ -496,8 +422,7 @@ public class MCRandomTree extends MCTree {
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) { 
-						if (midi[x][y] == 0) { // Inverse
-							// f0 is (not) present
+						if (midi[x][y] > 0) {
 							ret[y]++;
 							if (ret[y] > maxP) maxP = ret[y];
 						}
@@ -505,9 +430,9 @@ public class MCRandomTree extends MCTree {
 				}
 			}
 		}
-		// Invert back and normalize
+		// Normalize
 		for(int i=0; i<ret.length; i++) {
-			ret[i] = (maxP - ret[i]) / maxP; 
+			ret[i] = ret[i] / maxP; 
 		}
 		return ret;
 	}
@@ -520,7 +445,7 @@ public class MCRandomTree extends MCTree {
 	 * @param depth
 	 * @return
 	 * @throws Exception
-	 */
+	 *
 	protected float calculateLeaf2(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float ret = 0;
 		float not = 0;
@@ -557,7 +482,7 @@ public class MCRandomTree extends MCTree {
 			ret[i] = (maxP - ret[i]) / maxP; 
 		}
 		return ret;
-		*/
+		*
 		if (mode == 1) {
 			return ret/(ret+not);
 		} else {
@@ -579,6 +504,32 @@ public class MCRandomTree extends MCTree {
 		double pa = (double)a/all;
 		double pb = (double)b/all;
 		return - pa * (Math.log(pa)/LOG2) - pb * (Math.log(pb)/LOG2);
+	}
+
+	/**
+	 * Calculates shannon entropy. 
+	 *  
+	 * 
+	 * @param counts delivers the counts for each "letter" of the alphabet. 
+	 * @return
+	 */
+	public static double getEntropy(final long[] counts) {
+		long all = 0;
+		for(int i=0; i<counts.length; i++) {
+			all += counts[i];
+		}
+		//System.out.println("A: " + all);
+		if(all <= 0) return 0;
+		
+		double ret = 0;
+		for(int i=0; i<counts.length; i++) {
+			if (counts[i] > 0) {
+				double p = (double)counts[i]/all;
+				//System.out.println("p: " + (Math.log(p)/LOG2));
+				ret -= p * (Math.log(p)/LOG2);
+			}
+		}
+		return ret;
 	}
 
 	/**

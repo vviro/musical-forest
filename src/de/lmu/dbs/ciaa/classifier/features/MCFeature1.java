@@ -89,6 +89,6 @@ public class MCFeature1 extends MCFeature {
 
 	@Override
 	public float getMaxValue() {
-		return Byte.MAX_VALUE-1;
+		return (float)(Byte.MAX_VALUE-1);
 	}
 }
