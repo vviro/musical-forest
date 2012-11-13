@@ -53,4 +53,14 @@ public abstract class Feature implements Serializable {
 	 * @return
 	 */
 	public abstract float getMaxValue();
+	
+	/**
+	 * Returns a randomly generated threshold candidate for the feature.
+	 * 
+	 * @return
+	 */
+	public float getRandomThreshold() {
+		return (float)(Math.random() * (double)getMaxValue());
+	}
+
 }

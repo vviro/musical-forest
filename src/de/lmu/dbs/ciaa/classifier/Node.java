@@ -69,7 +69,11 @@ public class Node implements Serializable {
 	 */
 	public void saveDebugTree(String filename) throws Exception {
 		SpectrumToImage img = new SpectrumToImage(debugTree.length, debugTree[0].length);
-		img.add(debugTree, Color.YELLOW);
+		if (!isLeaf()) {
+			img.add(debugTree, Color.YELLOW);
+		} else {
+			img.add(debugTree, Color.RED);
+		}
 		img.save(new File(filename));
 	}
 	

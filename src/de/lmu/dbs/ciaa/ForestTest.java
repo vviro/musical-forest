@@ -150,8 +150,7 @@ public class ForestTest {
 
 			// Collecting test/training samples
 			List<Dataset> initialSet = new ArrayList<Dataset>();
-			initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
-			initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
+			initialSet.addAll(Dataset.loadDatasets("testdata", ".cqt", "testdata", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);
@@ -166,14 +165,14 @@ public class ForestTest {
 			*/
 			
 			// Grow forest with training part of data
-			MCForest forest;
+			Forest forest;
 			if (!params.loadForest) {
 				// Grow
-				List<MCTree> trees = new ArrayList<MCTree>();
+				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
-					trees.add(new MCRandomTree(params, i));
+					trees.add(new RandomTree(params, i));
 				}
-				forest = new MCForest(trees, params);
+				forest = new Forest(trees, params);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
 				m.measure("Finished growing random forest");
@@ -186,7 +185,7 @@ public class ForestTest {
 	
 			} else {
 				// Load
-				forest = MCForest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
+				forest = Forest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 	
@@ -219,7 +218,7 @@ public class ForestTest {
 			
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
-				MCRandomTree t = (MCRandomTree)forest.getTrees().get(i);
+				RandomTree t = (RandomTree)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
 			m.measure("Saved node visualization images");

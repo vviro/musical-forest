@@ -93,7 +93,6 @@ public class MCRandomTree extends MCTree {
 	 */
 	protected float classifyRec(final byte[][] data, final MCNode node, int mode , final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
-			//node.debugTree[x][y] = node.probability;
 			return node.probability;
 		} else {
 			if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
