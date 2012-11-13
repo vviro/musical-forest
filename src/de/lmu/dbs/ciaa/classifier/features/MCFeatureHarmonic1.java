@@ -142,6 +142,6 @@ public class MCFeatureHarmonic1 extends MCFeature {
 
 	@Override
 	public float getMaxValue() {
-		return 100000; //(float)(Byte.MAX_VALUE-1);
+		return 3000000; //(float)(Byte.MAX_VALUE-1);
 	}
 }
