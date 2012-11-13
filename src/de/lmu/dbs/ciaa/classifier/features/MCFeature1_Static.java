@@ -12,7 +12,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class MCFeature1 extends MCFeature {
+public class MCFeature1_Static extends MCFeature {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -25,7 +25,7 @@ public class MCFeature1 extends MCFeature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public MCFeature1(final ForestParameters params) {
+	public MCFeature1_Static(final ForestParameters params) {
 		this.threshold = RandomUtils.randomInt(params.thresholdMax);
 	}
 	
@@ -34,14 +34,14 @@ public class MCFeature1 extends MCFeature {
 	 * another FeatureKinect instance.
 	 * 
 	 */
-	public MCFeature1(final MCFeature1 f, final int thresholdMax) {
+	public MCFeature1_Static(final MCFeature1_Static f, final int thresholdMax) {
 		this.threshold = RandomUtils.randomInt(thresholdMax);
 	}
 
 	/**
 	 * 
 	 */
-	public MCFeature1() {
+	public MCFeature1_Static() {
 	}
 	
 	/**
@@ -53,7 +53,7 @@ public class MCFeature1 extends MCFeature {
 	public List<MCFeature> getRandomFeatureSet(final ForestParameters params) {
 		List<MCFeature> ret = new ArrayList<MCFeature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			MCFeature1 n = new MCFeature1(params);
+			MCFeature1_Static n = new MCFeature1_Static(params);
 			ret.add(n);
 			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new MCFeature1(n, params.thresholdMax));
