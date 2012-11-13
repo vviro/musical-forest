@@ -301,6 +301,7 @@ public class MCRandomTree extends MCTree {
 			Log.write(pre + "Gain min: " + min + ", max: " + max);
 			//Log.write(pre + "Amount of counted samples: " + allW);
 			// TMP
+			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
 			}
