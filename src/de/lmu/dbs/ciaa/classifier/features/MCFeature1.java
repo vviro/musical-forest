@@ -55,9 +55,9 @@ public class MCFeature1 extends MCFeature {
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			MCFeature1 n = new MCFeature1(params);
 			ret.add(n);
-			for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
+			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new MCFeature1(n, params.thresholdMax));
-			}
+			}*/
 		}
 		return ret;
 		
