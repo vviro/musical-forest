@@ -478,11 +478,11 @@ public class MCRandomTree extends MCTree {
 				}
 			}
 		}
-		//if (mode == 1) {
+		if (mode == 1) {
 			return ret/(ret+not);
-		/*} else {
+		} else {
 			return 1-(ret/(ret+not));
-		}*/
+		}
 	}
 
 	/**
