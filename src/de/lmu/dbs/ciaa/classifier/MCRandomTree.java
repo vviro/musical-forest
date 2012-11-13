@@ -97,7 +97,7 @@ public class MCRandomTree extends MCTree {
 		
 		if (node.isLeaf()) {
 			node.debugTree[x][y] = node.probabilities[y];
-			return node.probabilities[y]; //ies[y]; //(mode==1) ? data[x][y] : 0; //
+			return 1 - node.probabilities[y]; //ies[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				node.debugTree[x][y] = 1;
