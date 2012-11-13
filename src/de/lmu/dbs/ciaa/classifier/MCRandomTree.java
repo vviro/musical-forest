@@ -395,8 +395,7 @@ public class MCRandomTree extends MCTree {
 				double entropyRight = getEntropy(noteRight[i][j]);
 				long all = amountLeft[i][j] + amountRight[i][j];
 				gain[i][j] = entropyAll - ((double)amountLeft[i][j]/all)*entropyLeft - ((double)amountRight[i][j]/all)*entropyRight;
-				System.out.println("Feat/Thr: " + i + "/" + j + ": gain: " + gain[i][j] + " eAll: " + entropyAll + ", eLeft: " + entropyLeft + ", eRight: " + entropyRight);
-				//System.out.println(pre + "Gain " + i + ": " + gain[i] + " thr: " + paramSet.get(i).threshold);
+				//System.out.println("Feat/Thr: " + i + "/" + j + ": gain: " + gain[i][j] + " eAll: " + entropyAll + ", eLeft: " + entropyLeft + ", eRight: " + entropyRight);
 			}
 		}
 		return gain;
@@ -552,7 +551,7 @@ public class MCRandomTree extends MCTree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(MCNode node, int depth, int mode) throws Exception {
-		String nf = params.workingFolder + File.separator + "T" + num + "_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 		if (node == null || node.debugTree == null) {
 			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
 			return;
