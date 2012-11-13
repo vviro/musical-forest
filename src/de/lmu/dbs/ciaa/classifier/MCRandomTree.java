@@ -92,12 +92,12 @@ public class MCRandomTree extends MCTree {
 	 * @throws Exception
 	 */
 	protected float classifyRec(final byte[][] data, final MCNode node, int mode , final int x, final int y) throws Exception {
-		if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
-		
 		if (node.isLeaf()) {
-			node.debugTree[x][y] = node.probability;
-			return node.probability; //ies[y]; //(mode==1) ? data[x][y] : 0; //
+			//node.debugTree[x][y] = node.probability;
+			return node.probability;
 		} else {
+			if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+			
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				node.debugTree[x][y] = 1;
 				return classifyRec(data, node.left, 1, x, y);
@@ -280,42 +280,21 @@ public class MCRandomTree extends MCTree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
-			/*
-			long silenceLeftW = silenceLeft[winner][winnerThreshold]; 
-			long noteLeftW = noteLeft[winner][winnerThreshold];
-			double noteLeftWCorr = noteLeftW/noteRatio;
-			long silenceRightW = silenceRight[winner][winnerThreshold]; 
-			long noteRightW = noteRight[winner][winnerThreshold];
-			double noteRightWCorr = noteRightW/noteRatio;
-			long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
-			double note = noteLeft[0][0] + noteRight[0][0];
-			double silence = silenceLeft[0][0] + silenceRight[0][0];
-			double leftGainW = (double)noteLeft[winner][winnerThreshold] / note - (double)silenceLeft[winner][winnerThreshold] / silence;
-			double rightGainW = (double)silenceRight[winner][winnerThreshold] / silence - (double)noteRight[winner][winnerThreshold] / note;
-			*/
 			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
-			//Log.write(pre + "Left note: " + noteLeftW + " (corr.: " + decimalFormat.format(noteLeftWCorr) + "), silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW) + ", gain: " + decimalFormat.format(leftGainW)); //n/s(corr): " + (noteLeftWCorr/silenceLeftW));
-			//Log.write(pre + "Right note: " + noteRightW + " (corr.: " + decimalFormat.format(noteRightWCorr) + "), silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW) + ", gain: " + decimalFormat.format(rightGainW)); //s/n(corr): " + (silenceRightW/noteRightWCorr));
 			Log.write(pre + "Gain min: " + min + ", max: " + max);
-			//Log.write(pre + "Amount of counted samples: " + allW);
-			// TMP
 			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
 			}
 			//*/
-			//String thr = "";
 			float tmin = Float.MAX_VALUE;
 			float tmax = -Float.MAX_VALUE;
 			for(int i=0; i<thresholds[winner].length; i++) {
-				//thr += thresholds[winner][i] + ", ";
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
 			Log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
-			//Log.write(pre + "Feature maxvalue: " + params.mcFeatureFactory.getMaxValue());
-			//Log.write(pre + "Feature lambda: " + ((MCFeatureHarmonic1)params.mcFeatureFactory).lambda);
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
@@ -450,7 +429,6 @@ public class MCRandomTree extends MCTree {
 	protected float calculateLeaf2(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float ret = 0;
 		float not = 0;
-		// See how much was judged right
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] midi = dataset.getMidi();
@@ -460,31 +438,15 @@ public class MCRandomTree extends MCTree {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) { 
 						if (midi[x][y] > 0) {
-							// f0 is present
 							ret++;
 						} else {
 							not++;
 						}
-							/*if (mode == 1) {
-							} else {
-								not++;
-							}
-						} else {
-							if (mode == 2) {
-								ret++;
-							} else {
-								not++;
-							}
-						}*/
 					}
 				}
 			}
 		}
-		//if (mode == 1) {
-			return ret/(ret+not);
-		/*} else {
-			return 1-(ret/(ret+not));
-		}*/
+		return ret/(ret+not);
 	}
 
 	/**
@@ -549,15 +511,15 @@ public class MCRandomTree extends MCTree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(MCNode node, int depth, int mode) throws Exception {
-		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-		if (node == null || node.debugTree == null) {
-			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
-			return;
-		}
-		SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
-		img.add(node.debugTree, Color.YELLOW);
-		img.save(new File(nf));
 		if (!node.isLeaf()) {
+			String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+			if (node == null || node.debugTree == null) {
+				System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
+				return;
+			}
+			SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
+			img.add(node.debugTree, Color.YELLOW);
+			img.save(new File(nf));
 			saveDebugTreeRec(node.left, depth+1, 1);
 			saveDebugTreeRec(node.right, depth+1, 2);
 		}
