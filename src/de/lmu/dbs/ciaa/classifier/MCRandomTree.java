@@ -96,8 +96,8 @@ public class MCRandomTree extends MCTree {
 		if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
 		
 		if (node.isLeaf()) {
-			node.debugTree[x][y] = node.probabilities[y];
-			return node.probabilities[y]; //ies[y]; //(mode==1) ? data[x][y] : 0; //
+			node.debugTree[x][y] = node.probability;
+			return node.probability; //ies[y]; //(mode==1) ? data[x][y] : 0; //
 		} else {
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				node.debugTree[x][y] = 1;
@@ -191,7 +191,7 @@ public class MCRandomTree extends MCTree {
 		// See if we exceeded max recursion depth
 		if (depth >= maxDepth) {
 			// Make it a leaf node
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode);
 			return;
@@ -334,7 +334,7 @@ public class MCRandomTree extends MCTree {
 			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode);
 			return;
@@ -410,7 +410,7 @@ public class MCRandomTree extends MCTree {
 	 * @param depth
 	 * @return
 	 * @throws Exception
-	 */
+	 *
 	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float[] ret = new float[params.frequencies.length];
 		//float maxP = Float.MIN_VALUE;
@@ -435,7 +435,7 @@ public class MCRandomTree extends MCTree {
 		for(int i=0; i<ret.length; i++) {
 			ret[i] = ret[i] / maxP; 
 		}
-		*/
+		*
 		return ret;
 	}
 	
@@ -447,7 +447,7 @@ public class MCRandomTree extends MCTree {
 	 * @param depth
 	 * @return
 	 * @throws Exception
-	 *
+	 */
 	protected float calculateLeaf2(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float ret = 0;
 		float not = 0;
@@ -478,18 +478,11 @@ public class MCRandomTree extends MCTree {
 				}
 			}
 		}
-		/*
-		// Invert back and normalize
-		for(int i=0; i<ret.length; i++) {
-			ret[i] = (maxP - ret[i]) / maxP; 
-		}
-		return ret;
-		*
-		if (mode == 1) {
+		//if (mode == 1) {
 			return ret/(ret+not);
-		} else {
+		/*} else {
 			return 1-(ret/(ret+not));
-		}
+		}*/
 	}
 
 	/**

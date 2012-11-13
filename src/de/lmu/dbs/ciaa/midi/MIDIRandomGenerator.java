@@ -2,6 +2,8 @@ package de.lmu.dbs.ciaa.midi;
 
 import java.io.File;
 
+import de.lmu.dbs.ciaa.util.ArrayUtils;
+
 /**
  * Generator that renders random MIDI files. 
  * 
@@ -28,27 +30,32 @@ public class MIDIRandomGenerator {
 	/**
 	 * Number of random notes to be generated (only in polyphonic mode)
 	 */
-	int notes;
+	public int notes;
 	
 	/**
 	 * lowest note number
 	 */
-	int minNote = MIDI.MIN_NOTE_NUMBER;
+	public int minNote = MIDI.MIN_NOTE_NUMBER;
 	
 	/**
 	 * highest note number
 	 */
-	int maxNote = MIDI.MAX_NOTE_NUMBER;
+	public int maxNote = MIDI.MAX_NOTE_NUMBER;
 	
 	/**
 	 * shortest note duration in millisecs
 	 */
-	long minDuration = 100;
+	public long minDuration = 100;
 	
 	/**
 	 * longest note duration in millisecs
 	 */
-	long maxDuration = 500; 
+	public long maxDuration = 500;
+	
+	/**
+	 * Maximum random pause length between notes (monophonic)
+	 */
+	public long maxPauseBetween;
 	
 	/**
 	 * Creates a polyphonic generator instance.
@@ -78,7 +85,7 @@ public class MIDIRandomGenerator {
 	 * @param bpm beats per minute
 	 * @throws Exception
 	 */
-	public MIDIRandomGenerator(final long length, final int bpm) throws Exception {
+	public MIDIRandomGenerator(final long length, final int bpm, final long maxPauseBetween) throws Exception {
 		if (length <= 0) {
 			throw new Exception("Invalid length: " + length);
 		}
@@ -88,6 +95,7 @@ public class MIDIRandomGenerator {
 		this.length = length;
 		this.bpm = bpm;
 		this.polyphonic = false;
+		this.maxPauseBetween = maxPauseBetween;
 	}
 
 	/**
@@ -122,25 +130,33 @@ public class MIDIRandomGenerator {
 	}
 	
 	/**
-	 * Generates the files. File names are created like "midiFilePrefix[index]midiFilePostfix"
+	 * Generates the files. File names are created like "midiFilePrefix[index]midiFilePostfix".
+	 * Returns the amount of created notes, in a histogram array over MIDI notes.
 	 * 
 	 * @param numOfFiles number of files to be created
 	 * @param midiFilePrefix
 	 * @param midiFilePostfix
 	 * @throws Exception 
 	 */
-	public void process(final int numOfFiles, final String midiFilePrefix, final String midiFilePostfix) throws Exception {	
+	public long[] process(final int numOfFiles, final String midiFilePrefix, final String midiFilePostfix) throws Exception {	
 		MIDIAdapter ma = new MIDIAdapter(bpm); 
 		long ticks = (long)(length / ma.getTickLength()); // Num of ticks
+		long[] ret = new long[MIDI.MAX_NOTE_NUMBER - MIDI.MIN_NOTE_NUMBER + 1];
+		long[] not = null;
 		for(int it=0; it<numOfFiles; it++) {
 			ma = new MIDIAdapter(bpm);
 			if (polyphonic) {
-				ma.generateRandomNotesPoly(0, ticks, notes, minNote, maxNote, minDuration, maxDuration); // Generate to track 0
+				not = ma.generateRandomNotesPoly(0, ticks, notes, minNote, maxNote, minDuration, maxDuration); // Generate to track 0
 			} else {
-				notes = ma.generateRandomNotesMono(0, ticks, minNote, maxNote, minDuration, maxDuration); // Generate to track 0
+				not = ma.generateRandomNotesMono(0, ticks, minNote, maxNote, minDuration, maxDuration, maxPauseBetween); // Generate to track 0
 			}
-			String filename = midiFilePrefix + it + midiFilePostfix; 
+			String filename = midiFilePrefix + it + midiFilePostfix;
 			ma.writeFile(new File(filename));
+			System.out.println("Created random MIDI file: " + midiFilePrefix + it + midiFilePostfix);
+			for(int j=0; j<not.length; j++) {
+				ret[j] += not[j];
+			}
 		}
+		return ret;
 	}
 }

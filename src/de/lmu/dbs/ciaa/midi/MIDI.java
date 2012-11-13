@@ -255,7 +255,8 @@ public class MIDI {
 	}
 	
 	/**
-	 * Generates polyphonic random notes.
+	 * Generates polyphonic random notes. Returns the amount
+	 * of created notes, in a histogram array over MIDI notes.
 	 * 
 	 * @param track the target track for the notes
 	 * @param length length of sample in ticks
@@ -266,18 +267,21 @@ public class MIDI {
 	 * @param maxDuration highest duration
 	 * @throws Exception
 	 */
-	public void generateRandomNotesPoly(final int track, final long length, final int notesCount, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
+	public long[] generateRandomNotesPoly(final int track, final long length, final int notesCount, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
+		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
 		for(int i=0; i<notesCount; i++) { 
 			int note = RandomUtils.randomInt(minNote, maxNote);
 			long duration = RandomUtils.randomLong(minDuration, maxDuration);
 			long start = RandomUtils.randomLong(length - duration);
 			setNote(start, duration, note, 127, track);
+			ret[note - MIN_NOTE_NUMBER]++;
 		}
+		return ret;
 	}
 	
 	/**
 	 * Generates monophonic random notes. Divides the length into random chunks. Returns
-	 * the amount of created notes.
+	 * the amount of created notes, in a histogram array over MIDI notes.
 	 * 
 	 * @param track the target track for the notes
 	 * @param length length of sample in ticks
@@ -288,16 +292,16 @@ public class MIDI {
 	 * @throws Exception
 	 * @return number of created notes
 	 */
-	public int generateRandomNotesMono(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
-		int ret = 0;
+	public long[] generateRandomNotesMono(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration, final long maxPauseBetween) throws Exception {
+		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
 		long pos = 0;
 		while(pos < length-1) {
 			int note = RandomUtils.randomInt(minNote, maxNote);
 			long duration = RandomUtils.randomLong(minDuration, maxDuration);
 			if (pos + duration >= length) duration = length - pos - 1;
 			setNote(pos, duration, note, 127, track);
-			pos+= duration;
-			ret++;
+			pos+= duration + RandomUtils.randomLong(maxPauseBetween);
+			ret[note - MIN_NOTE_NUMBER]++;
 		}
 		return ret;
 	}
