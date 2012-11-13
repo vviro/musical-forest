@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cern.jet.random.Exponential;
+import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
 
@@ -20,6 +21,10 @@ public class FeatureHarmonic5 extends Feature {
 	
 	public double[] harmonicFactors = null; //{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
 	
+	public int numOfOvertones = 7; // TODO -> params
+	
+	public double harmonicAmplification = 10; // TODO -> params
+	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
 	 * Can be generated with the method generateHarmonicFactors().
@@ -32,11 +37,24 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	public FeatureHarmonic5(final ForestParameters params) {
 		harmonicFactors = new double[harmonics.length];
-		for(int i=0; i<harmonics.length; i++) {
+		long[] harms = new long[numOfOvertones];
+		RandomSampler.sample(
+				numOfOvertones, // n 
+				harmonics.length, // N
+				numOfOvertones, // count 
+				0, // low 
+				harms, 
+				0, 
+				null);
+		//ArrayUtils.out(harms);
+		for(int i=0; i<harms.length; i++) {
+			harmonicFactors[i] = (float)Math.random()*harmonicAmplification; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+		}
+		/*for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			harmonicFactors[i] = (Math.random() > 0.7) ? (float)Math.random()*10 : 0; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 			//System.out.println(i + ": " + harmonicFactors[i]);
-		}
+		}*/
 		//this.threshold = Math.random() * getMaxValue();
 		//generateHarmonicFactors(50);
 	}

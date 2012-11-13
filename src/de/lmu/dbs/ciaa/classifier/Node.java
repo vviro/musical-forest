@@ -50,8 +50,8 @@ public class Node implements Serializable {
 	/**
 	 * If the node is a leaf, here the probabilities for each frequency are stored
 	 */
-	//public float[] probabilities = null; 
 	public float probability = 0;
+	//public float[] probabilities = null; 
 	
 	public Node() {
 		synchronized(this) {
@@ -69,11 +69,7 @@ public class Node implements Serializable {
 	 */
 	public void saveDebugTree(String filename) throws Exception {
 		SpectrumToImage img = new SpectrumToImage(debugTree.length, debugTree[0].length);
-		if (!isLeaf()) {
-			img.add(debugTree, Color.YELLOW);
-		} else {
-			img.add(debugTree, Color.RED);
-		}
+		img.add(debugTree, Color.YELLOW);
 		img.save(new File(filename));
 	}
 	
@@ -83,7 +79,6 @@ public class Node implements Serializable {
 	 * @return
 	 */
 	public boolean isLeaf() {
-		//return (probabilities != null);
 		return (left == null) && (right == null);
 	}
 	

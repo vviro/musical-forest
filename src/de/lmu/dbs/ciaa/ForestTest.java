@@ -14,11 +14,6 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * Generated data: ************************************************************************
  * 
- * Last revision w/ pixelwise clasification: 943, ab da: multiclass
- * 											 945 auch, mit "Fat MIDI"
- * 											 948 auch, mit Tree usw.
- * 											 949 auch, ohne evaluation threads/workers
- * 
  * Forests:
  * 0: 1/4/0.3/1/1 - Feature bei Ausreisser: Exceptions (Ignore bzw. rec. Right)
  * 1: 1/6/1.0/10/4 - Feature bei Ausreisser: MIN_VALUE
@@ -61,18 +56,11 @@ import de.lmu.dbs.ciaa.util.*;
  * 1: 1/4/1.0/10/5 FeatureHarmonic2 -2/2
  * 2: 2/4/0.2/5/5 Thread test                 !!!!!!!!!!! a-Version! -- d Version is for testing threds
  * 
- * Remote:
- * testdeploy: 5/6/0.8/20/5/Harmonic3 0/0
- * 
  * TODO *************************************************************************************
  * 
  * Test on server features:
  * 	3b
  * 	5
- * 
- * 11112012: 
- * 		- Werte für erste node austarieren
- * 		- sobald wie mögl. depth erhöhen (features brauchts nicht viel, threshold muss nur richtig gewählt sein)
  * 
  * Optimierung:
  * 		- Make the application distributable
@@ -81,8 +69,6 @@ import de.lmu.dbs.ciaa.util.*;
  * 		- Performances von Vladimir
  * 
  * Forest:
- * 		- Vladimir letzte email! -> f0 mit multi-class
- *		- Visualize whole trees in image 
  * 		Feature:
  * 			- u und v auf gleicher frequenz (probieren)
  * 			- harmonics über eine verteilung verteilen? -> weil je weiter oben desto besser das ergebnis
@@ -150,9 +136,9 @@ public class ForestTest {
 
 			// Collecting test/training samples
 			List<Dataset> initialSet = new ArrayList<Dataset>();
-			initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
-			initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
-			//initialSet.addAll(Dataset.loadDatasets("testdata", ".cqt", "testdata", ".mid", params.frequencies, params.step));
+			//initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
+			//initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
+			initialSet.addAll(Dataset.loadDatasets("testdata", ".cqt", "testdata", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);

@@ -167,25 +167,8 @@ public class RandomTree extends Tree {
 			}
 		}
 		
-		// Debug
+		// TMP
 		String pre = "T" + root.num + ":   ";
-		/*if (params.logProgress) {
-			for(int i=0; i<depth; i++) pre+= "-  ";
-			switch (mode) {
-				case 0: {
-					Log.write(pre + "Root, Depth " + depth);
-					break;
-				}
-				case 1: {
-					Log.write(pre + "L, Depth " + depth);
-					break;
-				}
-				case 2: {
-					Log.write(pre + "R, Depth " + depth);
-					break;
-				}
-			}
-		}*/
 
 		// See if we exceeded max recursion depth
 		if (depth >= maxDepth) {
@@ -208,15 +191,9 @@ public class RandomTree extends Tree {
 			}
 		}
 
-		long[][][] classificationLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
-		long[][][] classificationRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
+		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
+		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
 
-		/*
-		long[][] silenceLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] noteLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] silenceRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] noteRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		*/
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
 
@@ -239,16 +216,16 @@ public class RandomTree extends Tree {
 								if (ev >= thresholds[k][g]) {
 									// Left
 									if (midi[x][y] > 0) {
-										classificationLeft[k][g][0]++;
+										countClassesLeft[k][g][0]++;
 									} else {
-										classificationLeft[k][g][1]++;
+										countClassesLeft[k][g][1]++;
 									}
 								} else {
 									// Right
 									if (midi[x][y] > 0) {
-										classificationRight[k][g][0]++;
+										countClassesRight[k][g][0]++;
 									} else {
-										classificationRight[k][g][1]++;
+										countClassesRight[k][g][1]++;
 									}
 								}
 							}
@@ -259,7 +236,7 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains3(paramSet, classificationLeft, classificationRight, noteRatio);
+		double[][] gain = getGains3(paramSet, countClassesLeft, countClassesRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
@@ -287,15 +264,13 @@ public class RandomTree extends Tree {
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
 			Log.write(pre + "------------------------");
-			long silenceLeftW = classificationLeft[winner][winnerThreshold][1]; 
-			long noteLeftW = classificationLeft[winner][winnerThreshold][0];
+			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
+			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
 			//double noteLeftWCorr = noteLeftW/noteRatio;
-			long silenceRightW = classificationRight[winner][winnerThreshold][1]; 
-			long noteRightW = classificationRight[winner][winnerThreshold][0];
+			long silenceRightW = countClassesRight[winner][winnerThreshold][1]; 
+			long noteRightW = countClassesRight[winner][winnerThreshold][0];
 			//double noteRightWCorr = noteRightW/noteRatio;
 			//long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
-			//double note = classificationLeft[0][0][0] + classificationRight[0][0][0];
-			//double silence = classificationLeft[0][0][1] + classificationRight[0][0][1];
 			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
@@ -307,18 +282,15 @@ public class RandomTree extends Tree {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
 			}
 			//*/
-			//String thr = "";
 			float tmin = Float.MAX_VALUE;
 			float tmax = -Float.MAX_VALUE;
 			for(int i=0; i<thresholds[winner].length; i++) {
-				//thr += thresholds[winner][i] + ", ";
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
 			Log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			//Log.write(pre + "Tested winner thresholds: " + thr);
 		}
 		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 		Scale s = new LogScale(10);
@@ -452,25 +424,26 @@ public class RandomTree extends Tree {
 	 * Info gain calculation upon shannon entropy.
 	 * 
 	 */
-	private double[][] getGains3(List<Feature> paramSet, long[][][] classificationLeft, long[][][] classificationRight, double noteRatio) {
-		// Calculate shannon entropy for all parameter sets to get the best set
+	private double[][] getGains3(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		int numOfClasses = classificationLeft[0][0].length;
+		// Get overall sum of classes
+		int numOfClasses = countClassesLeft[0][0].length;
 		long[] classes = new long[numOfClasses];
+		long all = 0;
 		for(int y=0; y<numOfClasses; y++) {
-			classes[y] = classificationLeft[0][0][y] + classificationRight[0][0][y]; 
+			classes[y] = countClassesLeft[0][0][y] + countClassesRight[0][0][y];
+			all += classes[y];
 		}
+		// Calculate gains
+		double entropyAll = getEntropy(classes);
 		int numOfFeatures = paramSet.size();
-		long all = classificationLeft[0][0][0] + classificationLeft[0][0][1] + classificationRight[0][0][0] + classificationRight[0][0][1];
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double entropyAll = getEntropy(classes);
-				double entropyLeft = getEntropy(classificationLeft[i][j]);
-				double entropyRight = getEntropy(classificationRight[i][j]);
-				long amountLeft = classificationLeft[0][0][0] + classificationLeft[0][0][1];
-				long amountRight = classificationRight[0][0][0] + classificationRight[0][0][1];
+				double entropyLeft = getEntropy(countClassesLeft[i][j]);
+				double entropyRight = getEntropy(countClassesRight[i][j]);
+				long amountLeft = countClassesLeft[0][0][0] + countClassesLeft[0][0][1];
+				long amountRight = countClassesRight[0][0][0] + countClassesRight[0][0][1];
 				gain[i][j] = entropyAll - ((double)amountLeft/all)*entropyLeft - ((double)amountRight/all)*entropyRight;
-				//System.out.println("Feat/Thr: " + i + "/" + j + ": gain: " + gain[i][j] + " eAll: " + entropyAll + ", eLeft: " + entropyLeft + ", eRight: " + entropyRight);
 			}
 		}
 		return gain;
@@ -594,14 +567,12 @@ public class RandomTree extends Tree {
 		for(int i=0; i<counts.length; i++) {
 			all += counts[i];
 		}
-		//System.out.println("A: " + all);
 		if(all <= 0) return 0;
 		
 		double ret = 0;
 		for(int i=0; i<counts.length; i++) {
 			if (counts[i] > 0) {
 				double p = (double)counts[i]/all;
-				//System.out.println("p: " + (Math.log(p)/LOG2));
 				ret -= p * (Math.log(p)/LOG2);
 			}
 		}

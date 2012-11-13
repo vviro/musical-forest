@@ -217,11 +217,21 @@ public abstract class Tree extends Thread {
 		if (nodeThreadsActive < 0) throw new Exception("Thread amount below zero: " + nodeThreadsActive);
 	}
 
+	/**
+	 * Returns a info gain statistic instance.
+	 * 
+	 * @return
+	 */
 	public Statistic getInfoGain() {
 		return infoGain;
 	}
 
-	public Node getTree() {
+	/**
+	 * Returns the root node of the tree.
+	 * 
+	 * @return
+	 */
+	public Node getRootNode() {
 		return tree;
 	}
 
