@@ -169,7 +169,7 @@ public class MCRandomTree extends MCTree {
 		
 		// Debug
 		String pre = "T" + root.num + ":   ";
-		if (params.logProgress) {
+		/*if (params.logProgress) {
 			for(int i=0; i<depth; i++) pre+= "-  ";
 			switch (mode) {
 				case 0: {
@@ -185,7 +185,7 @@ public class MCRandomTree extends MCTree {
 					break;
 				}
 			}
-		}
+		}*/
 
 		// See if we exceeded max recursion depth
 		if (depth >= maxDepth) {
@@ -280,6 +280,7 @@ public class MCRandomTree extends MCTree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
+			Log.write("");
 			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
 			Log.write(pre + "Gain min: " + min + ", max: " + max);
