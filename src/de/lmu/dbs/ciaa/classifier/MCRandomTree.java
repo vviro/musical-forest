@@ -461,8 +461,11 @@ public class MCRandomTree extends MCTree {
 					if (mode == cla[x][y]) { 
 						if (midi[x][y] > 0) {
 							// f0 is present
-							if (mode == 1) {
-								ret++;
+							ret++;
+						} else {
+							not++;
+						}
+							/*if (mode == 1) {
 							} else {
 								not++;
 							}
@@ -472,7 +475,7 @@ public class MCRandomTree extends MCTree {
 							} else {
 								not++;
 							}
-						}
+						}*/
 					}
 				}
 			}
