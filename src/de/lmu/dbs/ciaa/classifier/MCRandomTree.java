@@ -280,7 +280,7 @@ public class MCRandomTree extends MCTree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
-			Log.write("");
+			Log.write(pre + "------------------------");
 			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
 			Log.write(pre + "Gain min: " + min + ", max: " + max);
