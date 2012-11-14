@@ -3,7 +3,6 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import cern.jet.random.Exponential;
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
@@ -228,13 +227,18 @@ public class FeatureHarmonic5 extends Feature {
 	/**
 	 * Lambda parameter for exponential distribution of randomly 
 	 * created threshold candidates
-	 */
+	 *
 	public double lambda = 0.005;
 
 	/**
 	 * Divide border for threshold resolution
 	 */
-	public float border = 1.0f;
+	public float border = 3.0f;
+	
+	/**
+	 * Percentage of thresholds taken from below border
+	 */
+	public float borderDiv = 0.2f;
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
@@ -244,10 +248,10 @@ public class FeatureHarmonic5 extends Feature {
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];
-		for(int i=0; i<num/2; i++) {
+		for(int i=0; i<(int)(num*borderDiv); i++) {
 			ret[i] = (float)(Math.random() * border);
 		}
-		for(int i=num/2; i<num; i++) {
+		for(int i=(int)(num*borderDiv); i<num; i++) {
 			ret[i] = (float)(border + Math.random() * getMaxValue());
 		}
 		return ret;

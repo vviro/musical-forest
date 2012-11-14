@@ -190,6 +190,8 @@ public class RandomTree extends Tree {
 		for(int i=0; i<thresholds.length; i++) {
 			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
 		}
+		ArrayUtils.out(thresholds[0]);
+		System.exit(0);
 
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
 		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
