@@ -3,7 +3,6 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import cern.jet.random.Exponential;
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
@@ -178,7 +177,7 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	@Override
 	public float getMaxValue() {
-		return 100000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
+		return 1000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
 		//return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1) * (harmonics.length + 1) * 10);
 	}
 

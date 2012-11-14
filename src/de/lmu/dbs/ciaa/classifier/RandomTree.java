@@ -599,15 +599,15 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
-		String nf = params.workingFolder + File.separator + "T" + num + "_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-		if (node == null || node.debugTree == null) {
-			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
-			return;
-		}
-		SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
-		img.add(node.debugTree, Color.YELLOW);
-		img.save(new File(nf));
 		if (!node.isLeaf()) {
+			String nf = params.workingFolder + File.separator + "T" + num + "_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+			if (node == null || node.debugTree == null) {
+				System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
+				return;
+			}
+			SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
+			img.add(node.debugTree, Color.YELLOW);
+			img.save(new File(nf));
 			saveDebugTreeRec(node.left, depth+1, 1);
 			saveDebugTreeRec(node.right, depth+1, 2);
 		}
