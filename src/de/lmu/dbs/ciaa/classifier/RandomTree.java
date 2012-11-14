@@ -300,7 +300,7 @@ public class RandomTree extends Tree {
 		//////////////////////////////////////////////////
 		
 		// See in info gain is sufficient:
-		if (gain[winner][winnerThreshold] >= params.entropyThreshold) {
+		if (gain[winner][winnerThreshold] > params.entropyThreshold) {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];

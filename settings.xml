@@ -13,7 +13,7 @@
 		thresholdCandidatesPerFeature:    Number of thresholds for each generated feature candidate.
 		featureFactoryClass:              Class name of the feature to be used.
 		entropyThreshold:                 Threshold for information gain of the winner feature in growing a node. If info gain is below 
-		                                  entropyThreshold, the node will become a leaf. 
+		                                  or equal entropyThreshold, the node will become a leaf. 
 
 		### Feature parameters ###
 		xMin:         Min x deviation
@@ -30,13 +30,13 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="3"
+		maxDepth="6"
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="15"
 		thresholdCandidatesPerFeature="100"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
 		mcFeatureFactoryClass="de.lmu.dbs.ciaa.classifier.features.MCFeatureHarmonic1"
-		entropyThreshold="-100000"
+		entropyThreshold="0"
 		
 		xMin="0"
 		xMax="0"
