@@ -168,7 +168,8 @@ public class RandomTree extends Tree {
 		}
 		
 		// TMP
-		String pre = "T" + root.num + ":   ";
+		String pre = "T" + root.num + ":  ";
+		for(int i=0; i<depth; i++) pre+="-  ";
 
 		// See if we exceeded max recursion depth
 		if (depth >= maxDepth) {

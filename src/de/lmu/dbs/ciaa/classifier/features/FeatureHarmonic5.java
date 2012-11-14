@@ -48,7 +48,7 @@ public class FeatureHarmonic5 extends Feature {
 				null);
 		//ArrayUtils.out(harms);
 		for(int i=0; i<harms.length; i++) {
-			harmonicFactors[i] = (float)Math.random()*harmonicAmplification; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
+			harmonicFactors[(int)harms[i]] = (float)Math.random()*harmonicAmplification; //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
 		}
 		/*for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
