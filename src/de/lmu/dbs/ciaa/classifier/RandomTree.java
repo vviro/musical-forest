@@ -224,7 +224,7 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains2(paramSet, countClassesLeft, countClassesRight, noteRatio);
+		double[][] gain = getGains1(paramSet, countClassesLeft, countClassesRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
