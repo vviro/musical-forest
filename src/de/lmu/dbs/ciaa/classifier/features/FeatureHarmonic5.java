@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import cern.jet.random.Exponential;
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
@@ -234,7 +235,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 *
+	 */
 	@Override
 	public float getRandomThreshold() {
 		return (float)Exponential.staticNextDouble(lambda);
