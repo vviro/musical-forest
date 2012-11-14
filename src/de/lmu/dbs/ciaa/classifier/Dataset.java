@@ -110,12 +110,13 @@ public class Dataset {
 		midi = ma.toDataArray(spectrum.length, duration, frequencies);
 		//ArrayUtils.blur(midi, 0);
 
+		/*
 		// TMP
 		SpectrumToImage img = new SpectrumToImage(spectrum.length, spectrum[0].length, 1);
 		img.add(spectrum, Color.WHITE, null);
 		img.add(midi, Color.RED, null, 0);
 		img.save(new File("testdataResults/forestremote/" + this.spectrumFile.getName() + ".png"));
-		// /TMP
+		// /TMP */
 		
 		loaded = true;
 	}
