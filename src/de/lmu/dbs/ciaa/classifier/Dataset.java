@@ -106,7 +106,7 @@ public class Dataset {
 		spectrum = spectrumIo.load(spectrumFile.getAbsolutePath()); 
 		// MIDI
 		MIDIAdapter ma = new MIDIAdapter(midiFile);
-		long duration = (long)((double)(spectrum.length * step * 1000) / 44100); // TODO festwert
+		long duration = (long)((double)((spectrum.length+1) * step * 1000) / 44100); // TODO festwert
 		midi = ma.toDataArray(spectrum.length, duration, frequencies);
 		//ArrayUtils.blur(midi, 0);
 
