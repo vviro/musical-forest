@@ -138,7 +138,7 @@ public class ForestTest {
 			List<Dataset> initialSet = new ArrayList<Dataset>();
 			//initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
 			//initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
-			initialSet.addAll(Dataset.loadDatasets("testdata2", ".cqt", "testdata2", ".mid", params.frequencies, params.step));
+			initialSet.addAll(Dataset.loadDatasets("testdata2", ".peak", "testdata2", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);
@@ -215,8 +215,8 @@ public class ForestTest {
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
 			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length);
-			out("-> Max data: " +  + img.add(dataOobD, new Color(255,150,0), null));
-			out("-> Max forest: " + img.add(dataForest, Color.GREEN, null, imgThreshold));
+			out("-> Max data: " +  + img.add(dataOobD, Color.WHITE, null));
+			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
 			
