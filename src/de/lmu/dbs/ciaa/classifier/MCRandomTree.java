@@ -24,7 +24,7 @@ import de.lmu.dbs.ciaa.util.Statistic2d;
  * @author Thomas Weber
  *
  */
-public class MCRandomTree extends MCTree {
+public class MCRandomTree extends Tree {
 
 	//private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
 	
@@ -35,7 +35,7 @@ public class MCRandomTree extends MCTree {
 	 * @throws Exception 
 	 * 
 	 */
-	public MCRandomTree(ForestParameters params, MCTree root, Sampler<Dataset> sampler, List<byte[][]> classification, MCNode node, int mode, int depth, int maxDepth, double noteRatio, int num) throws Exception {
+	public MCRandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, double noteRatio, int num) throws Exception {
 		this(params, -1);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -91,11 +91,11 @@ public class MCRandomTree extends MCTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float classifyRec(final byte[][] data, final MCNode node, int mode , final int x, final int y) throws Exception {
+	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
 			return node.probability;
 		} else {
-			if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+			if (node.debugTree == null) node.debugTree = new int[data.length][data[0].length]; // TMP
 			
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				node.debugTree[x][y] = 1;
@@ -152,13 +152,13 @@ public class MCRandomTree extends MCTree {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected void growRec(MCTree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final MCNode node, final int mode, final int depth, final int maxDepth, boolean multithreading, double noteRatio) throws Exception {
+	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading, double noteRatio) throws Exception {
 		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					MCTree t = new MCRandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, noteRatio, num);
+					Tree t = new MCRandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, noteRatio, num);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -196,15 +196,13 @@ public class MCRandomTree extends MCTree {
 		}
 		
 		// Get random feature parameter sets
-		List<MCFeature> paramSet = params.mcFeatureFactory.getRandomFeatureSet(params);
+		List<Feature> paramSet = params.featureFactory.getRandomFeatureSet(params);
 		int numOfFeatures = paramSet.size();
 
 		// Generate random thresholds for each feature param set
-		float[][] thresholds = new float[numOfFeatures][params.thresholdCandidatesPerFeature];
+		float[][] thresholds = new float[numOfFeatures][];
 		for(int i=0; i<thresholds.length; i++) {
-			for(int k=0; k<params.thresholdCandidatesPerFeature; k++) {
-				thresholds[i][k] = params.mcFeatureFactory.getRandomThreshold();
-			}
+			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
 		}
 
 		long[][][] noteLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][params.frequencies.length];
@@ -228,7 +226,7 @@ public class MCRandomTree extends MCTree {
 					if (mode == cla[x][y]) { // Is that point in the training set for this node?
 						for(int k=0; k<numOfFeatures; k++) {
 							// Each featureset candidate...
-							MCFeature feature = paramSet.get(k);
+							Feature feature = paramSet.get(k);
 							float ev = feature.evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
 								if (ev >= thresholds[k][g]) {
@@ -340,10 +338,10 @@ public class MCRandomTree extends MCTree {
 		}
 		
 		// Recursion to left and right
-		node.left = new MCNode();
+		node.left = new Node();
 		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true, noteRatio);
 
-		node.right = new MCNode();
+		node.right = new Node();
 		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true, noteRatio);
 	}
 	
@@ -358,7 +356,7 @@ public class MCRandomTree extends MCTree {
 	 * @param noteRatio
 	 * @return
 	 */
-	private double[][] getGains_MC(List<MCFeature> paramSet, long[][][] noteLeft, long[][][] noteRight, long amountLeft[][], long amountRight[][], double noteRatio) {
+	private double[][] getGains_MC(List<Feature> paramSet, long[][][] noteLeft, long[][][] noteRight, long amountLeft[][], long amountRight[][], double noteRatio) {
 		// Calculate shannon entropy for all parameter sets to get the best set
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		long[] notes = new long[params.frequencies.length];
@@ -456,7 +454,7 @@ public class MCRandomTree extends MCTree {
 	 * @param a
 	 * @param b
 	 * @return
-	 */
+	 *
 	public static double getEntropy(final long a, final long b) {
 		long all = a+b;
 		if(all <= 0) return 0;
@@ -477,14 +475,12 @@ public class MCRandomTree extends MCTree {
 		for(int i=0; i<counts.length; i++) {
 			all += counts[i];
 		}
-		//System.out.println("A: " + all);
 		if(all <= 0) return 0;
 		
 		double ret = 0;
 		for(int i=0; i<counts.length; i++) {
 			if (counts[i] > 0) {
 				double p = (double)counts[i]/all;
-				//System.out.println("p: " + (Math.log(p)/LOG2));
 				ret -= p * (Math.log(p)/LOG2);
 			}
 		}
@@ -510,7 +506,7 @@ public class MCRandomTree extends MCTree {
 	 * @param mode
 	 * @throws Exception
 	 */
-	private void saveDebugTreeRec(MCNode node, int depth, int mode) throws Exception {
+	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
 		if (!node.isLeaf()) {
 			String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 			if (node == null || node.debugTree == null) {
@@ -549,7 +545,7 @@ public class MCRandomTree extends MCTree {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
 		MCRandomTree ret = new MCRandomTree();
-		ret.tree = (MCNode)ois.readObject();
+		ret.tree = (Node)ois.readObject();
 		ois.close();
 		return ret;
 	}
