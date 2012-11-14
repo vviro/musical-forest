@@ -31,9 +31,9 @@
 	<Forest
 		forestSize="1"
 		maxDepth="3"
-		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="20"
-		thresholdCandidatesPerFeature="80"
+		percentageOfRandomValuesPerFrame="0.5"
+		numOfRandomFeatures="100"
+		thresholdCandidatesPerFeature="10"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
 		mcFeatureFactoryClass="de.lmu.dbs.ciaa.classifier.features.MCFeatureHarmonic1"
 		entropyThreshold="0"
@@ -58,9 +58,9 @@
 		logProgress:               Show/log little progress info while growing.
 		logNodeInfo:               Show/log more details for each node growed on the console.
 		saveGainThresholdDiagrams: Save a gains/thresholds diagram in a png file for each node´s winner feature, 
-		                           up to the given depth. Use -1 to save all nodes.
+		                           up to the given depth. 
 		saveNodeClassifications:   Save classifications for each node after test classification run, up to the 
-		                           given depth. Use -1 to save all nodes.
+		                           given depth. 
 		debugThreadForking:        Show a message every time a new thread is created.
 		debugThreadPolling:        Show thread polling and status information in regular intervals.
 	-->

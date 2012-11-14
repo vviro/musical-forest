@@ -124,9 +124,9 @@ public class ForestTest {
 			if (!params.loadForest) {
 				FileUtils.deleteDirectory(new File(params.workingFolder));
 				resultDir.mkdirs();
+				Log.open(params.workingFolder + File.separator + logFile);
+				m.measure("Created target folder and opened log");
 			}
-			Log.open(params.workingFolder + File.separator + logFile);
-			m.measure("Created target folder and opened log");
 			
 			// Load frequency table (must be common for all samples)
 			FileIO<double[]> fio = new FileIO<double[]>();
@@ -173,10 +173,11 @@ public class ForestTest {
 	
 			} else {
 				// Load
-				forest = Forest.load(params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
+				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
-	
+			//System.exit(0);
+			
 			// TMP Test with oob data
 			// Load sample
 			Sample src = new WaveSample(new File(testFile));

@@ -125,7 +125,6 @@ public class FeatureHarmonic5 extends Feature {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		double d2 = data[x][y]*data[x][y];
 		double ret = 0;
-		//if (true) return 0;
 		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
 			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
 			if (ny >= data[0].length) return (int)ret;
@@ -134,7 +133,7 @@ public class FeatureHarmonic5 extends Feature {
 			//}
 			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
 		}
-		return (int)ret;
+		return (float)ret;
 	}
 	
 	/**

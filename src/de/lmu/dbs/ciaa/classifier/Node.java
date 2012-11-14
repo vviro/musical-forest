@@ -20,7 +20,7 @@ public class Node implements Serializable {
 	/**
 	 * Stores the last classification done by this node. For debugging.
 	 */
-	public double[][] debugTree = null;
+	public int[][] debugTree = null;
 
 	/**
 	 * Individual (ascending) node id (just for debugging)
@@ -69,7 +69,16 @@ public class Node implements Serializable {
 	 */
 	public void saveDebugTree(String filename) throws Exception {
 		SpectrumToImage img = new SpectrumToImage(debugTree.length, debugTree[0].length);
-		img.add(debugTree, Color.YELLOW);
+		int[][] l = new int[debugTree.length][debugTree[0].length];
+		int[][] r = new int[debugTree.length][debugTree[0].length];
+		for (int i=0; i<l.length; i++) {
+			for (int j=0; j<l[0].length; j++) {
+				if (debugTree[i][j] == 1) l[i][j] = 1;
+				if (debugTree[i][j] == 2) r[i][j] = 1;
+			}
+		}
+		img.add(l, new Color(0,255,0), null, 0);
+		img.add(r, new Color(255,0,0), null, 0);
 		img.save(new File(filename));
 	}
 	

@@ -1,7 +1,5 @@
 package de.lmu.dbs.ciaa.classifier;
 
-
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,11 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
-import de.lmu.dbs.ciaa.util.SpectrumToImage;
 import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
@@ -64,13 +60,6 @@ public class RandomTree extends Tree {
 	}
 	
 	/**
-	 * Creates a tree. Blank, for loading classifier data from file.
-	 * 
-	 */
-	public RandomTree() {
-	}
-
-	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]
 	 * 
 	 * @param data
@@ -97,13 +86,13 @@ public class RandomTree extends Tree {
 		if (node.isLeaf()) {
 			return node.probability;
 		} else {
-			if (params.saveNodeClassifications > depth && node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+			if (params.saveNodeClassifications > depth-1 && node.debugTree == null) node.debugTree = new int[data.length][data[0].length]; // TMP
 			
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				if (params.saveNodeClassifications > depth) node.debugTree[x][y] = 1;
+				if (params.saveNodeClassifications > depth-1) node.debugTree[x][y] = 1;
 				return classifyRec(data, node.left, 1, depth+1, x, y);
 			} else {
-				if (params.saveNodeClassifications > depth) node.debugTree[x][y] = 2;
+				if (params.saveNodeClassifications > depth-1) node.debugTree[x][y] = 2;
 				return classifyRec(data, node.right, 2, depth+1, x, y);
 			}
 		}
@@ -210,8 +199,7 @@ public class RandomTree extends Tree {
 					if (mode == cla[x][y]) { // Is that point in the training set for this node?
 						for(int k=0; k<numOfFeatures; k++) {
 							// Each featureset candidate...
-							Feature feature = paramSet.get(k);
-							float ev = feature.evaluate(data, x, y);
+							float ev = paramSet.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
 								if (ev >= thresholds[k][g]) {
 									// Left
@@ -601,7 +589,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
-		if (params.saveNodeClassifications <= depth) return;
+		if (params.saveNodeClassifications <= depth-1) return;
 		if (node.isLeaf())  return;
 		
 		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
@@ -609,9 +597,7 @@ public class RandomTree extends Tree {
 			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
 			return;
 		}
-		SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
-		img.add(node.debugTree, Color.YELLOW);
-		img.save(new File(nf));
+		node.saveDebugTree(nf);
 		saveDebugTreeRec(node.left, depth+1, 1);
 		saveDebugTreeRec(node.right, depth+1, 2);
 	}
@@ -632,14 +618,16 @@ public class RandomTree extends Tree {
 	/**
 	 * Loads a tree from file and returns it.
 	 * 
+	 * TODO: Save params with forest
+	 * 
 	 * @param filename
 	 * @return
 	 * @throws Exception
 	 */
-	public static RandomTree load(final String filename) throws Exception {
+	public static RandomTree load(ForestParameters params, final String filename, final int num) throws Exception {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
-		RandomTree ret = new RandomTree();
+		RandomTree ret = new RandomTree(params, num);
 		ret.tree = (Node)ois.readObject();
 		ois.close();
 		return ret;

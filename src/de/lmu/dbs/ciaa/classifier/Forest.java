@@ -46,8 +46,9 @@ public class Forest {
 	 * @param numTrees
 	 * @throws Exception 
 	 */
-	public Forest() {
+	public Forest(ForestParameters params) {
 		this.trees = new ArrayList<Tree>();
+		this.params = params;
 	}
 
 	/**
@@ -192,10 +193,10 @@ public class Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Forest load(final String filename, final int numTrees) throws Exception {
-		Forest f = new Forest();
+	public static Forest load(final ForestParameters params, final String filename, final int numTrees) throws Exception {
+		Forest f = new Forest(params);
 		for(int i=0; i<numTrees; i++) {
-			f.trees.add(RandomTree.load(filename + "_tree" + i)); // TODO Type tree / randomtree
+			f.trees.add(RandomTree.load(params, filename + "_tree" + i, i)); // TODO Type tree / randomtree
 		}
 		return f;
 	}
