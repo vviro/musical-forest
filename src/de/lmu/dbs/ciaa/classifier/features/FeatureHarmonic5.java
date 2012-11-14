@@ -230,6 +230,11 @@ public class FeatureHarmonic5 extends Feature {
 	 * created threshold candidates
 	 */
 	public double lambda = 0.005;
+
+	/**
+	 * Divide border for threshold resolution
+	 */
+	public float border = 1.0f;
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
@@ -237,8 +242,14 @@ public class FeatureHarmonic5 extends Feature {
 	 * @return
 	 */
 	@Override
-	public float getRandomThreshold() {
-		return (float)Exponential.staticNextDouble(lambda);
+	public float[] getRandomThresholds(int num) {
+		float[] ret = new float[num];
+		for(int i=0; i<num/2; i++) {
+			ret[i] = (float)(Math.random() * border);
+		}
+		for(int i=num/2; i<num; i++) {
+			ret[i] = (float)(border + Math.random() * getMaxValue());
+		}
+		return ret;
 	}
-	//*/
 }

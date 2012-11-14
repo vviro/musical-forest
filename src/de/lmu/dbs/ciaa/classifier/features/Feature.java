@@ -59,8 +59,11 @@ public abstract class Feature implements Serializable {
 	 * 
 	 * @return
 	 */
-	public float getRandomThreshold() {
-		return (float)(Math.random() * (double)getMaxValue());
+	public float[] getRandomThresholds(int num) {
+		float[] ret = new float[num];
+		for(int i=0; i<num; i++) {
+			ret[i] = (float)(Math.random() * getMaxValue());
+		}
+		return ret;
 	}
-
 }

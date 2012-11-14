@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
@@ -185,11 +186,9 @@ public class RandomTree extends Tree {
 		int numOfFeatures = paramSet.size();
 
 		// Generate random thresholds for each feature param set
-		float[][] thresholds = new float[numOfFeatures][params.thresholdCandidatesPerFeature];
+		float[][] thresholds = new float[numOfFeatures][];
 		for(int i=0; i<thresholds.length; i++) {
-			for(int k=0; k<params.thresholdCandidatesPerFeature; k++) {
-				thresholds[i][k] = params.featureFactory.getRandomThreshold();
-			}
+			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
 		}
 
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
