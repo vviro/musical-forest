@@ -164,7 +164,7 @@ public class RandomTree extends Tree {
 		// See if we exceeded max recursion depth
 		if (depth >= maxDepth) {
 			// Make it a leaf node
-			node.probability = calculateLeaf2(sampler, classification, mode, depth);
+			node.probability = calculateLeaf(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) Log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
 			return;
@@ -224,7 +224,7 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains3(paramSet, countClassesLeft, countClassesRight, noteRatio);
+		double[][] gain = getGains2(paramSet, countClassesLeft, countClassesRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
@@ -296,7 +296,7 @@ public class RandomTree extends Tree {
 			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
-			node.probability = calculateLeaf2(sampler, classification, mode, depth);
+			node.probability = calculateLeaf(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) Log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
 			return;
@@ -332,52 +332,17 @@ public class RandomTree extends Tree {
 	}
 	
 	/**
-	 * Info gain calculation. Uses an error-friendly [0,1] algo. Stabilizes at too low thrs (all to one side)
-	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @return
-	 *
-	private double[][] getGains_01(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		double note = noteLeft[0][0] + noteRight[0][0];
-		double silence = silenceLeft[0][0] + silenceRight[0][0];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				//double leftGain = ((double)noteLeft[i][j]/noteRatio) / silenceLeft[i][j]; // TODO find better function, best case now is NaN !!!
-				double leftGain = noteLeft[i][j] / note;
-				//double rightGain = silenceRight[i][j] / ((double)noteRight[i][j]/noteRatio);
-				double rightGain= silenceRight[i][j] / silence;
-				gain[i][j] = leftGain * rightGain;
-			}
-		}
-		return gain;
-	}
-	
-	/**
 	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
 	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @param noteRatio
 	 * @return
-	 *
-	private double[][] getGains(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
+	 */
+	protected double[][] getGains(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		//double note = noteLeft[0][0] + noteRight[0][0];
-		//double silence = silenceLeft[0][0] + silenceRight[0][0];
 		int numOfFeatures = paramSet.size();
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = ((double)noteLeft[i][j]/noteRatio) / silenceLeft[i][j]; // TODO find better function, best case now is NaN !!!
-				double rightGain = silenceRight[i][j] / ((double)noteRight[i][j]/noteRatio);
+				double leftGain = ((double)countClassesLeft[i][j][0]/noteRatio) / countClassesLeft[i][j][1]; // TODO find better function, best case now is NaN !!!
+				double rightGain = countClassesRight[i][j][1] / ((double)countClassesRight[i][j][0]/noteRatio);
 				gain[i][j] = leftGain * rightGain;
 			}
 		}
@@ -387,23 +352,17 @@ public class RandomTree extends Tree {
 	/**
 	 * Info gain calculation. Uses an error-unfriendly [-oo,2] algo. Stabilizes at good thrs.
 	 * 
-	 * @param paramSet
-	 * @param noteLeft
-	 * @param noteRight
-	 * @param silenceLeft
-	 * @param silenceRight
-	 * @param noteRatio
 	 * @return
-	 *
-	private double[][] getGains2(List<Feature> paramSet, long[][] noteLeft, long[][] noteRight, long[][] silenceLeft, long[][] silenceRight, double noteRatio) {
+	 */
+	protected double[][] getGains2(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		double note = noteLeft[0][0] + noteRight[0][0];
-		double silence = silenceLeft[0][0] + silenceRight[0][0];
+		double note = countClassesLeft[0][0][0] + countClassesRight[0][0][0];
+		double silence = countClassesLeft[0][0][1] + countClassesRight[0][0][1];
 		int numOfFeatures = paramSet.size();
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = (double)noteLeft[i][j] / note - (double)silenceLeft[i][j] / silence;
-				double rightGain= (double)silenceRight[i][j] / silence - (double)noteRight[i][j] / note;
+				double leftGain = (double)countClassesLeft[i][j][0] / note - (double)countClassesLeft[i][j][1] / silence;
+				double rightGain= (double)countClassesRight[i][j][1] / silence - (double)countClassesRight[i][j][0] / note;
 				gain[i][j] = leftGain + rightGain;
 			}
 		}
@@ -411,10 +370,10 @@ public class RandomTree extends Tree {
 	}
 
 	/**
-	 * Info gain calculation upon shannon entropy.
+	 * Info gain calculation upon shannon entropy, Kinect formula.
 	 * 
 	 */
-	private double[][] getGains3(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
+	protected double[][] getGains3(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		// Get overall sum of classes
 		int numOfClasses = countClassesLeft[0][0].length;
@@ -440,43 +399,6 @@ public class RandomTree extends Tree {
 	}
 
 	/**
-	 * Calculates leaf probabilities.
-	 * 
-	 * @param sampler
-	 * @param mode
-	 * @param depth
-	 * @return
-	 * @throws Exception
-	 */
-	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
-		float[] ret = new float[params.frequencies.length];
-		float maxP = Float.MIN_VALUE;
-		// Collect inverse
-		for(int i=0; i<sampler.getPoolSize(); i++) {
-			Dataset dataset = sampler.get(i);
-			byte[][] midi = dataset.getMidi();
-			byte[][] cla = classification.get(i);
-			
-			for(int x=0; x<midi.length; x++) {
-				for(int y=0; y<midi[0].length; y++) {
-					if (mode == cla[x][y]) { 
-						if (midi[x][y] == 0) { // Inverse
-							// f0 is (not) present
-							ret[y]++;
-							if (ret[y] > maxP) maxP = ret[y];
-						}
-					}
-				}
-			}
-		}
-		// Invert back and normalize
-		for(int i=0; i<ret.length; i++) {
-			ret[i] = (maxP - ret[i]) / maxP; 
-		}
-		return ret;
-	}
-	
-	/**
 	 * Calculates leaf probability.
 	 * 
 	 * @param sampler
@@ -485,7 +407,7 @@ public class RandomTree extends Tree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float calculateLeaf2(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
+	private float calculateLeaf(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
 		float ret = 0;
 		float not = 0;
 		// See how much was judged right
@@ -536,7 +458,7 @@ public class RandomTree extends Tree {
 	 * @param a
 	 * @param b
 	 * @return
-	 */
+	 *
 	public static double getEntropy(final long a, final long b) {
 		long all = a+b;
 		if(all <= 0) return 0;
