@@ -138,7 +138,7 @@ public class ForestTest {
 			List<Dataset> initialSet = new ArrayList<Dataset>();
 			initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
 			initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
-			//initialSet.addAll(Dataset.loadDatasets("testdata2", ".cqt", "testdata", ".mid", params.frequencies, params.step));
+			//initialSet.addAll(Dataset.loadDatasets("testdata2", ".cqt", "testdata2", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);

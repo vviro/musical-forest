@@ -114,7 +114,7 @@ public class Dataset {
 		SpectrumToImage img = new SpectrumToImage(spectrum.length, spectrum[0].length, 1);
 		img.add(spectrum, Color.WHITE, null);
 		img.add(midi, Color.RED, null, 0);
-		img.save(new File(this.spectrumFile.getAbsoluteFile() + ".png"));
+		img.save(new File("testdataResults/forestremote/" + this.spectrumFile.getName() + ".png"));
 		// /TMP
 		
 		loaded = true;
