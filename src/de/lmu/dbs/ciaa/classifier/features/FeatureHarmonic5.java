@@ -178,7 +178,7 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	@Override
 	public float getMaxValue() {
-		return 1000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
+		return 4000000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
 		//return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1) * (harmonics.length + 1) * 10);
 	}
 
@@ -235,7 +235,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 */
+	 *
 	@Override
 	public float getRandomThreshold() {
 		return (float)Exponential.staticNextDouble(lambda);

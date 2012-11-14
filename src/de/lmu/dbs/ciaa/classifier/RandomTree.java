@@ -601,7 +601,7 @@ public class RandomTree extends Tree {
 	 */
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
 		if (!node.isLeaf()) {
-			String nf = params.workingFolder + File.separator + "T" + num + "_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+			String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 			if (node == null || node.debugTree == null) {
 				System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
 				return;
