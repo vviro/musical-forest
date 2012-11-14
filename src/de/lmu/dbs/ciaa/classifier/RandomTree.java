@@ -79,7 +79,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	public float classify(final byte[][] data, final int x, final int y) throws Exception {
-		return classifyRec(data, tree, 0, x, y);
+		return classifyRec(data, tree, 0, 0, x, y);
 	}
 	
 	/**
@@ -92,18 +92,18 @@ public class RandomTree extends Tree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float classifyRec(final byte[][] data, final Node node, int mode , final int x, final int y) throws Exception {
+	protected float classifyRec(final byte[][] data, final Node node, int mode, int depth, final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
 			return node.probability;
 		} else {
-			if (params.saveNodeClassifications && node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+			if (params.saveNodeClassifications < depth && node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
 			
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				if (params.saveNodeClassifications) node.debugTree[x][y] = 1;
-				return classifyRec(data, node.left, 1, x, y);
+				if (params.saveNodeClassifications < depth) node.debugTree[x][y] = 1;
+				return classifyRec(data, node.left, 1, depth+1, x, y);
 			} else {
-				if (params.saveNodeClassifications) node.debugTree[x][y] = 2;
-				return classifyRec(data, node.right, 2, x, y);
+				if (params.saveNodeClassifications < depth) node.debugTree[x][y] = 2;
+				return classifyRec(data, node.right, 2, depth+1, x, y);
 			}
 		}
 	}
@@ -293,7 +293,7 @@ public class RandomTree extends Tree {
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
-		if (params.saveGainThresholdDiagrams) {
+		if (params.saveGainThresholdDiagrams < depth) {
 			String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 			Scale s = new LogScale(10);
 			gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
@@ -602,18 +602,19 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
-		if (!node.isLeaf()) {
-			String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-			if (node == null || node.debugTree == null) {
-				System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
-				return;
-			}
-			SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
-			img.add(node.debugTree, Color.YELLOW);
-			img.save(new File(nf));
-			saveDebugTreeRec(node.left, depth+1, 1);
-			saveDebugTreeRec(node.right, depth+1, 2);
+		if (params.saveNodeClassifications >= depth) return;
+		if (node.isLeaf())  return;
+		
+		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+		if (node == null || node.debugTree == null) {
+			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
+			return;
 		}
+		SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
+		img.add(node.debugTree, Color.YELLOW);
+		img.save(new File(nf));
+		saveDebugTreeRec(node.left, depth+1, 1);
+		saveDebugTreeRec(node.right, depth+1, 2);
 	}
 	
 	/**

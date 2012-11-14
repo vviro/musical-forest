@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="12"
+		maxDepth="2"
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="15"
 		thresholdCandidatesPerFeature="100"
@@ -57,8 +57,10 @@
 		                    
 		logProgress:               Show/log little progress info while growing.
 		logNodeInfo:               Show/log more details for each node growed on the console.
-		saveGainThresholdDiagrams: Save a gains/thresholds diagram in a png file for each node´s winner feature
-		saveNodeClassifications:   Save classifications for each node after test classification run.
+		saveGainThresholdDiagrams: Save a gains/thresholds diagram in a png file for each node´s winner feature, 
+		                           up to the given depth. Use -1 to save all nodes.
+		saveNodeClassifications:   Save classifications for each node after test classification run, up to the 
+		                           given depth. Use -1 to save all nodes.
 		debugThreadForking:        Show a message every time a new thread is created.
 		debugThreadPolling:        Show thread polling and status information in regular intervals.
 	-->
@@ -71,8 +73,8 @@
 		logProgress="true"
 		logNodeInfo="true"
 		
-		saveGainThresholdDiagrams="false"
-		saveNodeClassifications="false"
+		saveGainThresholdDiagrams="2"
+		saveNodeClassifications="2"
 		
 		debugThreadForking="false"
 		debugThreadPolling="true"

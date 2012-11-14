@@ -229,13 +229,13 @@ public class FeatureHarmonic5 extends Feature {
 	 * Lambda parameter for exponential distribution of randomly 
 	 * created threshold candidates
 	 */
-	public double lambda = 0.05;
+	public double lambda = 0.005;
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 *
+	 */
 	@Override
 	public float getRandomThreshold() {
 		return (float)Exponential.staticNextDouble(lambda);

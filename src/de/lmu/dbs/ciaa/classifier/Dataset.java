@@ -1,6 +1,5 @@
 package de.lmu.dbs.ciaa.classifier;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import cern.jet.random.sampling.RandomSampler;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.util.FileIO;
 import de.lmu.dbs.ciaa.util.PostfixFilenameFilter;
-import de.lmu.dbs.ciaa.util.SpectrumToImage;
 
 /**
  * Represents one dataset for training/testing. Contains references to 

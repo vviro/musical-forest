@@ -46,7 +46,7 @@ public class FeatureVisualizer {
 		// PNG parameters
 		String imgFile = "testimages/feature9.png"; // PNG file
 		int fspread = 1; // Scale factor for freq scale
-		double scaleData = 1; // Scale raw transform data visualization color. Use 1 to disable.
+		//double scaleData = 1; // Scale raw transform data visualization color. Use 1 to disable.
 		
 		// Transformation general parameters 
 		String wavFile = "testdata/mono/wav/mono3.wav";//WaveFiles/Test8_Mix.wav"; //args[1]; // WAV file
