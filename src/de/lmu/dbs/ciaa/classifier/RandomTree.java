@@ -259,7 +259,7 @@ public class RandomTree extends Tree {
 			long noteRightW = countClassesRight[winner][winnerThreshold][0];
 			//double noteRightWCorr = noteRightW/noteRatio;
 			//long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
-			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
+			Log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
 			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
