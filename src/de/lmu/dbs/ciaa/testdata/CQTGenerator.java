@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa.testdata;
 import java.awt.Color;
 import java.io.File;
 
+import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.spectrum.*;
 import de.lmu.dbs.ciaa.spectrum.analyze.DifferentialAnalyzer;
 import de.lmu.dbs.ciaa.util.*;
@@ -23,14 +24,17 @@ public class CQTGenerator {
 		boolean saveCqt = true;
 		boolean savePng = true;
 		boolean savePeak = true;
-		File srcFolder = new File("testdata/");
-		File cqtFolder = new File("testdata/");
-		File pngFolder = new File("testdata/");
+		String folder = "testdata2/";
+		File srcFolder = new File(folder);
+		File cqtFolder = new File(folder);
+		File pngFolder = new File(folder);
+		File midiFolder = new File(folder);
 		String cqtPostfix = ".cqt";
 		String peakPostfix = ".peak";
 		String pngPostfix = ".png";
 		String wavPostfix = ".wav";
-		String freqFileName = "testdata/frequencies";
+		String midiPostfix = ".mid";
+		String freqFileName = folder + "frequencies";
 		Scale scale = new LogScale(10);
 		int step = 256; // Samples per frame
 
@@ -62,6 +66,7 @@ public class CQTGenerator {
 				File cqtfile = new File(cqtFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, cqtPostfix));
 				File pngfile = new File(pngFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, pngPostfix));
 				File peakfile = new File(cqtFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, peakPostfix));
+				File midifile = new File(midiFolder.getAbsolutePath() + File.separator + wavfile.getName().replace(wavPostfix, midiPostfix));
 				out("#### Processing file " + i + " ####");
 				
 				// Load sample
@@ -120,11 +125,19 @@ public class CQTGenerator {
 					m.measure("Saved raw cqt data to " + peakfile.getName());
 				}
 
+				// Load MIDI file
+				MIDIAdapter midi = new MIDIAdapter(midifile);
+				long duration = (long)((double)((data.length+1)*step*1000.0)/sampleRate); // Audio length in milliseconds
+				byte[][] midiData = midi.toDataArray(data.length, duration, transformation.getFrequencies());
+				//ArrayUtils.blur(midiData, 0);
+				m.measure("Finished loading and extracting MIDI from " + midifile);
+
 				// Save PNG image of the results
 				if (savePng) {
 					SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, 1);
 					out("--> Max Data:  " + img.add(byteData, Color.WHITE, null));
 					out("--> Max Peak:  " + img.add(peakData, Color.GREEN, null, 0));
+					out("--> Max MIDI:  " + img.add(midiData, Color.RED, null, 0));
 					img.save(pngfile);
 					m.measure("Saved image to " + pngfile.getName());
 				}

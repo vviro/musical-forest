@@ -1,5 +1,6 @@
 package de.lmu.dbs.ciaa.classifier;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import cern.jet.random.sampling.RandomSampler;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.util.FileIO;
 import de.lmu.dbs.ciaa.util.PostfixFilenameFilter;
+import de.lmu.dbs.ciaa.util.SpectrumToImage;
 
 /**
  * Represents one dataset for training/testing. Contains references to 
@@ -107,6 +109,14 @@ public class Dataset {
 		long duration = spectrum.length * step;
 		midi = ma.toDataArray(spectrum.length, duration, frequencies);
 		//ArrayUtils.blur(midi, 0);
+
+		// TMP
+		SpectrumToImage img = new SpectrumToImage(spectrum.length, spectrum[0].length, 1);
+		img.add(spectrum, Color.WHITE, null);
+		img.add(midi, Color.RED, null, 0);
+		img.save(new File(this.spectrumFile.getAbsoluteFile() + ".png"));
+		// /TMP
+		
 		loaded = true;
 	}
 	

@@ -30,10 +30,10 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="3"
+		maxDepth="1"
 		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="30"
-		thresholdCandidatesPerFeature="100"
+		numOfRandomFeatures="1"
+		thresholdCandidatesPerFeature="1"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
 		mcFeatureFactoryClass="de.lmu.dbs.ciaa.classifier.features.MCFeatureHarmonic1"
 		entropyThreshold="-100000"
