@@ -20,9 +20,9 @@ public class FeatureHarmonic5 extends Feature {
 	
 	public double[] harmonicFactors = null; //{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
 	
-	public int numOfOvertones = 7; // TODO -> params
+	public int numOfOvertones = 5; // TODO -> params
 	
-	public double harmonicAmplification = 10; // TODO -> params
+	public double harmonicAmplification = 5; // TODO -> params
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 

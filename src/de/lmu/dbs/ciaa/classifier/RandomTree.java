@@ -97,13 +97,13 @@ public class RandomTree extends Tree {
 		if (node.isLeaf()) {
 			return node.probability;
 		} else {
-			if (params.saveNodeClassifications < depth && node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+			if (params.saveNodeClassifications > depth && node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
 			
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				if (params.saveNodeClassifications < depth) node.debugTree[x][y] = 1;
+				if (params.saveNodeClassifications > depth) node.debugTree[x][y] = 1;
 				return classifyRec(data, node.left, 1, depth+1, x, y);
 			} else {
-				if (params.saveNodeClassifications < depth) node.debugTree[x][y] = 2;
+				if (params.saveNodeClassifications > depth) node.debugTree[x][y] = 2;
 				return classifyRec(data, node.right, 2, depth+1, x, y);
 			}
 		}
@@ -292,7 +292,7 @@ public class RandomTree extends Tree {
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
-		if (params.saveGainThresholdDiagrams < depth) {
+		if (params.saveGainThresholdDiagrams > depth) {
 			String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 			Scale s = new LogScale(10);
 			gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
@@ -601,7 +601,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
-		if (params.saveNodeClassifications >= depth) return;
+		if (params.saveNodeClassifications <= depth) return;
 		if (node.isLeaf())  return;
 		
 		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
