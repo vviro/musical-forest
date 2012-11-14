@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="6"
+		maxDepth="1"
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="15"
 		thresholdCandidatesPerFeature="100"
@@ -49,16 +49,18 @@
 	></Forest>
 
 	<!--  
-		loadForest:         Load the forest from the node data in the working folder (must be grown first) 
-		workingFolder:      Folder where the forest can save its node data. Can also be used to store test results etc.
-		nodedataFilePrefix: Prefix for the node data files (one will be created for each tree)
-		frequencyTableFile: Path to the frequency table file, usually located beneath the test data folders. The file
-		                    holds a table of frequencies corresponding to the bins of the spectral transformation output.
+		loadForest:                Load the forest from the node data in the working folder (must be grown first) 
+		workingFolder:             Folder where the forest can save its node data. Can also be used to store test results etc.
+		nodedataFilePrefix:        Prefix for the node data files (one will be created for each tree)
+		frequencyTableFile:        Path to the frequency table file, usually located beneath the test data folders. The file
+		                           holds a table of frequencies corresponding to the bins of the spectral transformation output.
 		                    
-		logProgress:        Show/log little progress info while growing.
-		logNodeInfo:        Show/log more details for each node growed on the console.
-		debugThreadForking: Show a message every time a new thread is created.
-		debugThreadPolling: Show thread polling and status information in regular intervals.
+		logProgress:               Show/log little progress info while growing.
+		logNodeInfo:               Show/log more details for each node growed on the console.
+		saveGainThresholdDiagrams: Save a gains/thresholds diagram in a png file for each node´s winner feature
+		saveNodeClassifications:   Save classifications for each node after test classification run.
+		debugThreadForking:        Show a message every time a new thread is created.
+		debugThreadPolling:        Show thread polling and status information in regular intervals.
 	-->
 	<General
 		loadForest="false" 
@@ -68,6 +70,9 @@
 		
 		logProgress="true"
 		logNodeInfo="true"
+		
+		saveGainThresholdDiagrams="false"
+		saveNodeClassifications="false"
 		
 		debugThreadForking="false"
 		debugThreadPolling="true"

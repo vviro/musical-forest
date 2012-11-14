@@ -175,6 +175,16 @@ public class ForestParameters {
 	 */
 	public boolean debugThreadPolling = false;
 	
+	/**
+	 * Save a gains/thresholds diagram in a png file for each node´s winner feature
+	 */
+	public boolean saveGainThresholdDiagrams = false;
+	
+	/**
+	 * Save classifications for each node after clasification run.
+	 */
+	public boolean saveNodeClassifications = false;
+	
 	public MCFeature mcFeatureFactory = null;
 	
 	/**

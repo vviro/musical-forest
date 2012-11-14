@@ -205,11 +205,13 @@ public class ForestTest {
 			m.measure("Finished testing forest");
 			
 			// Save node images
-			for(int i=0; i<forest.getTrees().size(); i++) {
-				RandomTree t = (RandomTree)forest.getTrees().get(i);
-				t.saveDebugTree();
+			if (params.saveNodeClassifications) {
+				for(int i=0; i<forest.getTrees().size(); i++) {
+					RandomTree t = (RandomTree)forest.getTrees().get(i);
+					t.saveDebugTree();
+				}
+				m.measure("Saved node visualization images");
 			}
-			m.measure("Saved node visualization images");
 			
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";

@@ -96,13 +96,13 @@ public class RandomTree extends Tree {
 		if (node.isLeaf()) {
 			return node.probability;
 		} else {
-			if (node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
+			if (params.saveNodeClassifications && node.debugTree == null) node.debugTree = new double[data.length][data[0].length]; // TMP
 			
 			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				node.debugTree[x][y] = 1;
+				if (params.saveNodeClassifications) node.debugTree[x][y] = 1;
 				return classifyRec(data, node.left, 1, x, y);
 			} else {
-				node.debugTree[x][y] = 2;
+				if (params.saveNodeClassifications) node.debugTree[x][y] = 2;
 				return classifyRec(data, node.right, 2, x, y);
 			}
 		}
@@ -272,7 +272,7 @@ public class RandomTree extends Tree {
 			long noteRightW = countClassesRight[winner][winnerThreshold][0];
 			//double noteRightWCorr = noteRightW/noteRatio;
 			//long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
-			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
+			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
 			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
@@ -293,10 +293,12 @@ public class RandomTree extends Tree {
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
-		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-		Scale s = new LogScale(10);
-		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
-		Log.write(pre + "Saved node thresholds/gains diagram to " + nf, System.out);
+		if (params.saveGainThresholdDiagrams) {
+			String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
+			Scale s = new LogScale(10);
+			gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
+			//Log.write(pre + "Saved node thresholds/gains diagram to " + nf);
+		}
 		//////////////////////////////////////////////////
 		
 		// See in info gain is sufficient:
