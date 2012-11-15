@@ -130,6 +130,7 @@ public class RandomTree extends Tree {
 		log.write("Training data for tree " + num + ":\n" + lst);
 		
 		// TMP: Save classifications to PNGs
+		/*
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			System.out.println("Visualize " + i);
 			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
