@@ -12,50 +12,6 @@ import de.lmu.dbs.ciaa.spectrum.Transform;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
- * Generated data: ************************************************************************
- * 
- * Forests:
- * 0: 1/4/0.3/1/1 - Feature bei Ausreisser: Exceptions (Ignore bzw. rec. Right)
- * 1: 1/6/1.0/10/4 - Feature bei Ausreisser: MIN_VALUE
- * 2: 1/6/1.0/10/4 - Feature bei Ausreisser: 0
- * 2b: 1/6/1.0/10/4 - Feature bei Ausreisser: 0
- * 2b: 1/6/1.0/10/4 - Feature bei Ausreisser: 0
- * 3: 1/6/1.0/20/5 - Feature bei Ausreisser: 0
- * 4: 3/6/0.8/10/4 - Feature bei Ausreisser: 0
- * 5: 1/6/1.0/10/4 - No Inverse
- * 
- * Oob:
- * 0: 1/6/1.0/10/4
- * 1: -"- mit FeatureKinect2
- * 2: -"- mit FeatureKinect4
- * 3: -"- mit FeatureKinect4 und data[x][y]/3
- * 4: "-" mit FeatureKinect , ausserdem x=0, y in [0,150]
- * 5: "-" mit FeatureKinect4 und data[x][y]/3, ausserdem x=0, y in [0,150]
- * 6: 1/6/0.5/2/2 mit FeatureKinect5, -2/2/-150/150  --> 22sec growing, 40MB at growing
- * 7: 1/6/1.0/2/2 mit sparse matrix für midi, profiled und etwas optimiert
- * 8: 1/6/1.0/2/2 wieder ohne sparse
- * 9: "-" mit bool classification -> gescheitert
- * 10: 1/6/1.0/20/6 ohne bool, nur so
- * 11: ?
- * 12: 1/4/1.0/20/6 mit Harmonic feature
- * 13: "-" (20 statt 10 harmonics)
- * 14: "-" Ausreisser besser behandelt, normalisierte probabilities
- * 15: "-" FeatureHarmonic2
- * 16: 1/6/1.0/20/6 FeatureHarmonic2
- * 17: 1/4/1.0/20/6 FeatureHarmonic2
- * 18: "-" max
- * 19: "-" (add im feature) max
- * 21: "-" mit neuen Testdaten (Log) nur mono
- * 22: "-" mit neuen Testdaten (Log) auch poly, simple feature
- * 23: "-" additives harmonic feature
- * 24: 5/4/1.0/5/5 FeatureHarmonic2
- * 25: 1/4/1.0/10/5 FeatureHarmonic2 -2/2
- * 
- * In Folders: (forestX)
- * 
- * 1: 1/4/1.0/10/5 FeatureHarmonic2 -2/2
- * 2: 2/4/0.2/5/5 Thread test                 !!!!!!!!!!! a-Version! -- d Version is for testing threds
- * 
  * TODO *************************************************************************************
  * 
  * Test on server features:
@@ -86,9 +42,6 @@ import de.lmu.dbs.ciaa.util.*;
  * 
  * Forest:
  * 		Feature:
- * 			- u und v auf gleicher frequenz (probieren)
- * 			- harmonics über eine verteilung verteilen? -> weil je weiter oben desto besser das ergebnis
- * 			- peaks als zweite infoquelle für u/v-Punkte?
  * 			- notenlänge verteilung
  * 		Allgemein:
  * 			- Mehrere verschiedene feaure-typen?

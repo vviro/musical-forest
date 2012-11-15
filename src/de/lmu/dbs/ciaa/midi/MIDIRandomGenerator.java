@@ -2,8 +2,6 @@ package de.lmu.dbs.ciaa.midi;
 
 import java.io.File;
 
-import de.lmu.dbs.ciaa.util.ArrayUtils;
-
 /**
  * Generator that renders random MIDI files. 
  * 
