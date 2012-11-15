@@ -62,6 +62,22 @@ import de.lmu.dbs.ciaa.util.*;
  * 	3b
  * 	5
  * 
+ * Code:
+ * 		- make forest generic
+ * 			- extend RandomTree
+ * 			- Sampler type -> ?
+ * 		- logdatei per tree
+ * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
+ * 		- protocol buffer (google code) für dateiformat, statt serialization
+ *
+ * 		-> Forests: 
+ * 			- reimplement bootstrapping framewise
+ * 			- automate test to get values instead of images only (s. Breiman)		
+ * 
+ * - Mehr rekursion wird schlechter ab dep 4 oder so
+ * 		- es klassifizieren sich beide seiten zur selben klasse...verhndern?
+ * 		- vielleicht ist das bei vielen klassen besser...also erweiterung des kinect?
+ * 
  * Optimierung:
  * 		- Make the application distributable
  * 
@@ -81,9 +97,6 @@ import de.lmu.dbs.ciaa.util.*;
  * 				- ...?
  * 			- oder alternieren zw. daten und peaks (bei Featuregenerierung)?
  * 			- oder mehrere Wälder per problem?
- * 
- * Application Design:
- * 		- protocol buffer (google code) für dateiformat, statt serialization
  * 
  * 
  * 
@@ -239,7 +252,7 @@ public class ForestTest {
 			
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
 			FileUtils.deleteDirectory(new File(copyToDir));
-			FileUtils.copyFile(new File(settingsFile), new File(params.workingFolder + File.separator + settingsFile));
+			//FileUtils.copyFile(new File(settingsFile), new File(params.workingFolder + File.separator + settingsFile));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
 			

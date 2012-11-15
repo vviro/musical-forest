@@ -29,7 +29,7 @@
 		threadWaitTime:            Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
-		forestSize="3"
+		forestSize="1"
 		maxDepth="6"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="200"
@@ -66,7 +66,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_for3"
+		workingFolder="testdataResults/forestremote"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		

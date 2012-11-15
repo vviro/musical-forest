@@ -74,7 +74,11 @@ public class Forest {
 			// Multithreading is active, so wait for the results 
 			// TODO: Busy waiting, can be done more effectively, but not critical for this application
 			while(true) {
-				Thread.sleep(params.threadWaitTime);
+				try {
+					Thread.sleep(params.threadWaitTime);
+				} catch (InterruptedException e) {
+					System.out.println("[Wait interrupted by VM, continuing...]");
+				}
 				boolean ret = true;
 				for(int i=0; i<trees.size(); i++) {
 					if (!trees.get(i).isGrown()) {
