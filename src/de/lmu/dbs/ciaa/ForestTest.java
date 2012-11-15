@@ -123,10 +123,10 @@ public class ForestTest {
 				// Grow
 				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
-					Log l = new Log(params.workingFolder + File.separator + i + "_Growlog.txt");
+					Logfile l = new Logfile(params.workingFolder + File.separator + i + "_Growlog.txt");
 					trees.add(new RandomTree(params, i, l));
 				}
-				Log fl = new Log(params.workingFolder + File.separator + "ForestStats.txt");
+				Logfile fl = new Logfile(params.workingFolder + File.separator + "ForestStats.txt");
 				forest = new Forest(trees, params, fl);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);

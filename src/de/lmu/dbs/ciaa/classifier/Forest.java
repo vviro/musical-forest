@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.util.Log;
+import de.lmu.dbs.ciaa.util.Logfile;
 
 /**
  * Random forest implementation. 
@@ -28,7 +28,7 @@ public class Forest {
 	/**
 	 * Log file for the forest
 	 */
-	private Log log = null;
+	private Logfile log = null;
 	
 	/**
 	 * Creates a forest with some trees.
@@ -36,7 +36,7 @@ public class Forest {
 	 * @param trees
 	 * @throws Exception 
 	 */
-	public Forest(List<Tree> trees, final ForestParameters params, Log log) throws Exception {
+	public Forest(List<Tree> trees, final ForestParameters params, Logfile log) throws Exception {
 		this.params = params;
 		this.trees = trees;
 		this.log = log;

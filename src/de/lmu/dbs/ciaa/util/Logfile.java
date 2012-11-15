@@ -13,7 +13,7 @@ import java.util.Date;
  * @author Thomas Weber
  *
  */
-public class Log {
+public class Logfile {
 	
 	/**
 	 * Output buffer
@@ -36,7 +36,7 @@ public class Log {
 	 * @param logfile
 	 * @throws IOException
 	 */
-	public Log(String logfile) throws IOException {
+	public Logfile(String logfile) throws IOException {
 		this(logfile, false);
 	}
 	
@@ -47,7 +47,7 @@ public class Log {
 	 * @param append
 	 * @throws IOException
 	 */
-	public Log(String logfile, boolean append) throws IOException {
+	public Logfile(String logfile, boolean append) throws IOException {
 		if (logfile == null) return;
 		FileWriter fstream = new FileWriter(logfile, append);
 		this.out = new BufferedWriter(fstream);
@@ -61,7 +61,7 @@ public class Log {
 	 * @throws Exception
 	 */
 	public synchronized void write(String message) throws Exception {
-		if (out == null) throw new Exception("Log not open.");
+		if (out == null) throw new Exception("Log not open. Message: " + message);
 		String msg = timeStampFormatter.format(new Date()) + ": " + message;
 		out.write(msg + "\n");
 	}

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
-import de.lmu.dbs.ciaa.util.Log;
+import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
 import de.lmu.dbs.ciaa.util.ArrayToImage;
@@ -35,7 +35,7 @@ public class RandomTreeMC extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTreeMC(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num, Log log) throws Exception {
+	public RandomTreeMC(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
 		this(params, num, log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -52,7 +52,7 @@ public class RandomTreeMC extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTreeMC(ForestParameters params, int num, Log log) throws Exception {
+	public RandomTreeMC(ForestParameters params, int num, Logfile log) throws Exception {
 		super(num, log);
 		params.check();
 		this.params = params;

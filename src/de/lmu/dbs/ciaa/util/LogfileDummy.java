@@ -9,9 +9,9 @@ import java.io.PrintStream;
  * @author Thomas Weber
  *
  */
-public class LogDummy extends Log {
+public class LogfileDummy extends Logfile {
 	
-	public LogDummy(String logfile) throws IOException {
+	public LogfileDummy(String logfile) throws IOException {
 		super(null);
 	}
 
