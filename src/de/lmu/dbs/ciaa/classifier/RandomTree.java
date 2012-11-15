@@ -33,7 +33,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, double noteRatio, int num) throws Exception {
+	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num) throws Exception {
 		this(params, -1);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -42,7 +42,6 @@ public class RandomTree extends Tree {
 		this.newThreadMode = mode;
 		this.newThreadDepth = depth;
 		this.newThreadMaxDepth = maxDepth;
-		this.newThreadNoteRatio = noteRatio;
 		this.num = num;
 	}
 	
@@ -125,13 +124,7 @@ public class RandomTree extends Tree {
 				classification.add(new byte[sampler.get(i).getSpectrum().length][sampler.get(i).getSpectrum()[0].length]);
 			}
 		}
-		double noteRatio = 0;
-		for(int i=0; i<sampler.getPoolSize(); i++) {
-			Dataset d = sampler.get(i);
-			noteRatio += d.getRatio();
-		}
-		noteRatio/=sampler.getPoolSize();
-		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true, noteRatio);
+		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true); 
 	}
 
 	/**
@@ -143,13 +136,13 @@ public class RandomTree extends Tree {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading, double noteRatio) throws Exception {
+	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
 		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, noteRatio, num);
+					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, num);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -179,55 +172,14 @@ public class RandomTree extends Tree {
 			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
 		}
 
-		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][1];
-		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][1];
-		long[][] countAllLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
-		long[][] countAllRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		// Evaluate the features
+		int numOfClasses = getNumOfClasses();
+		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
+		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
+		evaluateFeatures(sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);		
 
-		int poolSize = sampler.getPoolSize();
-		for(int i=0; i<poolSize; i++) {
-
-			// Each dataset...load spectral data and midi
-			Dataset dataset = sampler.get(i);
-			byte[][] data = dataset.getSpectrum();
-			byte[][] midi = dataset.getMidi();
-			byte[][] cla = classification.get(i);
-			
-			// get feature results 
-			for(int x=0; x<data.length; x++) {
-				for(int y=0; y<params.frequencies.length; y++) {
-					// Each random value from the subframe
-					if (mode == cla[x][y]) { // Is that point in the training set for this node?
-						for(int k=0; k<numOfFeatures; k++) {
-							// Each featureset candidate...
-							float ev = paramSet.get(k).evaluate(data, x, y);
-							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								if (ev >= thresholds[k][g]) {
-									countAllLeft[k][g]++;
-									// Left
-									if (midi[x][y] > 0) {
-										countClassesLeft[k][g][0]++;
-									} else {
-										//countClassesLeft[k][g][1]++;
-									}
-								} else {
-									countAllRight[k][g]++;
-									// Right
-									if (midi[x][y] > 0) {
-										countClassesRight[k][g][0]++;
-									} else {
-										//countClassesRight[k][g][1]++;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGainsByEntropy2(paramSet, countClassesLeft, countClassesRight, countAllLeft, countAllRight, noteRatio);
+		// Calculate info gain upon each combination of feature/threshold 
+		double[][] gain = getGainsByEntropy(paramSet, countClassesLeft, countClassesRight);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
@@ -253,9 +205,9 @@ public class RandomTree extends Tree {
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
 			Log.write(pre + "------------------------");
-			long silenceLeftW = countAllLeft[winner][winnerThreshold] - countClassesLeft[winner][winnerThreshold][0]; 
+			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
 			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
-			long silenceRightW = countAllRight[winner][winnerThreshold] - countClassesRight[winner][winnerThreshold][0]; 
+			long silenceRightW = countClassesRight[winner][winnerThreshold][1]; 
 			long noteRightW = countClassesRight[winner][winnerThreshold][0];
 			Log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
@@ -301,6 +253,7 @@ public class RandomTree extends Tree {
 		
 		// Split values by winner feature for deeper branches
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
+		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
 			Dataset dataset = sampler.get(i);
 			byte[][] data = dataset.getSpectrum();
@@ -322,11 +275,60 @@ public class RandomTree extends Tree {
 		
 		// Recursion to left and right
 		node.left = new Node();
-		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true, noteRatio);
+		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
 
 		node.right = new Node();
-		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true, noteRatio);
+		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
 	}
+	
+	protected int getNumOfClasses() {
+		return 2;
+	}
+	
+	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
+		int numOfFeatures = paramSet.size();
+
+		int poolSize = sampler.getPoolSize();
+		for(int i=0; i<poolSize; i++) {
+
+			// Each dataset...load spectral data and midi
+			Dataset dataset = sampler.get(i);
+			byte[][] data = dataset.getSpectrum();
+			byte[][] midi = dataset.getMidi();
+			byte[][] cla = classification.get(i);
+			
+			// get feature results 
+			for(int x=0; x<data.length; x++) {
+				for(int y=0; y<params.frequencies.length; y++) {
+					// Each random value from the subframe
+					if (mode == cla[x][y]) { // Is that point in the training set for this node?
+						for(int k=0; k<numOfFeatures; k++) {
+							// Each featureset candidate...
+							float ev = paramSet.get(k).evaluate(data, x, y);
+							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
+								if (ev >= thresholds[k][g]) {
+									// Left
+									if (midi[x][y] > 0) {
+										countClassesLeft[k][g][0]++;
+									} else {
+										countClassesLeft[k][g][1]++;
+									}
+								} else {
+									// Right
+									if (midi[x][y] > 0) {
+										countClassesRight[k][g][0]++;
+									} else {
+										countClassesRight[k][g][1]++;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	
 	/**
 	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
@@ -370,7 +372,7 @@ public class RandomTree extends Tree {
 	 * Info gain calculation upon shannon entropy, Kinect formula.
 	 * 
 	 */
-	protected double[][] getGainsByEntropy(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
+	protected double[][] getGainsByEntropy(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		// Get overall sum of classes
 		int numOfClasses = countClassesLeft[0][0].length;
@@ -387,36 +389,13 @@ public class RandomTree extends Tree {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
 				double entropyLeft = getEntropy(countClassesLeft[i][j]);
 				double entropyRight = getEntropy(countClassesRight[i][j]);
-				long amountLeft = countClassesLeft[i][j][0] + countClassesLeft[i][j][1]; // TODO not multiclass
-				long amountRight = countClassesRight[i][j][0] + countClassesRight[i][j][1];
+				long amountLeft = 0;
+				long amountRight = 0;
+				for(int d=0; d<numOfClasses; d++) {
+					amountLeft += countClassesLeft[i][j][d];
+					amountRight += countClassesRight[i][j][d];
+				}
 				gain[i][j] = entropyAll - ((double)amountLeft/all)*entropyLeft - ((double)amountRight/all)*entropyRight;
-			}
-		}
-		return gain;
-	}
-
-	/**
-	 * Info gain calculation upon shannon entropy, Kinect formula.
-	 * 
-	 */
-	protected double[][] getGainsByEntropy2(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, long[][] countAllLeft, long[][] countAllRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		// Get overall sum of classes
-		int numOfClasses = countClassesLeft[0][0].length;
-		long[] classes = new long[numOfClasses];
-		long all = countAllLeft[0][0] + countAllRight[0][0];
-		for(int y=0; y<numOfClasses; y++) {
-			classes[y] = countClassesLeft[0][0][y] + countClassesRight[0][0][y];
-			//all += classes[y];
-		}
-		// Calculate gains
-		double entropyAll = getEntropy(classes);
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double entropyLeft = getEntropy(countClassesLeft[i][j]);
-				double entropyRight = getEntropy(countClassesRight[i][j]);
-				gain[i][j] = entropyAll - ((double)countAllLeft[i][j]/all)*entropyLeft - ((double)countAllRight[i][j]/all)*entropyRight;
 			}
 		}
 		return gain;

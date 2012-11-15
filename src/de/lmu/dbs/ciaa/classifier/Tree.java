@@ -95,12 +95,6 @@ public abstract class Tree extends Thread {
 	protected int newThreadMaxDepth;
 	
 	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
-	protected double newThreadNoteRatio;
-	
-	/**
 	 * Date formatter for debug output.
 	 */
 	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
@@ -138,7 +132,7 @@ public abstract class Tree extends Thread {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected abstract void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading, double noteRatio) throws Exception;
+	protected abstract void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
 
 	/**
 	 * Saves the tree to a file.
@@ -177,7 +171,7 @@ public abstract class Tree extends Thread {
 		try {
 			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
 			
-			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false, newThreadNoteRatio);
+			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive();
 			
 			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": <-- Thread at depth " + newThreadDepth + " released.");
