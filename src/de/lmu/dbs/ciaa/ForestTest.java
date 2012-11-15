@@ -14,31 +14,17 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * TODO *************************************************************************************
  * 
- * Test on server features:
- * 	3b
- * 	5
+ * 	- Peak und " > 0": 
+ * 		- hat schwächen über depth 3-4.
+ * 			- " > 0" gegen "ohne bed." in evaluate-methode!
+ * 			- und/oder: Mix peak and cqt irgendwie!
+ * 	- auch feature 3b testen!!!!!!
+ * 	- reimplement bootstrapping framewise
+ * - adjust threshold max of FeatureHarmonic6 ??
  * 
- * Code:
- * 		- make forest generic
- * 			- extend RandomTree
- * 			- Sampler type -> ?
- * 		- logdatei per tree
- * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
- * 		- protocol buffer (google code) für dateiformat, statt serialization
- *
- * 		-> Forests: 
- * 			- reimplement bootstrapping framewise
- * 			- automate test to get values instead of images only (s. Breiman)		
- * 
- * - Mehr rekursion wird schlechter ab dep 4 oder so
+ * 	- ?? Mehr rekursion wird schlechter ab dep 4 oder so
  * 		- es klassifizieren sich beide seiten zur selben klasse...verhndern?
  * 		- vielleicht ist das bei vielen klassen besser...also erweiterung des kinect?
- * 
- * Optimierung:
- * 		- Make the application distributable
- * 
- * Testdaten:
- * 		- Performances von Vladimir
  * 
  * Forest:
  * 		Feature:
@@ -50,6 +36,24 @@ import de.lmu.dbs.ciaa.util.*;
  * 				- ...?
  * 			- oder alternieren zw. daten und peaks (bei Featuregenerierung)?
  * 			- oder mehrere Wälder per problem?
+ * 
+ * Testdaten:
+ * 		- Performances von Vladimir
+ * 
+ * Code:
+ * 		- log all testdata filenames somewhere
+ * 		- properly kill threads (-> better heap usage!)
+ * 		- make forest generic
+ * 			- extend RandomTree
+ * 			- Sampler type -> ?
+ * 		- logdatei per tree
+ * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
+ * 		- protocol buffer (google code) für dateiformat, statt serialization
+ * 		- automate test to get values instead of images only (s. Breiman)		
+ * 
+ * 
+ * Optimierung:
+ * 		- Make the application distributable
  * 
  * 
  * 
