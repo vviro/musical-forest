@@ -94,6 +94,7 @@ public class ForestTest {
 			if (!params.loadForest) {
 				FileUtils.deleteDirectory(new File(params.workingFolder));
 				resultDir.mkdirs();
+				FileUtils.copyFile(new File(settingsFile), new File(params.workingFolder + File.separator + settingsFile)); // TMP
 				Log.open(params.workingFolder + File.separator + logFile);
 				m.measure("Created target folder and opened log");
 			}
@@ -209,7 +210,6 @@ public class ForestTest {
 			
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
 			FileUtils.deleteDirectory(new File(copyToDir));
-			//FileUtils.copyFile(new File(settingsFile), new File(params.workingFolder + File.separator + settingsFile));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
 			
