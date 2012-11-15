@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.Serializable;
 
 import de.lmu.dbs.ciaa.classifier.features.Feature;
-import de.lmu.dbs.ciaa.util.SpectrumToImage;
+import de.lmu.dbs.ciaa.util.ArrayToImage;
 
 /**
  * A node in the decision tree.
@@ -73,7 +73,7 @@ public class Node implements Serializable {
 	 * @throws Exception 
 	 */
 	public void saveDebugTree(String filename) throws Exception {
-		SpectrumToImage img = new SpectrumToImage(debugTree.length, debugTree[0].length);
+		ArrayToImage img = new ArrayToImage(debugTree.length, debugTree[0].length);
 		int[][] l = new int[debugTree.length][debugTree[0].length];
 		int[][] r = new int[debugTree.length][debugTree[0].length];
 		for (int i=0; i<l.length; i++) {

@@ -13,7 +13,7 @@ import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.RuntimeMeasure;
 import de.lmu.dbs.ciaa.util.Sample;
 import de.lmu.dbs.ciaa.util.Scale;
-import de.lmu.dbs.ciaa.util.SpectrumToImage;
+import de.lmu.dbs.ciaa.util.ArrayToImage;
 import de.lmu.dbs.ciaa.util.WaveSample;
 
 /**
@@ -208,7 +208,7 @@ public class FeatureVisualizer {
 			}
 			*/
 			// Save PNG image of the results
-			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
+			ArrayToImage img = new ArrayToImage(data.length, data[0].length, fspread);
 			//Color color = new Color((int)(255*scaleData),(int)(150*scaleData),0);
 			img.add(byteData, Color.WHITE);
 			out("Max: " + img.add(fData, Color.GREEN, null, 0));

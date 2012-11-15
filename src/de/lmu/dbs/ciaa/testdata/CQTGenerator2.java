@@ -66,7 +66,7 @@ public class CQTGenerator2 {
 
 				// Save PNG image of the results
 				if (savePng) {
-					SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, 1);
+					ArrayToImage img = new ArrayToImage(data.length, data[0].length, 1);
 					out("--> Max Data:  " + img.add(data, Color.WHITE, null));
 					//out("--> Max Peak:  " + img.add(dataPeak, Color.GREEN, null, 0));
 					out("--> Max MIDI:  " + img.add(midiData, Color.RED, null, 0));

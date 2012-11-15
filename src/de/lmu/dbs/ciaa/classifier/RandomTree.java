@@ -1,5 +1,6 @@
 package de.lmu.dbs.ciaa.classifier;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
@@ -109,21 +111,29 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
-		// Get random value selection initially
-		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index
-		if (params.percentageOfRandomValuesPerFrame < 1.0) {
-			// Drop some of the values by classifying them to -1
-			int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length);
-			long[] array = sampler.get(0).getRandomValuesArray(vpf);
-			for(int i=0; i<sampler.getPoolSize(); i++) {
-				classification.add(sampler.get(i).selectRandomValues(0, vpf, array));
-			}
-		} else {
-			// Set all zero classification
-			for(int i=0; i<sampler.getPoolSize(); i++) {
-				classification.add(new byte[sampler.get(i).getSpectrum().length][sampler.get(i).getSpectrum()[0].length]);
-			}
+		// Build first classification array (from bootstrapping samples and random values per sampled frame)
+		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index as in sampler
+		int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length); // values per frame
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			TreeDataset d = (TreeDataset)sampler.get(i);
+			byte[][] cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
+			classification.add(cl);
 		}
+		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
+		String lst = "";
+		for(int o=0; o<sampler.getPoolSize(); o++) {
+			TreeDataset d = (TreeDataset)sampler.get(o);
+			lst += "Dataset " + o + ": " + d.getDataFile().getAbsolutePath() + " (Reference: " + d.getReferenceFile().getAbsolutePath() + ")\n";
+		}
+		Log.write("Training data for tree " + num + ":\n" + lst);
+		/*for(int i=0; i<sampler.getPoolSize(); i++) {
+			// TMP: Save classifications to PNGs
+			System.out.println("Visualize " + i);
+			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
+			ArrayUtils.toImage(fname, ArrayUtils.positivize(classification.get(i)), Color.YELLOW);
+		}
+		System.exit(0);
+		//*/
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true); 
 	}
 
@@ -255,8 +265,8 @@ public class RandomTree extends Tree {
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
-			Dataset dataset = sampler.get(i);
-			byte[][] data = dataset.getSpectrum();
+			TreeDataset dataset = (TreeDataset)sampler.get(i);
+			byte[][] data = dataset.getData();
 			byte[][] cla = classification.get(i);
 			byte[][] claNext = new byte[data.length][params.frequencies.length];
 			for(int x=0; x<data.length; x++) {
@@ -281,10 +291,28 @@ public class RandomTree extends Tree {
 		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
 	}
 	
+	/**
+	 * Returns the number of classification classes.
+	 * 
+	 * @return
+	 */
 	protected int getNumOfClasses() {
 		return 2;
 	}
 	
+	/**
+	 * Evaluates a couple of features with a couple of thresholds. This
+	 * is the most CPU intensive part of the tree training algorithm.
+	 * 
+	 * @param sampler
+	 * @param paramSet
+	 * @param classification
+	 * @param mode
+	 * @param thresholds
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @throws Exception
+	 */
 	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
 		int numOfFeatures = paramSet.size();
 
@@ -292,9 +320,9 @@ public class RandomTree extends Tree {
 		for(int i=0; i<poolSize; i++) {
 
 			// Each dataset...load spectral data and midi
-			Dataset dataset = sampler.get(i);
-			byte[][] data = dataset.getSpectrum();
-			byte[][] midi = dataset.getMidi();
+			TreeDataset dataset = (TreeDataset)sampler.get(i);
+			byte[][] data = dataset.getData();
+			byte[][] midi = dataset.getReference();
 			byte[][] cla = classification.get(i);
 			
 			// get feature results 
@@ -415,8 +443,8 @@ public class RandomTree extends Tree {
 		float not = 0;
 		// See how much was judged right
 		for(int i=0; i<sampler.getPoolSize(); i++) {
-			Dataset dataset = sampler.get(i);
-			byte[][] midi = dataset.getMidi();
+			TreeDataset dataset = (TreeDataset)sampler.get(i);
+			byte[][] midi = dataset.getReference();
 			byte[][] cla = classification.get(i);
 			
 			for(int x=0; x<midi.length; x++) {

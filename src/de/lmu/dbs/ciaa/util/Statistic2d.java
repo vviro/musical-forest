@@ -124,7 +124,7 @@ public class Statistic2d {
 				grid[gx][i] = 1;
 			}
 		}
-		SpectrumToImage img = new SpectrumToImage(width, height);
+		ArrayToImage img = new ArrayToImage(width, height);
 		img.add(grid, Color.BLUE);
 		img.add(data, Color.WHITE, scale, 0);
 		img.save(new File(filename));

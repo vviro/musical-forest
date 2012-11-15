@@ -1,6 +1,9 @@
 package de.lmu.dbs.ciaa.util;
 
+import java.awt.Color;
+import java.io.File;
 import java.nio.ByteBuffer;
+
 
 /**
  * Some static array utility methods.
@@ -9,6 +12,20 @@ import java.nio.ByteBuffer;
  *
  */
 public class ArrayUtils {
+	
+	/**
+	 * Saves a 2-dimensional array to a png file.
+	 * 
+	 * @param filename
+	 * @param data
+	 * @param color
+	 * @throws Exception 
+	 */
+	public static void toImage(String filename, byte[][] data, Color color) throws Exception {
+		ArrayToImage img = new ArrayToImage(data.length, data[0].length);
+		img.add(data, color);
+		img.save(new File(filename));
+	}
 	
 	/**
 	 * Surrounds each value > threshold with a copy of it.
@@ -594,6 +611,28 @@ public class ArrayUtils {
 		String ret = "";
 		for(int i=start; i<=end && i<in.length; i++) {
 			ret+= i + ": " + in[i] + "\n";
+		}
+		return ret;
+	}
+
+	/**
+	 * Shifts all values up or down by minimum to get [0,x] range.
+	 * 
+	 * @param bs
+	 * @return
+	 */
+	public static byte[][] positivize(byte[][] data) {
+		byte[][] ret = new byte[data.length][data[0].length];
+		byte min = Byte.MAX_VALUE;
+		for(int x=0; x<data.length; x++) {
+			for(int y=0; y<data[0].length; y++) {
+				if (data[x][y] < min) min = data[x][y];
+			}
+		}
+		for(int x=0; x<data.length; x++) {
+			for(int y=0; y<data[0].length; y++) {
+				ret[x][y] = (byte)(data[x][y] - min);
+			}
 		}
 		return ret;
 	}

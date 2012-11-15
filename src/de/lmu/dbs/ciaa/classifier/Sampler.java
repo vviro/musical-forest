@@ -10,7 +10,7 @@ import java.util.List;
  * @author Thomas Weber
  *
  */
-public abstract class Sampler<T> {
+public abstract class Sampler<T extends Dataset> {
 
 	/**
 	 * All datasets
@@ -30,8 +30,9 @@ public abstract class Sampler<T> {
 	 * Returns a sample of the datasets.
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	public abstract Sampler<T> getSample();
+	public abstract Sampler<T> getSample() throws Exception;
 
 	/**
 	 * Has to return a new sampler instance.
@@ -42,7 +43,7 @@ public abstract class Sampler<T> {
 	public abstract Sampler<T> newInstance(List<T> data);
 
 	/**
-	 * Returns the data pool as array of generic type T[].
+	 * Returns the data pool.
 	 * 
 	 * @return
 	 */

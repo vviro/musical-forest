@@ -15,7 +15,7 @@ import javax.imageio.ImageIO;
  * @author Thomas Weber
  *
  */
-public class SpectrumToImage {
+public class ArrayToImage {
 
 	private int width;
 	private int height;
@@ -32,7 +32,7 @@ public class SpectrumToImage {
 	 * @param width
 	 * @param height
 	 */
-	public SpectrumToImage(int width, int height) {
+	public ArrayToImage(int width, int height) {
 		this(width, height, 1, 1);
 	}
 	
@@ -44,7 +44,7 @@ public class SpectrumToImage {
 	 * @param height
 	 * @param yspread scale factor for y axis
 	 */
-	public SpectrumToImage(int width, int height, int yspread) {
+	public ArrayToImage(int width, int height, int yspread) {
 		this(width, height, yspread, 1);
 	}
 	
@@ -57,7 +57,7 @@ public class SpectrumToImage {
 	 * @param yspread scale factor for y axis
 	 * @param xspread scale factor for x axis
 	 */
-	public SpectrumToImage(int width, int height, int yspread, int xspread) {
+	public ArrayToImage(int width, int height, int yspread, int xspread) {
 		this.width = width;
 		this.height = height;
 		this.xspread = xspread;

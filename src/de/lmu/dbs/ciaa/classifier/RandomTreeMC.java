@@ -14,7 +14,7 @@ import de.lmu.dbs.ciaa.classifier.features.*;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
-import de.lmu.dbs.ciaa.util.SpectrumToImage;
+import de.lmu.dbs.ciaa.util.ArrayToImage;
 import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
@@ -119,26 +119,13 @@ public class RandomTreeMC extends Tree {
 	 */
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
 		// Get random value selection initially
-		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index
-		if (params.percentageOfRandomValuesPerFrame < 1.0) {
-			// Drop some of the values by classifying them to -1
-			int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length);
-			long[] array = sampler.get(0).getRandomValuesArray(vpf);
-			for(int i=0; i<sampler.getPoolSize(); i++) {
-				classification.add(sampler.get(i).selectRandomValues(0, vpf, array));
-			}
-		} else {
-			// Set all zero classification
-			for(int i=0; i<sampler.getPoolSize(); i++) {
-				classification.add(new byte[sampler.get(i).getSpectrum().length][sampler.get(i).getSpectrum()[0].length]);
-			}
-		}
-		double noteRatio = 0;
+		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index as in sampler
+		int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length); // values per frame
 		for(int i=0; i<sampler.getPoolSize(); i++) {
-			Dataset d = sampler.get(i);
-			noteRatio += d.getRatio();
+			TreeDataset d = (TreeDataset)sampler.get(i);
+			byte[][] cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
+			classification.add(cl);
 		}
-		noteRatio/=sampler.getPoolSize();
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
 	}
 
@@ -213,9 +200,9 @@ public class RandomTreeMC extends Tree {
 		for(int i=0; i<poolSize; i++) {
 
 			// Each dataset...load spectral data and midi
-			Dataset dataset = sampler.get(i);
-			byte[][] data = dataset.getSpectrum();
-			byte[][] midi = dataset.getMidi();
+			TreeDataset dataset = (TreeDataset)sampler.get(i);
+			byte[][] data = dataset.getData();
+			byte[][] midi = dataset.getReference();
 			byte[][] cla = classification.get(i);
 			
 			// get feature results 
@@ -318,8 +305,8 @@ public class RandomTreeMC extends Tree {
 		// Split values by winner feature for deeper branches
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
 		for(int i=0; i<poolSize; i++) {
-			Dataset dataset = sampler.get(i);
-			byte[][] data = dataset.getSpectrum();
+			TreeDataset dataset = (TreeDataset)sampler.get(i);
+			byte[][] data = dataset.getData();
 			byte[][] cla = classification.get(i);
 			byte[][] claNext = new byte[data.length][params.frequencies.length];
 			for(int x=0; x<data.length; x++) {
@@ -427,8 +414,8 @@ public class RandomTreeMC extends Tree {
 		float ret = 0;
 		float not = 0;
 		for(int i=0; i<sampler.getPoolSize(); i++) {
-			Dataset dataset = sampler.get(i);
-			byte[][] midi = dataset.getMidi();
+			TreeDataset dataset = (TreeDataset)sampler.get(i);
+			byte[][] midi = dataset.getReference();
 			byte[][] cla = classification.get(i);
 			
 			for(int x=0; x<midi.length; x++) {
@@ -512,7 +499,7 @@ public class RandomTreeMC extends Tree {
 				System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugTree);
 				return;
 			}
-			SpectrumToImage img = new SpectrumToImage(node.debugTree.length, node.debugTree[0].length);
+			ArrayToImage img = new ArrayToImage(node.debugTree.length, node.debugTree[0].length);
 			img.add(node.debugTree, Color.YELLOW);
 			img.save(new File(nf));
 			saveDebugTreeRec(node.left, depth+1, 1);

@@ -11,7 +11,7 @@ import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.RuntimeMeasure;
 import de.lmu.dbs.ciaa.util.Sample;
 import de.lmu.dbs.ciaa.util.Scale;
-import de.lmu.dbs.ciaa.util.SpectrumToImage;
+import de.lmu.dbs.ciaa.util.ArrayToImage;
 import de.lmu.dbs.ciaa.util.WaveSample;
 
 /**
@@ -149,7 +149,7 @@ public class TransformExample {
 			}
 			
 			// Save PNG image of the results
-			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
+			ArrayToImage img = new ArrayToImage(data.length, data[0].length, fspread);
 			Scale scale = new LogScale(10);
 			if (differential)
 				out("--> Max. Abl:  " + img.add(dataAbl, Color.YELLOW, scale)); // plain data, scaled with Log10				

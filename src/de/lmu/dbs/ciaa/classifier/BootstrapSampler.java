@@ -11,7 +11,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class BootstrapSampler<T> extends Sampler<T> {
+public class BootstrapSampler<T extends Dataset> extends Sampler<T> {
 
 	/**
 	 * Creates a bootstrapping sampler instance.
@@ -24,18 +24,25 @@ public class BootstrapSampler<T> extends Sampler<T> {
 
 	/**
 	 * Returns a sampler, which has the same size as the data pool
-	 * but contains randomly chosen data sets (with replacement). 
-	 * <br><br>
-	 * The sets are represented by object references, so they should not be modified after sampling.
+	 * but contains randomly chosen datasets (with replacement). 
 	 * 
 	 * @return bootstrap sample
+	 * @throws Exception 
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public Sampler<T> getSample() {
-		int size = getPoolSize();
+	public synchronized Sampler<T> getSample() throws Exception {
+		// Clone datasets
 		List<T> ret = new ArrayList<T>();
+		int size = getPoolSize();
 		for(int i=0; i<size; i++) {
-			ret.add(i, datasets.get(RandomUtils.randomInt(size-1)));
+			T clone = (T)datasets.get(i).getClone();
+			// Sample frames in datasets
+			int len = clone.getLength();
+			for(int j=0; j<len; j++) {
+				clone.includeSample(RandomUtils.randomInt(len-1));
+			}
+			ret.add(clone);
 		}
 		return new BootstrapSampler<T>(ret);
 	}

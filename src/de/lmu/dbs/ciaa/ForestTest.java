@@ -19,7 +19,6 @@ import de.lmu.dbs.ciaa.util.*;
  * 			- " > 0" gegen "ohne bed." in evaluate-methode!
  * 			- und/oder: Mix peak and cqt irgendwie!
  * 	- auch feature 3b testen!!!!!!
- * 	- reimplement bootstrapping framewise
  * - adjust threshold max of FeatureHarmonic6 ??
  * 
  * 	- ?? Mehr rekursion wird schlechter ab dep 4 oder so
@@ -109,7 +108,7 @@ public class ForestTest {
 			List<Dataset> initialSet = new ArrayList<Dataset>();
 			//initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
 			//initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
-			initialSet.addAll(Dataset.loadDatasets("testdata2", ".peak", "testdata2", ".mid", params.frequencies, params.step));
+			initialSet.addAll(MusicalTreeDataset.loadDatasets("testdata2", ".peak", "testdata2", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);
@@ -185,7 +184,7 @@ public class ForestTest {
 			
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
-			SpectrumToImage img = new SpectrumToImage(dataForest.length, dataForest[0].length);
+			ArrayToImage img = new ArrayToImage(dataForest.length, dataForest[0].length);
 			out("-> Max data: " +  + img.add(dataOobD, Color.WHITE, null));
 			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
 			img.save(new File(forestImgFile));
@@ -199,7 +198,7 @@ public class ForestTest {
 				featuresVisualizationGrid[x0*2][i] = 1;
 			}
 			String featuresFile = params.workingFolder + File.separator + featureImgFile;
-			SpectrumToImage imgF = new SpectrumToImage(featuresVisualization.length, featuresVisualization[0].length, 2, 20);
+			ArrayToImage imgF = new ArrayToImage(featuresVisualization.length, featuresVisualization[0].length, 2, 20);
 			imgF.add(featuresVisualizationGrid, Color.BLUE, null, 0);
 			out("-> Maximum feature point overlay: " + imgF.add(featuresVisualization, Color.WHITE, null, 0));
 			imgF.save(new File(featuresFile));

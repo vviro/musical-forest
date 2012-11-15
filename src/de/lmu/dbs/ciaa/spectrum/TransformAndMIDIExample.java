@@ -89,7 +89,7 @@ public class TransformAndMIDIExample {
 			m.measure("Finished loading and extracting MIDI from " + midiFile);
 			
 			// Save PNG image of the results
-			SpectrumToImage img = new SpectrumToImage(data.length, data[0].length, fspread);
+			ArrayToImage img = new ArrayToImage(data.length, data[0].length, fspread);
 			Scale scale = new LogScale(10);
 			img.add(data, new Color(255,150,0), scale); // plain data, scaled with Log10
 			img.add(midiData, new Color(0,255,0), null, 0.5); // midi
