@@ -1,8 +1,5 @@
 package de.lmu.dbs.ciaa.classifier;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Dataset base class. Supports some sampling basics.
  * 
@@ -14,7 +11,16 @@ public abstract class Dataset {
 	/**
 	 * Indices of sampled frames for this dataset. Size 0 means all samples are in.
 	 */
-	private List<Integer> samples = new ArrayList<Integer>();
+	private int[] samples = null;
+
+	/**
+	 * Initialize the sample array.
+	 * 
+	 * @throws Exception
+	 */
+	protected void init() throws Exception {
+		samples = new int[getLength()];		
+	}
 	
 	/**
 	 * Returns the number of samples in the dataset.
@@ -29,8 +35,10 @@ public abstract class Dataset {
 	 * selection. Size 0 means all samples are in.
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	protected List<Integer> getSamples() {
+	protected int[] getSamples() throws Exception {
+		if (samples == null) init();
 		return samples;
 	}
 	
@@ -39,7 +47,7 @@ public abstract class Dataset {
 	 * 
 	 * @param s
 	 */
-	protected void includeSamples(List<Integer> s) {
+	protected void replaceIncludedSamples(int[] s) {
 		samples = s;
 	}
 	
@@ -50,23 +58,57 @@ public abstract class Dataset {
 	 * @throws Exception 
 	 */
 	protected void includeSample(int s) throws Exception {
-		samples.add(s);
+		if (samples == null) init();
+		samples[s] = 0;
 	}
 	
+	/**
+	 * Excludes one sample.
+	 * 
+	 * @param s
+	 * @throws Exception 
+	 */
+	protected void excludeSample(int s) throws Exception {
+		if (samples == null) init();
+		samples[s] = -1;
+	}
+	
+	/**
+	 * Exclude all samples.
+	 * @throws Exception 
+	 */
+	protected void excludeAll() throws Exception {
+		if (samples == null) init();
+		for(int i=0; i<samples.length; i++) {
+			samples[i] = -1;
+		}
+	}
+	
+	/**
+	 * Include all samples.
+	 * @throws Exception 
+	 */
+	protected void includeAll() throws Exception {
+		samples = new int[getLength()];
+	}
+
 	/**
 	 * Returns if a sample is in the sample collection.
 	 * 
 	 * @param index
 	 * @return
+	 * @throws Exception 
 	 */
-	protected boolean isSampled(int index) {
-		if (samples.size() == 0) return true;
+	protected boolean isSampled(int index) throws Exception {
+		if (samples == null) init();
+		/*if (samples.size() == 0) return true;
 		for(int z=0; z<samples.size(); z++) {
 			if (samples.get(z).intValue() == index) {
 				return true;
 			}
 		}
-		return false;
+		return false;*/
+		return samples[index] >= 0;
 	}
 	
 	/**
@@ -75,10 +117,11 @@ public abstract class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public List<Integer> getSamplesClone() throws Exception {
-		List<Integer> ret = new ArrayList<Integer>();
-		for(int i=0; i<samples.size(); i++) {
-			ret.add(new Integer(samples.get(i).intValue()));
+	public int[] getSamplesClone() throws Exception {
+		if (samples == null) init();
+		int[] ret = new int[samples.length];
+		for(int i=0; i<samples.length; i++) {
+			ret[i] = samples[i];
 		}
 		return ret;
 	}

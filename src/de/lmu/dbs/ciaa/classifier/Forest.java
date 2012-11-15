@@ -70,7 +70,9 @@ public class Forest {
 	 * @throws Exception
 	 */
 	public void grow(final Sampler<Dataset> sampler) throws Exception {
+		if (trees.size() < 1) throw new Exception("No trees to grow");
 		startTime = System.currentTimeMillis();
+		
 		for(int i=0; i<trees.size(); i++) {
 			System.out.println("Growing tree " + i + " to depth " + params.maxDepth);
 			trees.get(i).grow((trees.size() == 1) ? sampler : sampler.getSample(), params.maxDepth);

@@ -25,6 +25,10 @@ public class BootstrapSampler<T extends Dataset> extends Sampler<T> {
 	/**
 	 * Returns a sampler, which has the same size as the data pool
 	 * but contains randomly chosen datasets (with replacement). 
+	 * <br><br>
+	 * CAUTION: Do not use this on already sampled samplers. The
+	 *          previous sampling will be ignored and a new sample
+	 *          of all frames will happen.
 	 * 
 	 * @return bootstrap sample
 	 * @throws Exception 
@@ -39,6 +43,7 @@ public class BootstrapSampler<T extends Dataset> extends Sampler<T> {
 			T clone = (T)datasets.get(i).getClone();
 			// Sample frames in datasets
 			int len = clone.getLength();
+			clone.excludeAll();
 			for(int j=0; j<len; j++) {
 				clone.includeSample(RandomUtils.randomInt(len-1));
 			}

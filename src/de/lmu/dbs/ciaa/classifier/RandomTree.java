@@ -1,5 +1,6 @@
 package de.lmu.dbs.ciaa.classifier;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
@@ -128,7 +130,7 @@ public class RandomTree extends Tree {
 		log.write("Training data for tree " + num + ":\n" + lst);
 		
 		// TMP: Save classifications to PNGs
-		/*for(int i=0; i<sampler.getPoolSize(); i++) {
+		for(int i=0; i<sampler.getPoolSize(); i++) {
 			System.out.println("Visualize " + i);
 			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
 			ArrayUtils.toImage(fname, ArrayUtils.positivize(classification.get(i)), Color.YELLOW);

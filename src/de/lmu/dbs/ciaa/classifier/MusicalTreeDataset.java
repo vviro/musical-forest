@@ -116,10 +116,8 @@ public class MusicalTreeDataset extends TreeDataset {
 	@Override
 	public Dataset getClone() throws Exception {
 		Dataset ret = new MusicalTreeDataset(dataFile, referenceFile, frequencies, step);
-		if (getSamples().size() > 0) {
-			List<Integer> cl = getSamplesClone();
-			ret.includeSamples(cl);
-		}
+		int[] cl = getSamplesClone();
+		ret.replaceIncludedSamples(cl);
 		return ret;
 	}
 	

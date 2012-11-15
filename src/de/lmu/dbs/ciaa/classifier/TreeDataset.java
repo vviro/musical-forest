@@ -160,18 +160,12 @@ public abstract class TreeDataset extends Dataset {
 	public synchronized byte[][] getInitialClassification() throws Exception {
 		if (!isLoaded()) load();
 		byte[][] ret = new byte[data.length][data[0].length];
-		List<Integer> samples = getSamples();
-		if (samples.size() == 0) {
-			// All samples are in
-			return ret;
-		}
 		for(int f=0; f<ret.length; f++) {
-			for(int g=0; g<ret[0].length; g++) {
-				ret[f][g] = -1; // Throw all out of bag
+			if (isSampled(f)) {
+				for(int g=0; g<ret[0].length; g++) {
+					ret[f][g] = -1; // Throw all out of bag
+				}
 			}
-		}
-		for(int h=0; h<samples.size(); h++) {
-			ret[samples.get(h).intValue()] = new byte[data[0].length]; // Sampled back in (all zero)
 		}
 		return ret;
 	}
@@ -189,8 +183,8 @@ public abstract class TreeDataset extends Dataset {
 	public synchronized byte[][] getInitialClassification(final int valuesPerFrame) throws Exception {
 		if (!isLoaded()) load();
 		if (valuesPerFrame >= data[0].length) {
-			System.out.println("All values per frame");
-			return getInitialClassification(); // All sampled frames should be in completely
+			// All sampled frames should be in completely
+			return getInitialClassification(); 
 		}
 		byte[][] ret = new byte[data.length][data[0].length];
 		for(int i=0; i<data.length; i++) {
