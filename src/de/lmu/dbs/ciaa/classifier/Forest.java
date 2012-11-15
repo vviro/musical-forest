@@ -24,6 +24,11 @@ public class Forest {
 	 * Parameters for growing the trees in the forest.
 	 */
 	private ForestParameters params; 
+
+	/**
+	 * Log file for the forest
+	 */
+	private Log log = null;
 	
 	/**
 	 * Creates a forest with some trees.
@@ -31,10 +36,10 @@ public class Forest {
 	 * @param trees
 	 * @throws Exception 
 	 */
-	public Forest(List<Tree> trees, final ForestParameters params) throws Exception {
+	public Forest(List<Tree> trees, final ForestParameters params, Log log) throws Exception {
 		this.params = params;
-		// Generate trees
-		this.trees = trees; //new ArrayList<RandomTree>();
+		this.trees = trees;
+		this.log = log;
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).setForest(this);
 		}
@@ -67,7 +72,7 @@ public class Forest {
 	public void grow(final Sampler<Dataset> sampler) throws Exception {
 		startTime = System.currentTimeMillis();
 		for(int i=0; i<trees.size(); i++) {
-			Log.write("Growing tree " + i + " to depth " + params.maxDepth);
+			System.out.println("Growing tree " + i + " to depth " + params.maxDepth);
 			trees.get(i).grow((trees.size() == 1) ? sampler : sampler.getSample(), params.maxDepth);
 		}
 		if (params.maxNumOfNodeThreads > 0) {
@@ -105,22 +110,22 @@ public class Forest {
 	 * @throws Exception 
 	 * 
 	 */
-	public void logTreeStats() throws Exception {
-		Log.write("");
-		Log.write("### Forest stats ###", System.out);
+	public void logStats() throws Exception {
+		log.write("");
+		log.write("### Tree stats ###", System.out);
 		int count = getNodeCount();
-		Log.write("Num of nodes: " + count, System.out);
+		log.write("Num of nodes: " + count, System.out);
 		long delta = System.currentTimeMillis() - startTime;
-		Log.write("Time elapsed: " + delta/1000.0 + " sec", System.out);
-		Log.write("Avg. time per node: " + (delta/count)/1000.0 + " sec", System.out);
+		log.write("Time elapsed: " + delta/1000.0 + " sec", System.out);
+		log.write("Avg. time per node: " + (delta/count)/1000.0 + " sec", System.out);
 		int poss = (int)Math.pow(2, params.maxDepth);
 		TreeAnalyzer ana = new TreeAnalyzer(params);
 		for(int i=0; i<trees.size(); i++) {
 			Tree t = trees.get(i);
-			Log.write("Tree " + i + ": " + ana.getNumOfLeafs(t) +  " leafs of possible " + poss + "; Information gain: " + t.getInfoGain());
-			Log.write("Count nodes at depths:\n" + ana.getDepthCountsString(t));
-			Log.write("Tree structure:\n" + ana.getTreeVisualization(t));
-			Log.write("Distribution of gains upon all nodes in tree " + i + ":\n" + t.getInfoGain().getDistributionString(20, 80));
+			log.write("Tree " + i + ": " + ana.getNumOfLeafs(t) +  " leafs of possible " + poss + "; Information gain: " + t.getInfoGain());
+			log.write("Count nodes at depths:\n" + ana.getDepthCountsString(t));
+			log.write("Tree structure:\n" + ana.getTreeVisualization(t));
+			log.write("Distribution of gains upon all nodes in tree " + i + ":\n" + t.getInfoGain().getDistributionString(20, 80));
 		}
 	}
 

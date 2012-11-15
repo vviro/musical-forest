@@ -33,8 +33,8 @@ public class RandomTreeMC2 extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTreeMC2(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num) throws Exception {
-		this(params, -1);
+	public RandomTreeMC2(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num, Log log) throws Exception {
+		this(params, num, log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -42,7 +42,6 @@ public class RandomTreeMC2 extends Tree {
 		this.newThreadMode = mode;
 		this.newThreadDepth = depth;
 		this.newThreadMaxDepth = maxDepth;
-		this.num = num;
 	}
 	
 	/**
@@ -51,10 +50,10 @@ public class RandomTreeMC2 extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTreeMC2(ForestParameters params, int num) throws Exception {
+	public RandomTreeMC2(ForestParameters params, int num, Log log) throws Exception {
+		super(num, log);
 		params.check();
 		this.params = params;
-		this.num = num;
 		this.infoGain = new Statistic();
 	}
 	
@@ -135,7 +134,7 @@ public class RandomTreeMC2 extends Tree {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTreeMC2(params, root, sampler, classification, node, mode, depth, maxDepth, num);
+					Tree t = new RandomTreeMC2(params, root, sampler, classification, node, mode, depth, maxDepth, num, log);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -151,7 +150,7 @@ public class RandomTreeMC2 extends Tree {
 		if (depth >= maxDepth) {
 			// Make it a leaf node
 			node.probability = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
 			return;
 		}
 		
@@ -238,16 +237,16 @@ public class RandomTreeMC2 extends Tree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
-			Log.write(pre + "------------------------");
+			log.write(pre + "------------------------");
 			long silenceLeftW = countAllLeft[winner][winnerThreshold] - countClassesLeft[winner][winnerThreshold][0]; 
 			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
 			long silenceRightW = countAllRight[winner][winnerThreshold] - countClassesRight[winner][winnerThreshold][0]; 
 			long noteRightW = countClassesRight[winner][winnerThreshold][0];
-			Log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
-			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
-			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
-			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
-			Log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
+			log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
+			log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
+			log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
+			log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
+			log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
 			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
@@ -259,9 +258,9 @@ public class RandomTreeMC2 extends Tree {
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
-			Log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
-			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
+			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
 		// Save gain/threshold diagrams for each grown node
 		if (params.saveGainThresholdDiagrams > depth) {
@@ -276,12 +275,12 @@ public class RandomTreeMC2 extends Tree {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
+			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
 			node.probability = calculateLeaf(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
 			return;
 		}
 		
@@ -554,7 +553,7 @@ public class RandomTreeMC2 extends Tree {
 	public static RandomTreeMC2 load(ForestParameters params, final String filename, final int num) throws Exception {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
-		RandomTreeMC2 ret = new RandomTreeMC2(params, num);
+		RandomTreeMC2 ret = new RandomTreeMC2(params, num, null);
 		ret.tree = (Node)ois.readObject();
 		ois.close();
 		return ret;

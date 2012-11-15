@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Simple static logger.
+ * Simple logger.
  * 
  * @author Thomas Weber
  *
@@ -18,7 +18,12 @@ public class Log {
 	/**
 	 * Output buffer
 	 */
-	private static BufferedWriter out = null; 
+	private BufferedWriter out = null; 
+	
+	/**
+	 * Log file name
+	 */
+	private String filename;
 	
 	/**
 	 * Date formatter.
@@ -26,36 +31,39 @@ public class Log {
 	protected static SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
 
 	/**
-	 * Open a log file (append)
+	 * Open a new log file
 	 * 
 	 * @param logfile
 	 * @throws IOException
 	 */
-	public static void open(String logfile) throws IOException {
-		FileWriter fstream = new FileWriter(logfile);
-		out = new BufferedWriter(fstream);
-	}
-
-	/**
-	 * Open log to write to stdout.
-	 * 
-	 */
-	public static void open() {
+	public Log(String logfile) throws IOException {
+		this(logfile, false);
 	}
 	
+	/**
+	 * Open a log file
+	 * 
+	 * @param logfile
+	 * @param append
+	 * @throws IOException
+	 */
+	public Log(String logfile, boolean append) throws IOException {
+		if (logfile == null) return;
+		FileWriter fstream = new FileWriter(logfile, append);
+		this.out = new BufferedWriter(fstream);
+		this.filename = logfile;
+	}
+
 	/**
 	 * Write a line to the log file.
 	 * 
 	 * @param message
 	 * @throws Exception
 	 */
-	public static void write(String message) throws Exception {
+	public synchronized void write(String message) throws Exception {
+		if (out == null) throw new Exception("Log not open.");
 		String msg = timeStampFormatter.format(new Date()) + ": " + message;
-		if (out == null) {
-			System.out.println(msg);
-		} else {
-			out.write(msg + "\n");
-		}
+		out.write(msg + "\n");
 	}
 	
 	/**
@@ -65,9 +73,20 @@ public class Log {
 	 * @param out
 	 * @throws Exception
 	 */
-	public static void write(String message, PrintStream out) throws Exception {
+	public synchronized void write(String message, PrintStream out) throws Exception {
 		write(message);
 		out.println(message);
+	}
+	
+	/**
+	 * Saves the stream to here and reopen to append.
+	 * 
+	 * @throws Exception
+	 */
+	public synchronized void flush() throws Exception {
+		close();
+		FileWriter fstream = new FileWriter(filename, true);
+		this.out = new BufferedWriter(fstream);
 	}
 	
 	/**
@@ -75,8 +94,8 @@ public class Log {
 	 * 
 	 * @throws Exception
 	 */
-	public static void close() throws Exception {
-		if (out == null) return; // throw new Exception("Log not open.");
+	public synchronized void close() throws Exception {
+		if (out == null) throw new Exception("Log not open.");
 		out.flush();
 		out.close();
 		out = null;

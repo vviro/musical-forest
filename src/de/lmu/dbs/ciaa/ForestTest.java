@@ -40,11 +40,8 @@ import de.lmu.dbs.ciaa.util.*;
  * 		- Performances von Vladimir
  * 
  * Code:
- * 		- log all testdata filenames somewhere
- * 		- properly kill threads (-> better heap usage!)
  * 		- make forest generic
  * 			- extend RandomTree
- * 			- Sampler type -> ?
  * 		- logdatei per tree
  * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
  * 		- protocol buffer (google code) für dateiformat, statt serialization
@@ -68,7 +65,6 @@ public class ForestTest {
 
 		// XML file for program configuration
 		String settingsFile = "settings.xml";
-		String logFile = "growlog.txt"; // File for logging tree grow events (not application logging)
 		
 		// Debug params (all others are loaded from settings.xml)
 		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
@@ -94,8 +90,7 @@ public class ForestTest {
 				FileUtils.deleteDirectory(new File(params.workingFolder));
 				resultDir.mkdirs();
 				FileUtils.copyFile(new File(settingsFile), new File(params.workingFolder + File.separator + settingsFile)); // TMP
-				Log.open(params.workingFolder + File.separator + logFile);
-				m.measure("Created target folder and opened log");
+				m.measure("Created working folder");
 			}
 			
 			// Load frequency table (must be common for all samples)
@@ -128,9 +123,11 @@ public class ForestTest {
 				// Grow
 				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
-					trees.add(new RandomTree(params, i));
+					Log l = new Log(params.workingFolder + File.separator + i + "_Growlog.txt");
+					trees.add(new RandomTree(params, i, l));
 				}
-				forest = new Forest(trees, params);
+				Log fl = new Log(params.workingFolder + File.separator + "ForestStats.txt");
+				forest = new Forest(trees, params, fl);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
 				m.measure("Finished growing random forest");
@@ -138,7 +135,7 @@ public class ForestTest {
 				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);
 				m.measure("Finished saving forest to file: " + params.workingFolder);
 
-				forest.logTreeStats();
+				forest.logStats();
 				m.measure("Finished logging forest stats");
 	
 			} else {
@@ -204,9 +201,6 @@ public class ForestTest {
 			imgF.save(new File(featuresFile));
 			m.measure("Saved feature visualization to " + featuresFile);
 
-			Log.close();
-			m.measure("Saved log file");
-			
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
 			FileUtils.deleteDirectory(new File(copyToDir));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));

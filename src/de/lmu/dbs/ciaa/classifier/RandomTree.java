@@ -1,6 +1,5 @@
 package de.lmu.dbs.ciaa.classifier;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
@@ -35,8 +33,8 @@ public class RandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num) throws Exception {
-		this(params, -1);
+	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num, Log log) throws Exception {
+		this(params, num, log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -44,7 +42,6 @@ public class RandomTree extends Tree {
 		this.newThreadMode = mode;
 		this.newThreadDepth = depth;
 		this.newThreadMaxDepth = maxDepth;
-		this.num = num;
 	}
 	
 	/**
@@ -53,10 +50,10 @@ public class RandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, int num) throws Exception {
+	public RandomTree(ForestParameters params, int num, Log log) throws Exception {
+		super(num, log);
 		params.check();
 		this.params = params;
-		this.num = num;
 		this.infoGain = new Statistic();
 	}
 	
@@ -111,6 +108,8 @@ public class RandomTree extends Tree {
 	 * @throws Exception
 	 */
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
+		if (log == null) throw new Exception("Tree " + num + " has no logging object");
+		
 		// Build first classification array (from bootstrapping samples and random values per sampled frame)
 		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index as in sampler
 		int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length); // values per frame
@@ -119,22 +118,30 @@ public class RandomTree extends Tree {
 			byte[][] cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
 			classification.add(cl);
 		}
-		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
+		
+		// List training data files in log
 		String lst = "";
 		for(int o=0; o<sampler.getPoolSize(); o++) {
 			TreeDataset d = (TreeDataset)sampler.get(o);
 			lst += "Dataset " + o + ": " + d.getDataFile().getAbsolutePath() + " (Reference: " + d.getReferenceFile().getAbsolutePath() + ")\n";
 		}
-		Log.write("Training data for tree " + num + ":\n" + lst);
+		log.write("Training data for tree " + num + ":\n" + lst);
+		
+		// TMP: Save classifications to PNGs
 		/*for(int i=0; i<sampler.getPoolSize(); i++) {
-			// TMP: Save classifications to PNGs
 			System.out.println("Visualize " + i);
 			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
 			ArrayUtils.toImage(fname, ArrayUtils.positivize(classification.get(i)), Color.YELLOW);
 		}
 		System.exit(0);
 		//*/
-		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true); 
+
+		// Grow
+		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
+		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
+		
+		// Close log
+		log.close();
 	}
 
 	/**
@@ -152,7 +159,7 @@ public class RandomTree extends Tree {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, num);
+					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, num, log);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -168,7 +175,7 @@ public class RandomTree extends Tree {
 		if (depth >= maxDepth) {
 			// Make it a leaf node
 			node.probability = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
 			return;
 		}
 		
@@ -214,16 +221,16 @@ public class RandomTree extends Tree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
-			Log.write(pre + "------------------------");
+			log.write(pre + "------------------------");
 			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
 			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
 			long silenceRightW = countClassesRight[winner][winnerThreshold][1]; 
 			long noteRightW = countClassesRight[winner][winnerThreshold][0];
-			Log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
-			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
-			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
-			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
-			Log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
+			log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
+			log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
+			log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
+			log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
+			log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
 			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
@@ -235,9 +242,9 @@ public class RandomTree extends Tree {
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
-			Log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
-			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
+			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
 		// Save gain/threshold diagrams for each grown node
 		if (params.saveGainThresholdDiagrams > depth) {
@@ -252,12 +259,12 @@ public class RandomTree extends Tree {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
+			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
 			node.probability = calculateLeaf(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
+			if (params.logNodeInfo) log.write(pre + "Mode " + mode + " leaf; Probability " + node.probability);
 			return;
 		}
 		
@@ -282,6 +289,9 @@ public class RandomTree extends Tree {
 			}
 			classificationNext.add(claNext);
 		}
+		
+		// Flush log changes to preserve them if crashes happen
+		log.flush();
 		
 		// Recursion to left and right
 		node.left = new Node();
@@ -573,7 +583,7 @@ public class RandomTree extends Tree {
 	public static RandomTree load(ForestParameters params, final String filename, final int num) throws Exception {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
-		RandomTree ret = new RandomTree(params, num);
+		RandomTree ret = new RandomTree(params, num, null);
 		ret.tree = (Node)ois.readObject();
 		ois.close();
 		return ret;

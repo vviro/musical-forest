@@ -35,8 +35,8 @@ public class RandomTreeMC extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTreeMC(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num) throws Exception {
-		this(params, -1);
+	public RandomTreeMC(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num, Log log) throws Exception {
+		this(params, num, log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -44,7 +44,6 @@ public class RandomTreeMC extends Tree {
 		this.newThreadMode = mode;
 		this.newThreadDepth = depth;
 		this.newThreadMaxDepth = maxDepth;
-		this.num = num;
 	}
 	
 	/**
@@ -53,10 +52,10 @@ public class RandomTreeMC extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTreeMC(ForestParameters params, int num) throws Exception {
+	public RandomTreeMC(ForestParameters params, int num, Log log) throws Exception {
+		super(num, log);
 		params.check();
 		this.params = params;
-		this.num = num;
 		this.infoGain = new Statistic();
 	}
 	
@@ -65,6 +64,7 @@ public class RandomTreeMC extends Tree {
 	 * 
 	 */
 	public RandomTreeMC() {
+		super(-1, null);
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class RandomTreeMC extends Tree {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTreeMC(params, root, sampler, classification, node, mode, depth, maxDepth, num);
+					Tree t = new RandomTreeMC(params, root, sampler, classification, node, mode, depth, maxDepth, num, log);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -177,7 +177,7 @@ public class RandomTreeMC extends Tree {
 			// Make it a leaf node
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode + ", probability: " + node.probability);
+			if (params.logNodeInfo) log.write(pre + "LEAF: Mode " + mode + ", probability: " + node.probability);
 			return;
 		}
 		
@@ -263,10 +263,10 @@ public class RandomTreeMC extends Tree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
-			Log.write(pre + "------------------------");
-			Log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
-			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
-			Log.write(pre + "Gain min: " + min + ", max: " + max);
+			log.write(pre + "------------------------");
+			log.write(pre + "Node " + node.id + " at Depth " + depth + ", Mode: " + mode + ":");
+			log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + gain[winner][winnerThreshold]);
+			log.write(pre + "Gain min: " + min + ", max: " + max);
 			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
@@ -278,14 +278,14 @@ public class RandomTreeMC extends Tree {
 				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
-			Log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
-			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			log.write(pre + "Threshold min: " + tmin + "; max: " + tmax);
+			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
 		String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 		Scale s = new LogScale(10);
 		gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
-		Log.write(pre + "Saved node thresholds/gains diagram to " + nf);
+		log.write(pre + "Saved node thresholds/gains diagram to " + nf);
 		//////////////////////////////////////////////////
 		
 		// See in info gain is sufficient:
@@ -293,12 +293,12 @@ public class RandomTreeMC extends Tree {
 			// Yes, save feature and continue recursion
 			node.feature = paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) Log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
+			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
 			node.probability = calculateLeaf2(sampler, classification, mode, depth);
 			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) Log.write(pre + "LEAF: Mode " + mode + ", probability: " + node.probability);
+			if (params.logNodeInfo) log.write(pre + "LEAF: Mode " + mode + ", probability: " + node.probability);
 			return;
 		}
 		

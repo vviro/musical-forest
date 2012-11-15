@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa.classifier;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import de.lmu.dbs.ciaa.util.Log;
 import de.lmu.dbs.ciaa.util.Statistic;
 
 /**
@@ -13,6 +14,11 @@ import de.lmu.dbs.ciaa.util.Statistic;
  */
 public abstract class Tree extends Thread {
 
+	/**
+	 * Log file for training the tree.
+	 */
+	protected Log log;
+	
 	/**
 	 * Statistic about the trees information gain.
 	 */
@@ -98,6 +104,11 @@ public abstract class Tree extends Thread {
 	 * Date formatter for debug output.
 	 */
 	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
+	
+	public Tree(int num, Log log) {
+		this.num = num;
+		this.log = log;
+	}
 	
 	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]
