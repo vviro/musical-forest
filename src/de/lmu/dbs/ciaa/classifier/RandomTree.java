@@ -165,7 +165,6 @@ public class RandomTree extends Tree {
 		if (depth >= maxDepth) {
 			// Make it a leaf node
 			node.probability = calculateLeaf(sampler, classification, mode, depth);
-			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) Log.write(pre + " Mode " + mode + " leaf; Probability " + node.probability);
 			return;
 		}
@@ -180,8 +179,10 @@ public class RandomTree extends Tree {
 			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
 		}
 
-		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
-		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][2];
+		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][1];
+		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][1];
+		long[][] countAllLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
+		long[][] countAllRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature];
 
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
@@ -202,18 +203,20 @@ public class RandomTree extends Tree {
 							float ev = paramSet.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
 								if (ev >= thresholds[k][g]) {
+									countAllLeft[k][g]++;
 									// Left
 									if (midi[x][y] > 0) {
 										countClassesLeft[k][g][0]++;
 									} else {
-										countClassesLeft[k][g][1]++;
+										//countClassesLeft[k][g][1]++;
 									}
 								} else {
+									countAllRight[k][g]++;
 									// Right
 									if (midi[x][y] > 0) {
 										countClassesRight[k][g][0]++;
 									} else {
-										countClassesRight[k][g][1]++;
+										//countClassesRight[k][g][1]++;
 									}
 								}
 							}
@@ -224,15 +227,15 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains3(paramSet, countClassesLeft, countClassesRight, noteRatio);
+		double[][] gain = getGainsByEntropy2(paramSet, countClassesLeft, countClassesRight, countAllLeft, countAllRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
 		int winner = 0;
 		int winnerThreshold = 0;
 
-		double min = Double.MAX_VALUE; // TMP
-		Statistic2d gainStat = new Statistic2d(); // TMP
+		double min = Double.MAX_VALUE; // TMP just used for stats
+		Statistic2d gainStat = new Statistic2d(); // TMP gain statistics for gain/threshold diagrams
 		
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
@@ -241,10 +244,8 @@ public class RandomTree extends Tree {
 					winner = i;
 					winnerThreshold = j;
 				}
-				// TMP
-				if(gain[i][j] < min) min = gain[i][j];
-				gainStat.add(thresholds[i][j], gain[i][j]);
-				// /TMP
+				if (params.logNodeInfo && gain[i][j] < min) min = gain[i][j]; // TMP just used for stats
+				if (params.saveGainThresholdDiagrams > depth) gainStat.add(thresholds[i][j], gain[i][j]); // TMP gain statistics for gain/threshold diagrams
 			}
 		}
 		
@@ -252,19 +253,15 @@ public class RandomTree extends Tree {
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
 			Log.write(pre + "------------------------");
-			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
+			long silenceLeftW = countAllLeft[winner][winnerThreshold] - countClassesLeft[winner][winnerThreshold][0]; 
 			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
-			//double noteLeftWCorr = noteLeftW/noteRatio;
-			long silenceRightW = countClassesRight[winner][winnerThreshold][1]; 
+			long silenceRightW = countAllRight[winner][winnerThreshold] - countClassesRight[winner][winnerThreshold][0]; 
 			long noteRightW = countClassesRight[winner][winnerThreshold][0];
-			//double noteRightWCorr = noteRightW/noteRatio;
-			//long allW = silenceLeftW + noteLeftW + noteRightW + silenceRightW;
 			Log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
 			Log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			Log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
 			Log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
 			Log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
-			// TMP
 			/*
 			for(int i=0; i<thresholds[winner].length; i++) {
 				Log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]) + "      LEFT Notes: " + noteLeft[winner][i] + " (corr: " + noteLeft[winner][i]/noteRatio + ") Silence: " + silenceLeft[winner][i] + ";      RIGHT Notes: " + noteRight[winner][i] + "(corr: " + noteRight[winner][i]/noteRatio + ") Silence: " + silenceRight[winner][i]);
@@ -280,11 +277,11 @@ public class RandomTree extends Tree {
 			if (thresholds[winner][winnerThreshold] == tmin) Log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) Log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 		}
+		// Save gain/threshold diagrams for each grown node
 		if (params.saveGainThresholdDiagrams > depth) {
 			String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
 			Scale s = new LogScale(10);
 			gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
-			//Log.write(pre + "Saved node thresholds/gains diagram to " + nf);
 		}
 		//////////////////////////////////////////////////
 		
@@ -336,7 +333,7 @@ public class RandomTree extends Tree {
 	 * 
 	 * @return
 	 */
-	protected double[][] getGains(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
+	protected double[][] getGains1(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		int numOfFeatures = paramSet.size();
 		for(int i=0; i<numOfFeatures; i++) {
@@ -373,7 +370,7 @@ public class RandomTree extends Tree {
 	 * Info gain calculation upon shannon entropy, Kinect formula.
 	 * 
 	 */
-	protected double[][] getGains3(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
+	protected double[][] getGainsByEntropy(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		// Get overall sum of classes
 		int numOfClasses = countClassesLeft[0][0].length;
@@ -390,9 +387,36 @@ public class RandomTree extends Tree {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
 				double entropyLeft = getEntropy(countClassesLeft[i][j]);
 				double entropyRight = getEntropy(countClassesRight[i][j]);
-				long amountLeft = countClassesLeft[0][0][0] + countClassesLeft[0][0][1];
-				long amountRight = countClassesRight[0][0][0] + countClassesRight[0][0][1];
+				long amountLeft = countClassesLeft[i][j][0] + countClassesLeft[i][j][1]; // TODO not multiclass
+				long amountRight = countClassesRight[i][j][0] + countClassesRight[i][j][1];
 				gain[i][j] = entropyAll - ((double)amountLeft/all)*entropyLeft - ((double)amountRight/all)*entropyRight;
+			}
+		}
+		return gain;
+	}
+
+	/**
+	 * Info gain calculation upon shannon entropy, Kinect formula.
+	 * 
+	 */
+	protected double[][] getGainsByEntropy2(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, long[][] countAllLeft, long[][] countAllRight, double noteRatio) {
+		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
+		// Get overall sum of classes
+		int numOfClasses = countClassesLeft[0][0].length;
+		long[] classes = new long[numOfClasses];
+		long all = countAllLeft[0][0] + countAllRight[0][0];
+		for(int y=0; y<numOfClasses; y++) {
+			classes[y] = countClassesLeft[0][0][y] + countClassesRight[0][0][y];
+			//all += classes[y];
+		}
+		// Calculate gains
+		double entropyAll = getEntropy(classes);
+		int numOfFeatures = paramSet.size();
+		for(int i=0; i<numOfFeatures; i++) {
+			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
+				double entropyLeft = getEntropy(countClassesLeft[i][j]);
+				double entropyRight = getEntropy(countClassesRight[i][j]);
+				gain[i][j] = entropyAll - ((double)countAllLeft[i][j]/all)*entropyLeft - ((double)countAllRight[i][j]/all)*entropyRight;
 			}
 		}
 		return gain;
@@ -437,13 +461,6 @@ public class RandomTree extends Tree {
 				}
 			}
 		}
-		/*
-		// Invert back and normalize
-		for(int i=0; i<ret.length; i++) {
-			ret[i] = (maxP - ret[i]) / maxP; 
-		}
-		return ret;
-		*/
 		if (mode == 1) {
 			return ret/(ret+not);
 		} else {

@@ -24,7 +24,7 @@ import de.lmu.dbs.ciaa.util.Statistic2d;
  * @author Thomas Weber
  *
  */
-public class MCRandomTree extends Tree {
+public class RandomTreeMC extends Tree {
 
 	//private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
 	
@@ -35,7 +35,7 @@ public class MCRandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public MCRandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, double noteRatio, int num) throws Exception {
+	public RandomTreeMC(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, double noteRatio, int num) throws Exception {
 		this(params, -1);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -54,7 +54,7 @@ public class MCRandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public MCRandomTree(ForestParameters params, int num) throws Exception {
+	public RandomTreeMC(ForestParameters params, int num) throws Exception {
 		params.check();
 		this.params = params;
 		this.num = num;
@@ -65,7 +65,7 @@ public class MCRandomTree extends Tree {
 	 * Creates a tree. Blank, for loading classifier data from file.
 	 * 
 	 */
-	public MCRandomTree() {
+	public RandomTreeMC() {
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class MCRandomTree extends Tree {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new MCRandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, noteRatio, num);
+					Tree t = new RandomTreeMC(params, root, sampler, classification, node, mode, depth, maxDepth, noteRatio, num);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -541,10 +541,10 @@ public class MCRandomTree extends Tree {
 	 * @return
 	 * @throws Exception
 	 */
-	public static MCRandomTree load(final String filename) throws Exception {
+	public static RandomTreeMC load(final String filename) throws Exception {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
-		MCRandomTree ret = new MCRandomTree();
+		RandomTreeMC ret = new RandomTreeMC();
 		ret.tree = (Node)ois.readObject();
 		ois.close();
 		return ret;

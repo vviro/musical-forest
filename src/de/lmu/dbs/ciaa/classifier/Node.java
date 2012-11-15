@@ -48,10 +48,15 @@ public class Node implements Serializable {
 	public Node right = null;
 	
 	/**
-	 * If the node is a leaf, here the probabilities for each frequency are stored
+	 * If the node is a leaf, the probabilities for each class are stored here.
+	 * 
+	 */
+	public float[] probabilities = null;
+	
+	/**
+	 * Probability 
 	 */
 	public float probability = 0;
-	public float[] probabilities = null; 
 	
 	public Node() {
 		synchronized(this) {
