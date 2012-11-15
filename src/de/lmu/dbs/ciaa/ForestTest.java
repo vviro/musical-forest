@@ -158,7 +158,7 @@ public class ForestTest {
 				// Grow
 				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
-					trees.add(new MCRandomTree(params, i));
+					trees.add(new RandomTree(params, i));
 				}
 				forest = new Forest(trees, params);
 				//forest.grow(samplers.get(0));
@@ -207,7 +207,7 @@ public class ForestTest {
 			
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
-				MCRandomTree t = (MCRandomTree)forest.getTrees().get(i);
+				RandomTree t = (RandomTree)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
 			m.measure("Saved node visualization images");

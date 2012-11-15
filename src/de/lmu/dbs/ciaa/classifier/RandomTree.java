@@ -224,7 +224,7 @@ public class RandomTree extends Tree {
 		}
 
 		// Calculate inf gain upon each combination of feature/threshold 
-		double[][] gain = getGains2(paramSet, countClassesLeft, countClassesRight, noteRatio);
+		double[][] gain = getGains(paramSet, countClassesLeft, countClassesRight, noteRatio);
 		
 		// Get maximum gain feature/threshold combination
 		double max = -Double.MAX_VALUE;
@@ -341,7 +341,7 @@ public class RandomTree extends Tree {
 		int numOfFeatures = paramSet.size();
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = ((double)countClassesLeft[i][j][0]/noteRatio) / countClassesLeft[i][j][1]; // TODO find better function, best case now is NaN !!!
+				double leftGain = ((double)countClassesLeft[i][j][0]/noteRatio) / countClassesLeft[i][j][1];
 				double rightGain = countClassesRight[i][j][1] / ((double)countClassesRight[i][j][0]/noteRatio);
 				gain[i][j] = leftGain * rightGain;
 			}
