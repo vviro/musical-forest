@@ -29,11 +29,11 @@
 		threadWaitTime:            Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
-		forestSize="1"
-		maxDepth="3"
+		forestSize="3"
+		maxDepth="6"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="200"
-		thresholdCandidatesPerFeature="30"
+		thresholdCandidatesPerFeature="20"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic6"
 		mcFeatureFactoryClass="de.lmu.dbs.ciaa.classifier.features.MCFeatureHarmonic1"
 		entropyThreshold="0"
