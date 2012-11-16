@@ -14,7 +14,7 @@ import de.lmu.dbs.ciaa.classifier.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic5 extends Feature {
+public class FeatureHarmonic5_FixedThr extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -35,7 +35,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureHarmonic5(final ForestParameters params) {
+	public FeatureHarmonic5_FixedThr(final ForestParameters params) {
 		if (harmonics == null) generateHarmonics(20, 48.0); // TODO festwert
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
@@ -48,7 +48,6 @@ public class FeatureHarmonic5 extends Feature {
 				harms, 
 				0, 
 				null);
-		//ArrayUtils.out(harms);
 		for(int i=0; i<harms.length; i++) {
 			chosenHarmonics[i] = (int)harms[i];
 			harmonicFactors[i] = (float)(Math.random()*harmonicAmplification * ((float)(harmonics.length-i)/harmonics.length));
@@ -59,7 +58,7 @@ public class FeatureHarmonic5 extends Feature {
 	/**
 	 * 
 	 */
-	public FeatureHarmonic5() {
+	public FeatureHarmonic5_FixedThr() {
 	}
 
 	/**
@@ -71,7 +70,7 @@ public class FeatureHarmonic5 extends Feature {
 	public List<Feature> getRandomFeatureSet(ForestParameters params) {
 		List<Feature> ret = new ArrayList<Feature>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureHarmonic5 n = new FeatureHarmonic5(params);
+			FeatureHarmonic5_FixedThr n = new FeatureHarmonic5_FixedThr(params);
 			ret.add(n);
 			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new FeatureHarmonic5(n));
@@ -158,19 +157,19 @@ public class FeatureHarmonic5 extends Feature {
 
 	/**
 	 * Divide border for threshold resolution
-	 */
+	 *
 	public float border = 3.0f;
 	
 	/**
 	 * Percentage of thresholds taken from below border
-	 */
+	 *
 	public float borderDiv = 0.2f;
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 */
+	 *
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];
@@ -182,4 +181,5 @@ public class FeatureHarmonic5 extends Feature {
 		}
 		return ret;
 	}
+	//*/
 }
