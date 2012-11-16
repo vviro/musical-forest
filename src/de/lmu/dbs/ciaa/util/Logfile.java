@@ -48,7 +48,7 @@ public class Logfile {
 	 * @throws Exception
 	 */
 	public Logfile(String logfile, boolean append) throws Exception {
-		if (logfile == null) throw new Exception("No logfile (null)");
+		if (logfile == null) return;
 		FileWriter fstream = new FileWriter(logfile, append);
 		this.out = new BufferedWriter(fstream);
 		this.filename = logfile;
