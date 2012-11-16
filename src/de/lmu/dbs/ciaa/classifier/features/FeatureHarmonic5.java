@@ -132,7 +132,7 @@ public class FeatureHarmonic5 extends Feature {
 			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
 			if (ny >= data[0].length) return (int)ret;
 			//if (data[x][ny] >= data[x][y]/10) {
-			ret+= d2*data[x][ny]*harmonicFactors[i];
+			ret+= d2*data[x][ny]*harmonicFactors[j];
 			//}
 			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
 		}
