@@ -99,7 +99,7 @@ public class Forest {
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive() + " ");
 					}
-					System.out.println("Heap: " + ((int)(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024*1024)) + " MB");
+					System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 				}
 				if (ret) break;
 			}
