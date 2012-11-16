@@ -124,6 +124,7 @@ public class ForestTest {
 				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
 					Logfile l = new Logfile(params.workingFolder + File.separator + "T" + i + "_Growlog.txt");
+					l.write("fff");
 					trees.add(new RandomTree(params, i, l));
 				}
 				Logfile fl = new Logfile(params.workingFolder + File.separator + "ForestStats.txt");
