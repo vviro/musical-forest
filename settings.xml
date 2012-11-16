@@ -65,14 +65,14 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_fr6"
+		workingFolder="testdataResults/forestremote_fr7"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
 		logProgress="true"
 		logNodeInfo="true"
 		
-		saveGainThresholdDiagrams="3"
+		saveGainThresholdDiagrams="0"
 		saveNodeClassifications="3"
 		
 		debugThreadForking="false"
