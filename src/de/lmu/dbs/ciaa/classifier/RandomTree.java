@@ -228,8 +228,8 @@ public class RandomTree extends Tree {
 		
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
-		System.out.println(log + " dep " + depth);
 		if (params.logNodeInfo) {
+			System.out.println(log + " dep " + depth);
 			log.write(pre + "------------------------");
 			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
 			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
