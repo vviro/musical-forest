@@ -636,4 +636,21 @@ public class ArrayUtils {
 		}
 		return ret;
 	}
+
+	/**
+	 * Counts the occurrences of value in data.
+	 * 
+	 * @param data
+	 * @param value
+	 * @return
+	 */
+	public static long countValues(byte[][] data, int value) {
+		long ret = 0;
+		for(int x=0; x<data.length; x++) {
+			for(int y=0; y<data[0].length; y++) {
+				if (data[x][y] == value) ret++;
+			}
+		}
+		return ret;
+	}
 }

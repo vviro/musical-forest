@@ -111,12 +111,19 @@ public class ForestTest {
 			List<Dataset> initialSet = new ArrayList<Dataset>();
 			//initialSet.addAll(Dataset.loadDatasets("testdata/mono/cqt", ".cqt", "testdata/mono/midi", ".mid", params.frequencies, params.step));
 			//initialSet.addAll(Dataset.loadDatasets("testdata/poly/cqt", ".cqt", "testdata/poly/midi", ".mid", params.frequencies, params.step));
-			initialSet.addAll(MusicalTreeDataset.loadDatasets("testdata2", ".peak", "testdata2", ".mid", params.frequencies, params.step));
+			initialSet.addAll(MusicalTreeDataset.loadDatasets("testdata2", ".cqt", "testdata2", ".mid", params.frequencies, params.step));
 			
 			// Create initial bootstrapping sampler
 			BootstrapSampler<Dataset> sampler = new BootstrapSampler<Dataset>(initialSet);
 			m.measure("Finished generating " + initialSet.size() + " initial data samples");
 
+			/*long c = 0;
+			for(int i=0; i<sampler.getPoolSize(); i++) {
+				c += ArrayUtils.countValues(((TreeDataset)sampler.get(i)).getData(), 0);
+			}
+			System.out.println("Amount of zeroes in spectral data: " + c);
+			*/
+			
 			// Split data into training and testing parts (1:1)
 			/*List<Sampler<Dataset>> samplers = sampler.split(2);
 			out("Initial sampler size: " + sampler.getPoolSize());
