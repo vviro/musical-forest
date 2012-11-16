@@ -11,7 +11,7 @@ import de.lmu.dbs.ciaa.classifier.core2d.Tree2d;
 import de.lmu.dbs.ciaa.util.Logfile;
 
 /**
- * 2d random tree implementation for f0 detection.
+ * Random tree implementation for f0 detection on 2-dimensional data (FFT/CQT spectrum etc.).
  * 
  * @author Thomas Weber
  *
@@ -26,7 +26,7 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception
 	 */
 	public MusicalRandomTree(ForestParameters params, int num, Logfile log) throws Exception {
-		super(params, num, log);
+		super(params, 2, num, log);
 	}
 
 	/**
@@ -46,38 +46,7 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception
 	 */
 	public MusicalRandomTree() throws Exception {
-		super(null, -1, null);
-	}
-
-	/**
-	 * Returns the number of classification classes.
-	 * TODO: Only 2 classes supported now, make multiclass
-	 * 
-	 * @return
-	 */
-	public int getNumOfClasses() {
-		return 2;
-	}
-
-	/**
-	 * Returns the present classes at a cartain point. The returned value has 
-	 * to be in the range [0, getNumOfClasses()-1].
-	 * <br><br>
-	 * Here: class 0 is silence, class 1 is f0.
-	 * 
-	 * @param refdata
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public int reference(byte[][] refdata, int x, int y) {
-		return (refdata[x][y] > 0) ? 1 : 0;
-		/*
-		//boolean[] ret = new boolean[2];
-		ret[1] = (refdata[x][y] > 0); // ? 1 : 0;
-		ret[0] = !ret[1]; //(refdata[x][y] > 0) ? 0 : 1;
-		//return ret;
-		 * */
+		super(null, 2, -1, null);
 	}
 
 	/**

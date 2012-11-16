@@ -18,14 +18,19 @@ import de.lmu.dbs.ciaa.util.Statistic;
 public abstract class Tree2d extends Thread {
 
 	/**
+	 * Number of classes to divide
+	 */
+	protected int numOfClasses = -1;
+	
+	/**
 	 * Log file for training the tree.
 	 */
-	protected Logfile log;
+	protected Logfile log = null;
 	
 	/**
 	 * Statistic about the trees information gain.
 	 */
-	public Statistic infoGain;
+	public Statistic infoGain = null;
 	
 	/**
 	 * Index of the tree in its forest.
@@ -35,7 +40,7 @@ public abstract class Tree2d extends Thread {
 	/**
 	 * Reference to the parent forest (only set in root tree instances, not in threaded recursion).
 	 */
-	public Forest2d forest;
+	public Forest2d forest = null;
 	
 	/**
 	 * The actual tree structure
@@ -120,9 +125,10 @@ public abstract class Tree2d extends Thread {
 	 * @param num
 	 * @param log
 	 */
-	public Tree2d(int num, Logfile log) {
+	public Tree2d(int numOfClasses, int num, Logfile log) {
 		this.num = num;
 		this.log = log;
+		this.numOfClasses = numOfClasses;
 	}
 	
 	/**
@@ -253,6 +259,15 @@ public abstract class Tree2d extends Thread {
 	 */
 	public Node2d getRootNode() {
 		return tree;
+	}
+
+	/**
+	 * Returns the number of classes to divide.
+	 * 
+	 * @return
+	 */
+	public int getNumOfClasses() {
+		return numOfClasses;
 	}
 
 }

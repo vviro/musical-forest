@@ -45,7 +45,7 @@
 		
 		threadWaitTime="3000"
 		
-		maxNumOfNodeThreads="0"
+		maxNumOfNodeThreads="4"
 		
 		enableEvaluationThreads="true"
 		numOfWorkerThreadsPerNode="10"

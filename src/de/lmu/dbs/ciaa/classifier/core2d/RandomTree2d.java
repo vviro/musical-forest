@@ -22,7 +22,8 @@ import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
 /**
- * Represents one random decision tree.
+ * Represents one random decision tree. Extend this to create randomized decision
+ * trees for various applications.
  * 
  * @author Thomas Weber
  *
@@ -37,8 +38,8 @@ public abstract class RandomTree2d extends Tree2d {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree2d(ForestParameters params, int num, Logfile log) throws Exception {
-		super(num, log);
+	public RandomTree2d(ForestParameters params, int numOfClasses, int num, Logfile log) throws Exception {
+		super(numOfClasses, num, log);
 		params.check();
 		this.params = params;
 		this.infoGain = new Statistic();
@@ -52,7 +53,7 @@ public abstract class RandomTree2d extends Tree2d {
 	 * 
 	 */
 	public RandomTree2d(ForestParameters params, Tree2d root, Sampler<Dataset> sampler, List<byte[][]> classification, long count, Node2d node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
-		this(params, num, log);
+		this(params, root.numOfClasses, num, log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -93,24 +94,6 @@ public abstract class RandomTree2d extends Tree2d {
 	 */
 	public abstract RandomTree2d getInstance(ForestParameters params, int num, Logfile log) throws Exception;
 
-	/**
-	 * Returns the reference class at a cartain point. The returned value has 
-	 * to be in the range [0, getNumOfClasses()-1].
-	 * 
-	 * @param refdata
-	 * @param x
-	 * @param y
-	 * @return class number
-	 */
-	public abstract int reference(byte[][] refdata, int x, int y);
-	
-	/**
-	 * Returns the number of classification classes.
-	 * 
-	 * @return
-	 */
-	public abstract int getNumOfClasses();
-	
 	/**
 	 * Provides the possibility to add tree specific log output per node.
 	 * 
@@ -259,7 +242,7 @@ public abstract class RandomTree2d extends Tree2d {
 		}
 
 		// Evaluate the features
-		int numOfClasses = getNumOfClasses();
+		//int numOfClasses = getNumOfClasses();
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
 		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
 		evaluateFeaturesThreads(sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
@@ -459,10 +442,10 @@ public abstract class RandomTree2d extends Tree2d {
 		int numOfFeatures = paramSet.size();
 		int poolSize = sampler.getPoolSize();
 		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
-			// Each dataset...load spectral data and midi
+			// Each dataset...load data and reference
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(poolIndex);
 			byte[][] data = dataset.getData();
-			byte[][] midi = dataset.getReference();
+			byte[][] ref = dataset.getReference();
 			byte[][] cla = classification.get(poolIndex);
 			
 			// get feature results 
@@ -474,13 +457,12 @@ public abstract class RandomTree2d extends Tree2d {
 							// Each featureset candidate...
 							float ev = paramSet.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								int cl = reference(midi, x, y);
 								if (ev >= thresholds[k][g]) {
 									// Left
-									countClassesLeft[k][g][cl]++;
+									countClassesLeft[k][g][ref[x][y]]++;
 								} else {
 									// Right
-									countClassesRight[k][g][cl]++;
+									countClassesRight[k][g][ref[x][y]]++;
 								}
 							}
 						}
@@ -571,20 +553,20 @@ public abstract class RandomTree2d extends Tree2d {
 	 * @throws Exception
 	 */
 	private float[] calculateLeaf(final Sampler<Dataset> sampler, List<byte[][]> classification, final int mode, final int depth) throws Exception {
-		int numOfClasses = this.getNumOfClasses();
+		//int numOfClasses = this.getNumOfClasses();
 		float[] l = new float[numOfClasses];
 		long all = 0;
 		// See how much was judged right
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(i);
-			byte[][] midi = dataset.getReference();
+			byte[][] ref = dataset.getReference();
 			byte[][] cla = classification.get(i);
 			
-			for(int x=0; x<midi.length; x++) {
-				for(int y=0; y<midi[0].length; y++) {
+			for(int x=0; x<ref.length; x++) {
+				for(int y=0; y<ref[0].length; y++) {
 					if (mode == cla[x][y]) {
 						//if (mode == 1) {
-							l[reference(midi, x, y)]++;
+							l[ref[x][y]]++;
 							all++;
 						//}
 						/*
