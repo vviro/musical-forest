@@ -21,7 +21,7 @@ public class FeatureHarmonic5_FixedThr extends Feature {
 	public float[] harmonicFactors = null;
 	public int[] chosenHarmonics = null;
 	
-	public int numOfOvertones = 5; // TODO -> params
+	public int numOfOvertones = 10; // TODO -> params
 	public float harmonicAmplification = 10; // TODO -> params
 	
 	/**
