@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import de.lmu.dbs.ciaa.classifier.*;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
+import de.lmu.dbs.ciaa.spectrum.analyze.DifferentialAnalyzer;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
@@ -168,12 +169,19 @@ public class ForestTest {
 			m.measure("Extracted left channel, total samples: " + mono.length);
 
 			// Calculate transformation
-			double[][] dataOobD = transformation.calculate(mono, params.step, new HammingWindow(transformation.getWindowSize()));
+			double[][] dataOobDouble = transformation.calculate(mono, params.step, new HammingWindow(transformation.getWindowSize()));
+			double[][] dataPeak = dataOobDouble; /*new double[dataOobDouble.length][];
+
+			DifferentialAnalyzer p = new DifferentialAnalyzer();
+			for(int i=0; i<dataOobDouble.length; i++) {
+				dataPeak[i] = p.getPeaks(dataOobDouble[i]);
+			}
+			//*/
 			Scale scale = new LogScale(10);
-			ArrayUtils.normalize(dataOobD); // Normalize to [0,1]
-			ArrayUtils.scale(dataOobD, scale); // Log scale
-			ArrayUtils.normalize(dataOobD, (double)Byte.MAX_VALUE-1); // Normalize back to [0,MAX_VALUE] 
-			byte[][] dataOob = ArrayUtils.toByteArray(dataOobD); // To byte array to use with forest
+			ArrayUtils.normalize(dataPeak); // Normalize to [0,1]
+			ArrayUtils.scale(dataPeak, scale); // Log scale
+			ArrayUtils.normalize(dataPeak, (double)Byte.MAX_VALUE-1); // Normalize back to [0,MAX_VALUE] 
+			byte[][] dataOob = ArrayUtils.toByteArray(dataPeak); // To byte array to use with forest
 			m.measure("Finished transformation and scaling");
 			
 			// Test classification
@@ -190,7 +198,7 @@ public class ForestTest {
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
 			ArrayToImage img = new ArrayToImage(dataForest.length, dataForest[0].length);
-			out("-> Max data: " +  + img.add(dataOobD, Color.WHITE, null));
+			out("-> Max data: " +  + img.add(dataOobDouble, Color.WHITE, null));
 			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);

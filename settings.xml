@@ -31,9 +31,9 @@
 	<Forest
 		forestSize="1"
 		maxDepth="3"
-		percentageOfRandomValuesPerFrame="0.5"
-		numOfRandomFeatures="150"
-		thresholdCandidatesPerFeature="15"
+		percentageOfRandomValuesPerFrame="0.25"
+		numOfRandomFeatures="200"
+		thresholdCandidatesPerFeature="10"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic6_vari"
 		entropyThreshold="0"
 		
@@ -64,8 +64,8 @@
 		debugThreadPolling:        Show thread polling and status information in regular intervals.
 	-->
 	<General
-		loadForest="false" 
-		workingFolder="testdataResults/forestremote_do4"
+		loadForest="true" 
+		workingFolder="testdataResults/forestremote_d5"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		

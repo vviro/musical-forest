@@ -21,7 +21,7 @@ public class FeatureHarmonic6_vari extends Feature {
 	
 	public double[] harmonicFactors = null; //{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
 	
-	public int numOfOvertones = 15; // TODO -> params
+	public int numOfOvertones = 10; // TODO -> params
 	
 	public double harmonicAmplification = 10; // TODO -> params
 	
