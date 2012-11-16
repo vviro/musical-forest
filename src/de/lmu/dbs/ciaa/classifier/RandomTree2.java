@@ -334,7 +334,7 @@ public class RandomTree2 extends Tree {
 		for(int i=0; i<workers.length; i++) {
 			int min = i*ipw;
 			int max = min + ipw;
-			if (max >= poolSize) max = poolSize;
+			if (max >= poolSize) max = poolSize-1;
 			System.out.println(min + " to " + max);
 			workers[i] = new RandomTree2Worker(params, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			workers[i].start();
