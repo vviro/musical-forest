@@ -104,7 +104,7 @@ public abstract class RandomTree2d extends Tree2d {
 	 * @param y
 	 * @return
 	 */
-	public abstract int[] reference(byte[][] refdata, int x, int y);
+	public abstract boolean[] reference(byte[][] refdata, int x, int y);
 	
 	/**
 	 * Returns the number of classification classes.
@@ -466,16 +466,16 @@ public abstract class RandomTree2d extends Tree2d {
 							// Each featureset candidate...
 							float ev = paramSet.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								int[] cl = reference(midi, x, y);
+								boolean[] cl = reference(midi, x, y);
 								if (ev >= thresholds[k][g]) {
 									// Left
 									for(int c=0; c<numOfClasses; c++) {
-										countClassesLeft[k][g][c]+= cl[c];
+										if (cl[c]) countClassesLeft[k][g][c]++;
 									}
 								} else {
 									// Right
 									for(int c=0; c<numOfClasses; c++) {
-										countClassesRight[k][g][c]+= cl[c];
+										if (cl[c]) countClassesRight[k][g][c]++;
 									}
 								}
 							}
@@ -580,12 +580,14 @@ public abstract class RandomTree2d extends Tree2d {
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) {
-						int[] cl = reference(midi, x, y);
+						boolean[] cl = reference(midi, x, y);
 						//if (mode == 1) {
 							for(int c=0; c<numOfClasses; c++) {
-								l[c]+= cl[c];
-								all+= cl[c];
+								if (cl[c]) {
+									l[c]++;
+								}
 							}
+							all++;
 						//}
 						/*
 						if (mode == 2) {

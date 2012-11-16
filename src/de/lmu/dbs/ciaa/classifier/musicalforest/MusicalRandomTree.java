@@ -70,10 +70,10 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @param y
 	 * @return
 	 */
-	public int[] reference(byte[][] refdata, int x, int y) {
-		int[] ret = new int[2];
-		ret[1] = (refdata[x][y] > 0) ? 1 : 0;
-		ret[0] = (refdata[x][y] > 0) ? 0 : 1;
+	public boolean[] reference(byte[][] refdata, int x, int y) {
+		boolean[] ret = new boolean[2];
+		ret[1] = (refdata[x][y] > 0); // ? 1 : 0;
+		ret[0] = !ret[1]; //(refdata[x][y] > 0) ? 0 : 1;
 		return ret;
 	}
 
