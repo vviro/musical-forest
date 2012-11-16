@@ -213,4 +213,28 @@ public class ForestParameters {
 		if (divideFFT <= 0) throw new Exception("CQT divideFFT parameter has to be greater than zero: " + divideFFT);
 		if (cqtBufferLocation == null) throw new Exception("No cqt kernel buffer folder is set");
 	}
+	
+	/**
+	 * Packs all parameters into a readable string.
+	 * 
+	 * @return
+	 */
+	public String toString() {
+		String ret = "";
+		ret+= "forestSize: " + forestSize + "\n";
+		ret+= "maxDepth: " + maxDepth + "\n";
+		ret+= "percentageOfRandomValuesPerFrame: " + percentageOfRandomValuesPerFrame + "\n";
+		ret+= "numOfRandomFeatures: " + numOfRandomFeatures + "\n";
+		ret+= "thresholdCandidatesPerFeature: " + thresholdCandidatesPerFeature + "\n";
+		ret+= "featureFactory: " + featureFactory.getClass().getName() + "\n";
+		ret+= "entropyThreshold: " + entropyThreshold + "\n";
+
+		ret+= "loadForest: " + loadForest + "\n";
+		ret+= "workingFolder: " + workingFolder + "\n";
+		ret+= "nodedataFilePrefix: " + nodedataFilePrefix + "\n";
+		ret+= "frequencyTableFile: " + frequencyTableFile + "\n";
+		ret+= "maxNumOfNodeThreads: " + maxNumOfNodeThreads + "\n";
+		ret+= "threadWaitTime: " + threadWaitTime + "\n";
+		return ret;
+	}
 }

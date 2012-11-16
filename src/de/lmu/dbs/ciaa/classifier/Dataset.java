@@ -1,7 +1,9 @@
 package de.lmu.dbs.ciaa.classifier;
 
 /**
- * Dataset base class. Supports some sampling basics.
+ * Dataset base class. Supports basic sampling of samples.
+ * Samples can also be multi-dimensional, this just delivers the
+ * interface for Samplers.
  * 
  * @author Thomas Weber
  *
@@ -9,12 +11,14 @@ package de.lmu.dbs.ciaa.classifier;
 public abstract class Dataset {
 
 	/**
-	 * Indices of sampled frames for this dataset. Size 0 means all samples are in.
+	 * Represents the sampling state of all samples in the dataset.
+	 * -1 means the sample is not in the sample, >= 0 the opposite.
 	 */
 	private int[] samples = null;
 
 	/**
-	 * Initialize the sample array.
+	 * Initialize the sample array. By default, all
+	 * samples are included in the sample.
 	 * 
 	 * @throws Exception
 	 */
@@ -32,7 +36,7 @@ public abstract class Dataset {
 	
 	/**
 	 * Returns the samples array, containing all indices which are in the current 
-	 * selection. Size 0 means all samples are in.
+	 * selection. 
 	 * 
 	 * @return
 	 * @throws Exception 
@@ -43,7 +47,7 @@ public abstract class Dataset {
 	}
 	
 	/**
-	 * Sets the samples array.
+	 * Replaces the complete samples array.
 	 * 
 	 * @param s
 	 */
@@ -75,6 +79,7 @@ public abstract class Dataset {
 	
 	/**
 	 * Exclude all samples.
+	 * 
 	 * @throws Exception 
 	 */
 	protected void excludeAll() throws Exception {
@@ -86,6 +91,7 @@ public abstract class Dataset {
 	
 	/**
 	 * Include all samples.
+	 * 
 	 * @throws Exception 
 	 */
 	protected void includeAll() throws Exception {
@@ -101,18 +107,11 @@ public abstract class Dataset {
 	 */
 	protected boolean isSampled(int index) throws Exception {
 		if (samples == null) init();
-		/*if (samples.size() == 0) return true;
-		for(int z=0; z<samples.size(); z++) {
-			if (samples.get(z).intValue() == index) {
-				return true;
-			}
-		}
-		return false;*/
 		return samples[index] >= 0;
 	}
 	
 	/**
-	 * Returns a clone of the dataset list.
+	 * Returns a clone of the samples array.
 	 * 
 	 * @return
 	 * @throws Exception 

@@ -1,6 +1,5 @@
 package de.lmu.dbs.ciaa.classifier;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Scale;
@@ -99,6 +97,34 @@ public class RandomTree extends Tree {
 	}
 	
 	/**
+	 * Build first classification array (from bootstrapping samples and random values per sampled frame)
+	 * 
+	 * @param sampler
+	 * @return
+	 * @throws Exception 
+	 */
+	protected List<byte[][]> getPreClassification(Sampler<Dataset> sampler) throws Exception {
+		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index as in sampler
+		int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length); // values per frame
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			TreeDataset d = (TreeDataset)sampler.get(i);
+			byte[][] cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
+			classification.add(cl);
+		}
+		
+		// TMP: Save classifications to PNGs
+		/*
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			System.out.println("Visualize " + i);
+			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
+			ArrayUtils.toImage(fname, ArrayUtils.positivize(classification.get(i)), Color.YELLOW);
+		}
+		System.exit(0);
+		//*/
+		return classification;
+	}
+	
+	/**
 	 * Grows the tree. 
 	 * <br><br>
 	 * Attention: If multithreading is activated, you have to care about 
@@ -112,34 +138,11 @@ public class RandomTree extends Tree {
 	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
 		if (log == null) throw new Exception("Tree " + num + " has no logging object");
 		
-		// Build first classification array (from bootstrapping samples and random values per sampled frame)
-		List<byte[][]> classification = new ArrayList<byte[][]>(); // Classification arrays for each dataset in the sampler, same index as in sampler
-		int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length); // values per frame
-		for(int i=0; i<sampler.getPoolSize(); i++) {
-			TreeDataset d = (TreeDataset)sampler.get(i);
-			byte[][] cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
-			classification.add(cl);
-		}
+		// List training data files and parameters in log
+		logMeta(sampler);
 		
-		// List training data files in log
-		String lst = "";
-		for(int o=0; o<sampler.getPoolSize(); o++) {
-			TreeDataset d = (TreeDataset)sampler.get(o);
-			lst += "Dataset " + o + ": " + d.getDataFile().getAbsolutePath() + " (Reference: " + d.getReferenceFile().getAbsolutePath() + ")\n";
-		}
-		log.write("Training data for tree " + num + ":\n" + lst);
-		
-		// TMP: Save classifications to PNGs
-		/*
-		for(int i=0; i<sampler.getPoolSize(); i++) {
-			System.out.println("Visualize " + i);
-			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
-			ArrayUtils.toImage(fname, ArrayUtils.positivize(classification.get(i)), Color.YELLOW);
-		}
-		System.exit(0);
-		//*/
-
-		// Grow
+		// Preclassify and grow
+		List<byte[][]> classification = getPreClassification(sampler);
 		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
 		
@@ -559,6 +562,22 @@ public class RandomTree extends Tree {
 		node.saveDebugTree(nf);
 		saveDebugTreeRec(node.left, depth+1, 1);
 		saveDebugTreeRec(node.right, depth+1, 2);
+	}
+
+	/**
+	 * Write some params to log file.
+	 * @throws Exception 
+	 * 
+	 */
+	private void logMeta(Sampler<Dataset> sampler) throws Exception {
+		String lst = "";
+		for(int o=0; o<sampler.getPoolSize(); o++) {
+			TreeDataset d = (TreeDataset)sampler.get(o);
+			lst += "Dataset " + o + ": " + d.getDataFile().getAbsolutePath() + " (Reference: " + d.getReferenceFile().getAbsolutePath() + ")\n";
+		}
+		log.write("Parameters: \n" + params.toString());
+		log.write("Training data for tree " + num + ":\n" + lst);
+		log.write("\n");
 	}
 	
 	/**

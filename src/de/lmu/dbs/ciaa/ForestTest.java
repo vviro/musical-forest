@@ -42,7 +42,6 @@ import de.lmu.dbs.ciaa.util.*;
  * Code:
  * 		- make forest generic
  * 			- extend RandomTree
- * 		- logdatei per tree
  * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
  * 		- protocol buffer (google code) für dateiformat, statt serialization
  * 		- automate test to get values instead of images only (s. Breiman)		
