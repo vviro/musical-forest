@@ -121,15 +121,21 @@ public class ForestTest {
 			Forest forest;
 			if (!params.loadForest) {
 				// Grow
+				Logfile[] treelogs = new Logfile[params.forestSize]; 
 				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
-					Logfile l = new Logfile(params.workingFolder + File.separator + "T" + i + "_Growlog.txt");
-					trees.add(new RandomTree(params, i, l));
+					treelogs[i] = new Logfile(params.workingFolder + File.separator + "T" + i + "_Growlog.txt");
+					trees.add(new RandomTree(params, i, treelogs[i]));
 				}
-				Logfile fl = new Logfile(params.workingFolder + File.separator + "ForestStats.txt");
-				forest = new Forest(trees, params, fl);
+				Logfile forestlog = new Logfile(params.workingFolder + File.separator + "ForestStats.txt");
+				forest = new Forest(trees, params, forestlog);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
+				// Close logs
+				for(int i=0; i<treelogs.length; i++) {
+					treelogs[i].close();
+				}
+				forestlog.close();
 				m.measure("Finished growing random forest");
 
 				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);

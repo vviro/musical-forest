@@ -145,9 +145,6 @@ public class RandomTree extends Tree {
 		List<byte[][]> classification = getPreClassification(sampler);
 		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
 		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
-		
-		// Close log
-		log.close();
 	}
 
 	/**
