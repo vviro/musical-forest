@@ -14,7 +14,6 @@ import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalRandomTree;
 import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalTreeDataset;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
-import de.lmu.dbs.ciaa.spectrum.analyze.*;
 import de.lmu.dbs.ciaa.util.*;
 
 /**

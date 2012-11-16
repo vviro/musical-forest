@@ -104,7 +104,7 @@ public abstract class RandomTree2d extends Tree2d {
 	 * @param y
 	 * @return
 	 */
-	public abstract boolean[] reference(byte[][] refdata, int x, int y);
+	public abstract void reference(boolean[] ret, byte[][] refdata, int x, int y);
 	
 	/**
 	 * Returns the number of classification classes.
@@ -450,6 +450,7 @@ public abstract class RandomTree2d extends Tree2d {
 		int numOfFeatures = paramSet.size();
 		int poolSize = sampler.getPoolSize();
 		int numOfClasses = getNumOfClasses();
+		boolean[] cl = new boolean[numOfClasses];
 		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
 			// Each dataset...load spectral data and midi
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(poolIndex);
@@ -466,7 +467,7 @@ public abstract class RandomTree2d extends Tree2d {
 							// Each featureset candidate...
 							float ev = paramSet.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								boolean[] cl = reference(midi, x, y);
+								reference(cl, midi, x, y);
 								if (ev >= thresholds[k][g]) {
 									// Left
 									for(int c=0; c<numOfClasses; c++) {
@@ -570,6 +571,7 @@ public abstract class RandomTree2d extends Tree2d {
 		int numOfClasses = this.getNumOfClasses();
 		float[] l = new float[numOfClasses];
 		long all = 0;
+		boolean[] cl = new boolean[numOfClasses];
 		//float[] r = new float[numOfClasses];
 		// See how much was judged right
 		for(int i=0; i<sampler.getPoolSize(); i++) {
@@ -580,7 +582,7 @@ public abstract class RandomTree2d extends Tree2d {
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) {
-						boolean[] cl = reference(midi, x, y);
+						reference(cl, midi, x, y);
 						//if (mode == 1) {
 							for(int c=0; c<numOfClasses; c++) {
 								if (cl[c]) {

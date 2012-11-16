@@ -8,8 +8,6 @@ import de.lmu.dbs.ciaa.classifier.Sampler;
 import de.lmu.dbs.ciaa.classifier.core2d.Node2d;
 import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
 import de.lmu.dbs.ciaa.classifier.core2d.Tree2d;
-import de.lmu.dbs.ciaa.classifier.core2d.TreeDataset2d;
-import de.lmu.dbs.ciaa.classifier.features.Feature;
 import de.lmu.dbs.ciaa.util.Logfile;
 
 /**
@@ -70,11 +68,11 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @param y
 	 * @return
 	 */
-	public boolean[] reference(byte[][] refdata, int x, int y) {
-		boolean[] ret = new boolean[2];
+	public void reference(boolean[] ret, byte[][] refdata, int x, int y) {
+		//boolean[] ret = new boolean[2];
 		ret[1] = (refdata[x][y] > 0); // ? 1 : 0;
 		ret[0] = !ret[1]; //(refdata[x][y] > 0) ? 0 : 1;
-		return ret;
+		//return ret;
 	}
 
 	/**
