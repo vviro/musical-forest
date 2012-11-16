@@ -54,7 +54,8 @@ public class RandomTree2Worker extends Thread {
 	
 	public void evaluateFeatures() throws Exception {
 		int numOfFeatures = paramSet.size();
-		for(int poolIndex=minIndex; poolIndex<=maxIndex; poolIndex++) {
+		int poolSize = sampler.getPoolSize();
+		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
 			// Each dataset...load spectral data and midi
 			TreeDataset dataset = (TreeDataset)sampler.get(poolIndex);
 			byte[][] data = dataset.getData();
@@ -63,7 +64,7 @@ public class RandomTree2Worker extends Thread {
 			
 			// get feature results 
 			for(int x=0; x<data.length; x++) {
-				for(int y=0; y<params.frequencies.length; y++) {
+				for(int y=minIndex; y<=maxIndex; y++) {
 					// Each random value from the subframe
 					if (mode == cla[x][y]) { // Is that point in the training set for this node?
 						for(int k=0; k<numOfFeatures; k++) {

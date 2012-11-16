@@ -13,7 +13,7 @@
 	<property name="classes-directory" value="bin" />
 	<property name="build-directory" value="build" />
 	<property name="javadoc-directory" value="doc" />
-	<property name="jar-file" value="${project-name}_fr11.jar" />
+	<property name="jar-file" value="${project-name}_fr12.jar" />
 	
 	<property name="lib-directory" location="lib" />
 	
@@ -113,7 +113,7 @@
 
 	<target name="run" description="run the project">    
 		<java jar="${build-directory}/${jar-file}" fork="true">
-			<jvmarg value="-Xmx10g" />
+			<jvmarg value="-Xmx6g" />
 			<!--
 			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 			-->

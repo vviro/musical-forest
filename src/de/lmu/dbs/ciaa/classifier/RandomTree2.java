@@ -333,9 +333,11 @@ public class RandomTree2 extends Tree {
 	 * @throws Exception
 	 */
 	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
+		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
+		
 		if (!params.enableEvaluationThreads) {
 			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
-			RandomTree2Worker w = new RandomTree2Worker(params, 0, sampler.getPoolSize()-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			RandomTree2Worker w = new RandomTree2Worker(params, 0, numWork-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			w.evaluateFeatures();
 			return;
 		}
@@ -343,19 +345,19 @@ public class RandomTree2 extends Tree {
 		if (count < params.minEvalThreadCount) {
 			// Not much values, no multithreading
 			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no multithreading]");
-			RandomTree2Worker w = new RandomTree2Worker(params, 0, sampler.getPoolSize()-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			RandomTree2Worker w = new RandomTree2Worker(params, 0, numWork-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			w.evaluateFeatures();
 			return;
 		}
 		
-		int poolSize = sampler.getPoolSize();
+		// Create workers for frequency bands
 		RandomTree2Worker[] workers = new RandomTree2Worker[params.numOfWorkerThreadsPerNode];
-		int ipw = poolSize / workers.length;
+		int ipw = numWork / workers.length;
 		for(int i=0; i<workers.length; i++) {
 			int min = i*ipw;
 			int max = min + ipw - 1;
-			if (max >= poolSize) max = poolSize-1;
-			//System.out.println(min + " to " + max);
+			if (max >= numWork) max = numWork-1;
+			System.out.println(min + " to " + max);
 			workers[i] = new RandomTree2Worker(params, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			workers[i].start();
 		}

@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="10"
+		maxDepth="3"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="150"
 		thresholdCandidatesPerFeature="30"
@@ -70,7 +70,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_fr11"
+		workingFolder="testdataResults/forestremote_fr12"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
