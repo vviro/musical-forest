@@ -113,10 +113,10 @@
 
 	<target name="run" description="run the project">    
 		<java jar="${build-directory}/${jar-file}" fork="true">
-			<jvmarg value="-Xmx6g" />
+			<jvmarg value="-Xmx1024m" />
 			<!--
-			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 			-->
+			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 		</java>
 	</target>
 		

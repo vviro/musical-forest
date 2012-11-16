@@ -18,15 +18,15 @@ public class FeatureHarmonic5 extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
-	public double[] harmonicFactors = null; //{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
+	public double[] harmonicFactors = null;
+	public int[] chosenHarmonics = null;
 	
 	public int numOfOvertones = 10; // TODO -> params
-	
 	public double harmonicAmplification = 10; // TODO -> params
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
-	 * Can be generated with the method generateHarmonicFactors().
+	 * Generated with the method generateHarmonicFactors().
 	 */
 	private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
 	
@@ -35,7 +35,8 @@ public class FeatureHarmonic5 extends Feature {
 	 * 
 	 */
 	public FeatureHarmonic5(final ForestParameters params) {
-		harmonicFactors = new double[harmonics.length];
+		harmonicFactors = new double[numOfOvertones];
+		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
 		RandomSampler.sample(
 				numOfOvertones, // n 
@@ -47,7 +48,8 @@ public class FeatureHarmonic5 extends Feature {
 				null);
 		//ArrayUtils.out(harms);
 		for(int i=0; i<harms.length; i++) {
-			harmonicFactors[(int)harms[i]] = Math.random()*harmonicAmplification; //*((float)(harmonics.length-i)/harmonics.length);
+			chosenHarmonics[i] = (int)harms[i];
+			harmonicFactors[i] = Math.random()*harmonicAmplification; //*((float)(harmonics.length-i)/harmonics.length);
 		}
 		/*for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
@@ -125,13 +127,12 @@ public class FeatureHarmonic5 extends Feature {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		float d2 = data[x][y]*data[x][y];
 		float ret = 0;
-		for(int i=0; i<harmonics.length; i++) {//harmonics.length; i++) {
+		for(int j=0; j<chosenHarmonics.length; j++) {
+			int i = chosenHarmonics[j];
 			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
 			if (ny >= data[0].length) return (int)ret;
 			//if (data[x][ny] >= data[x][y]/10) {
-			if (harmonicFactors[i] > 0) {
-				ret+= d2*data[x][ny]*harmonicFactors[i];
-			}
+			ret+= d2*data[x][ny]*harmonicFactors[i];
 			//}
 			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
 		}
