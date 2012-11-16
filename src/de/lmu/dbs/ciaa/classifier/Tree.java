@@ -187,7 +187,7 @@ public abstract class Tree extends Thread {
 	public void run() {
 		try {
 			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
-			
+			System.out.println(log);
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive();
 			
