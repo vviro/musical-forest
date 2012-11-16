@@ -29,11 +29,11 @@
 		threadWaitTime:            Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
-		forestSize="1"
-		maxDepth="3"
+		forestSize="2"
+		maxDepth="10"
 		percentageOfRandomValuesPerFrame="0.25"
-		numOfRandomFeatures="200"
-		thresholdCandidatesPerFeature="10"
+		numOfRandomFeatures="300"
+		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic6"
 		entropyThreshold="0"
 		
@@ -65,7 +65,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_d3"
+		workingFolder="testdataResults/forestremote_nightly1"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
