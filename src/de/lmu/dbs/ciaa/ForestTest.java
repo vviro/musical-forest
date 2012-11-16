@@ -190,7 +190,7 @@ public class ForestTest {
 			
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
-				RandomTree t = (RandomTree)forest.getTrees().get(i);
+				RandomTree2 t = (RandomTree2)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
 			m.measure("Saved node visualization images");

@@ -158,7 +158,7 @@ public class RandomTree2 extends Tree {
 	 * @throws Exception 
 	 */
 	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		/*if (params.maxNumOfNodeThreads > 0) {
+		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
@@ -169,7 +169,7 @@ public class RandomTree2 extends Tree {
 					return;
 				}
 			}
-		}*/
+		}
 		
 		// TMP
 		String pre = "T" + root.num + ":  ";
@@ -197,7 +197,7 @@ public class RandomTree2 extends Tree {
 		int numOfClasses = getNumOfClasses();
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
 		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
-		evaluateFeatures(sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);		
+		evaluateFeatures(sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
 
 		// Calculate info gain upon each combination of feature/threshold 
 		double[][] gain = getGainsByEntropy(paramSet, countClassesLeft, countClassesRight);
@@ -327,11 +327,16 @@ public class RandomTree2 extends Tree {
 	 * @param countClassesRight
 	 * @throws Exception
 	 */
-	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
+	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
 		int poolSize = sampler.getPoolSize();
-		RandomTree2Worker[] workers = new RandomTree2Worker[poolSize];
-		for(int i=0; i<poolSize; i++) {
-			workers[i] = new RandomTree2Worker(params, this, i, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+		RandomTree2Worker[] workers = new RandomTree2Worker[params.numOfWorkerThreadsPerNode];
+		int ipw = poolSize / workers.length;
+		for(int i=0; i<workers.length; i++) {
+			int min = i*ipw;
+			int max = min + ipw;
+			if (max >= poolSize) max = poolSize;
+			System.out.println(min + " to " + max);
+			workers[i] = new RandomTree2Worker(params, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			workers[i].start();
 		}
 		while(true) {
@@ -350,7 +355,7 @@ public class RandomTree2 extends Tree {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": Tree " + num + " threads: " + cnt);
+				System.out.print(timeStampFormatter.format(new Date()) + ": Tree " + num + " Threads: " + cnt + " Id " + node.id + " Depth " + depth + "; ");
 				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 			}
 			if (ret) break;

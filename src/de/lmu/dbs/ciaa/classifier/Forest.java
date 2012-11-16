@@ -95,7 +95,7 @@ public class Forest {
 				}
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(timeStampFormatter.format(new Date()) + ": Threads: ");
+					System.out.print(timeStampFormatter.format(new Date()) + ": Node Threads: ");
 					for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive() + " ");
 					}

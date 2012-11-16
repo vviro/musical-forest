@@ -83,6 +83,7 @@ public class Settings {
 		r.forestSize = Integer.parseInt(forest.getAttributeValue("forestSize"));
 		r.maxDepth = Integer.parseInt(forest.getAttributeValue("maxDepth"));
 		r.maxNumOfNodeThreads = Integer.parseInt(forest.getAttributeValue("maxNumOfNodeThreads"));
+		r.numOfWorkerThreadsPerNode = Integer.parseInt(forest.getAttributeValue("numOfWorkerThreadsPerNode"));
 		r.threadWaitTime = Integer.parseInt(forest.getAttributeValue("threadWaitTime"));
 		r.percentageOfRandomValuesPerFrame = Double.parseDouble(forest.getAttributeValue("percentageOfRandomValuesPerFrame"));
 		r.numOfRandomFeatures = Integer.parseInt(forest.getAttributeValue("numOfRandomFeatures"));
