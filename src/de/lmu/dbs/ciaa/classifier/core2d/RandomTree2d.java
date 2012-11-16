@@ -94,17 +94,15 @@ public abstract class RandomTree2d extends Tree2d {
 	public abstract RandomTree2d getInstance(ForestParameters params, int num, Logfile log) throws Exception;
 
 	/**
-	 * Returns the present classes at a cartain point. Has to return 
-	 * an array of size getNumOfClasses(). Each entry of the array stands 
-	 * for the amount the class is counted. Normally, use 1 for standard counting
-	 * of class amounts.
+	 * Returns the reference class at a cartain point. The returned value has 
+	 * to be in the range [0, getNumOfClasses()-1].
 	 * 
 	 * @param refdata
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return class number
 	 */
-	public abstract void reference(boolean[] ret, byte[][] refdata, int x, int y);
+	public abstract int reference(byte[][] refdata, int x, int y);
 	
 	/**
 	 * Returns the number of classification classes.
@@ -112,6 +110,18 @@ public abstract class RandomTree2d extends Tree2d {
 	 * @return
 	 */
 	public abstract int getNumOfClasses();
+	
+	/**
+	 * Provides the possibility to add tree specific log output per node.
+	 * 
+	 * @param pre
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @param winner
+	 * @param winnerThreshold
+	 * @throws Exception
+	 */
+	public abstract void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception;
 	
 	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]
@@ -280,21 +290,11 @@ public abstract class RandomTree2d extends Tree2d {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
+			// General node info
 			log.write(pre + "------------------------");
-			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
-			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
-			long silenceRightW = countClassesRight[winner][winnerThreshold][1]; 
-			long noteRightW = countClassesRight[winner][winnerThreshold][0];
 			log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
 			log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
-			log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
-			log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
 			log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
-			
-			for(int i=0; i<thresholds[winner].length; i++) {
-				log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
-			}
-			//*/
 			float tmin = Float.MAX_VALUE;
 			float tmax = -Float.MAX_VALUE;
 			for(int i=0; i<thresholds[winner].length; i++) {
@@ -304,6 +304,15 @@ public abstract class RandomTree2d extends Tree2d {
 			log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
 			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
 			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+
+			// Tree specific log entries
+			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
+
+			// Thresholds
+			for(int i=0; i<thresholds[winner].length; i++) {
+				log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
+			}
+			//*/
 		}
 		// Save gain/threshold diagrams for each grown node
 		if (params.saveGainThresholdDiagrams > depth) {
@@ -449,8 +458,6 @@ public abstract class RandomTree2d extends Tree2d {
 	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
 		int numOfFeatures = paramSet.size();
 		int poolSize = sampler.getPoolSize();
-		int numOfClasses = getNumOfClasses();
-		boolean[] cl = new boolean[numOfClasses];
 		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
 			// Each dataset...load spectral data and midi
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(poolIndex);
@@ -467,17 +474,13 @@ public abstract class RandomTree2d extends Tree2d {
 							// Each featureset candidate...
 							float ev = paramSet.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								reference(cl, midi, x, y);
+								int cl = reference(midi, x, y);
 								if (ev >= thresholds[k][g]) {
 									// Left
-									for(int c=0; c<numOfClasses; c++) {
-										if (cl[c]) countClassesLeft[k][g][c]++;
-									}
+									countClassesLeft[k][g][cl]++;
 								} else {
 									// Right
-									for(int c=0; c<numOfClasses; c++) {
-										if (cl[c]) countClassesRight[k][g][c]++;
-									}
+									countClassesRight[k][g][cl]++;
 								}
 							}
 						}
@@ -571,8 +574,6 @@ public abstract class RandomTree2d extends Tree2d {
 		int numOfClasses = this.getNumOfClasses();
 		float[] l = new float[numOfClasses];
 		long all = 0;
-		boolean[] cl = new boolean[numOfClasses];
-		//float[] r = new float[numOfClasses];
 		// See how much was judged right
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(i);
@@ -582,13 +583,8 @@ public abstract class RandomTree2d extends Tree2d {
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
 					if (mode == cla[x][y]) {
-						reference(cl, midi, x, y);
 						//if (mode == 1) {
-							for(int c=0; c<numOfClasses; c++) {
-								if (cl[c]) {
-									l[c]++;
-								}
-							}
+							l[reference(midi, x, y)]++;
 							all++;
 						//}
 						/*

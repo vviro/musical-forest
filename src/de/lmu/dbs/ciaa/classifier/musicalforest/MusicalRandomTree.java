@@ -60,19 +60,24 @@ public class MusicalRandomTree extends RandomTree2d {
 	}
 
 	/**
-	 * Returns the present classes at a cartain point. Here: class 0 is
-	 * silence, class 1 is f0.
+	 * Returns the present classes at a cartain point. The returned value has 
+	 * to be in the range [0, getNumOfClasses()-1].
+	 * <br><br>
+	 * Here: class 0 is silence, class 1 is f0.
 	 * 
 	 * @param refdata
 	 * @param x
 	 * @param y
 	 * @return
 	 */
-	public void reference(boolean[] ret, byte[][] refdata, int x, int y) {
+	public int reference(byte[][] refdata, int x, int y) {
+		return (refdata[x][y] > 0) ? 1 : 0;
+		/*
 		//boolean[] ret = new boolean[2];
 		ret[1] = (refdata[x][y] > 0); // ? 1 : 0;
 		ret[0] = !ret[1]; //(refdata[x][y] > 0) ? 0 : 1;
 		//return ret;
+		 * */
 	}
 
 	/**
@@ -104,5 +109,25 @@ public class MusicalRandomTree extends RandomTree2d {
 	@Override
 	public RandomTree2d getInstance(ForestParameters params, int num, Logfile log) throws Exception {
 		return new MusicalRandomTree(params, num, log);
+	}
+
+	/**
+	 * Provides the possibility to add tree specific log output per node.
+	 * 
+	 * @param pre
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @param winner
+	 * @param winnerThreshold
+	 * @throws Exception
+	 */
+	@Override
+	public void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception {
+		long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
+		long noteLeftW = countClassesLeft[winner][winnerThreshold][0];
+		long silenceRightW = countClassesRight[winner][winnerThreshold][1]; 
+		long noteRightW = countClassesRight[winner][winnerThreshold][0];
+		log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
+		log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
 	}
 }
