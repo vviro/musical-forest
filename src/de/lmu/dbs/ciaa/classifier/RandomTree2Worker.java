@@ -13,8 +13,6 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  */
 public class RandomTree2Worker extends Thread {
 
-	private ForestParameters params = null;
-	
 	private int minIndex = -1;
 	
 	private int maxIndex = -1;
@@ -26,11 +24,13 @@ public class RandomTree2Worker extends Thread {
 	private float[][] thresholds;
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
+	private RandomTree2 parent;
 	
 	public boolean finished = false;
 	
-	public RandomTree2Worker(ForestParameters params, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
-		this.params = params;
+	public RandomTree2Worker(RandomTree2 parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
+		this.parent = parent;
+		
 		this.minIndex = minIndex;
 		this.maxIndex = maxIndex;
 		this.sampler = sampler;
@@ -44,7 +44,7 @@ public class RandomTree2Worker extends Thread {
 	
 	public void run() {
 		try {
-			evaluateFeatures();
+			parent.evaluateFeatures(sampler, minIndex, maxIndex, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -52,46 +52,4 @@ public class RandomTree2Worker extends Thread {
 		finished = true;
 	}
 	
-	public void evaluateFeatures() throws Exception {
-		int numOfFeatures = paramSet.size();
-		int poolSize = sampler.getPoolSize();
-		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
-			// Each dataset...load spectral data and midi
-			TreeDataset dataset = (TreeDataset)sampler.get(poolIndex);
-			byte[][] data = dataset.getData();
-			byte[][] midi = dataset.getReference();
-			byte[][] cla = classification.get(poolIndex);
-			
-			// get feature results 
-			for(int x=0; x<data.length; x++) {
-				for(int y=minIndex; y<=maxIndex; y++) {
-					// Each random value from the subframe
-					if (mode == cla[x][y]) { // Is that point in the training set for this node?
-						for(int k=0; k<numOfFeatures; k++) {
-							// Each featureset candidate...
-							float ev = paramSet.get(k).evaluate(data, x, y);
-							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								if (ev >= thresholds[k][g]) {
-									// Left
-									if (midi[x][y] > 0) {
-										countClassesLeft[k][g][0]++;
-									} else {
-										countClassesLeft[k][g][1]++;
-									}
-								} else {
-									// Right
-									if (midi[x][y] > 0) {
-										countClassesRight[k][g][0]++;
-									} else {
-										countClassesRight[k][g][1]++;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
 }

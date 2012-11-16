@@ -198,7 +198,7 @@ public class RandomTree2 extends Tree {
 		int numOfClasses = getNumOfClasses();
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
 		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
-		evaluateFeatures(sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
+		evaluateFeaturesThreads(sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
 
 		// Calculate info gain upon each combination of feature/threshold 
 		double[][] gain = getGainsByEntropy(paramSet, countClassesLeft, countClassesRight);
@@ -322,6 +322,7 @@ public class RandomTree2 extends Tree {
 	/**
 	 * Evaluates a couple of features with a couple of thresholds. This
 	 * is the most CPU intensive part of the tree training algorithm.
+	 * This method just controls the thread behaviour of feature evaluation.
 	 * 
 	 * @param sampler
 	 * @param paramSet
@@ -332,21 +333,19 @@ public class RandomTree2 extends Tree {
 	 * @param countClassesRight
 	 * @throws Exception
 	 */
-	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
+	protected void evaluateFeaturesThreads(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
 		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
 		
 		if (!params.enableEvaluationThreads) {
 			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
-			RandomTree2Worker w = new RandomTree2Worker(params, 0, numWork-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			w.evaluateFeatures();
+			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
 		
 		if (count < params.minEvalThreadCount) {
 			// Not much values, no multithreading
 			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no multithreading]");
-			RandomTree2Worker w = new RandomTree2Worker(params, 0, numWork-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			w.evaluateFeatures();
+			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
 		
@@ -358,7 +357,7 @@ public class RandomTree2 extends Tree {
 			int max = min + ipw - 1;
 			if (max >= numWork) max = numWork-1;
 			//System.out.println(min + " to " + max);
-			workers[i] = new RandomTree2Worker(params, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			workers[i] = new RandomTree2Worker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			workers[i].start();
 		}
 		while(true) {
@@ -385,6 +384,64 @@ public class RandomTree2 extends Tree {
 		System.out.print(timeStampFormatter.format(new Date()) + ": All workers done");
 	}
 	
+	/**
+	 * This does the actual evaluation work.
+	 * 
+	 * @param sampler
+	 * @param minIndex
+	 * @param maxIndex
+	 * @param paramSet
+	 * @param classification
+	 * @param count
+	 * @param mode
+	 * @param thresholds
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @param node
+	 * @param depth
+	 * @throws Exception
+	 */
+	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
+		int numOfFeatures = paramSet.size();
+		int poolSize = sampler.getPoolSize();
+		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
+			// Each dataset...load spectral data and midi
+			TreeDataset dataset = (TreeDataset)sampler.get(poolIndex);
+			byte[][] data = dataset.getData();
+			byte[][] midi = dataset.getReference();
+			byte[][] cla = classification.get(poolIndex);
+			
+			// get feature results 
+			for(int x=0; x<data.length; x++) {
+				for(int y=minIndex; y<=maxIndex; y++) {
+					// Each random value from the subframe
+					if (mode == cla[x][y]) { // Is that point in the training set for this node?
+						for(int k=0; k<numOfFeatures; k++) {
+							// Each featureset candidate...
+							float ev = paramSet.get(k).evaluate(data, x, y);
+							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
+								if (ev >= thresholds[k][g]) {
+									// Left
+									if (midi[x][y] > 0) {
+										countClassesLeft[k][g][0]++;
+									} else {
+										countClassesLeft[k][g][1]++;
+									}
+								} else {
+									// Right
+									if (midi[x][y] > 0) {
+										countClassesRight[k][g][0]++;
+									} else {
+										countClassesRight[k][g][1]++;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
