@@ -74,6 +74,7 @@ public class ForestTest {
 		
 		try {
 			System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
+			FileUtils.deleteDirectory(new File(copyToDir));
 			
 			// Create profiling tool
 			RuntimeMeasure m = new RuntimeMeasure(System.out);
@@ -201,7 +202,6 @@ public class ForestTest {
 			m.measure("Saved feature visualization to " + featuresFile);
 
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
-			FileUtils.deleteDirectory(new File(copyToDir));
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
 			
