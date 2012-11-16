@@ -173,8 +173,6 @@ public class RandomTree extends Tree {
 			}
 		}
 		
-		System.out.println(log + " dep " + depth);
-		
 		// TMP
 		String pre = "T" + root.num + ":  ";
 		for(int i=0; i<depth; i++) pre+="-  ";
@@ -229,7 +227,6 @@ public class RandomTree extends Tree {
 		// Debug //////////////////////////////////////////
 		root.infoGain.add(gain[winner][winnerThreshold]);
 		if (params.logNodeInfo) {
-			System.out.println(log + " dep " + depth);
 			log.write(pre + "------------------------");
 			long silenceLeftW = countClassesLeft[winner][winnerThreshold][1]; 
 			long noteLeftW = countClassesLeft[winner][winnerThreshold][0];

@@ -86,7 +86,7 @@ public class Logfile {
 	public synchronized void flush() throws Exception {
 		close();
 		FileWriter fstream = new FileWriter(filename, true);
-		this.out = new BufferedWriter(fstream);
+		out = new BufferedWriter(fstream);
 	}
 	
 	/**
