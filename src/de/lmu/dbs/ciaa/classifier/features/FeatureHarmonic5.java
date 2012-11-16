@@ -36,7 +36,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * 
 	 */
 	public FeatureHarmonic5(final ForestParameters params) {
-		if (harmonics == null) generateHarmonics(20);
+		if (harmonics == null) generateHarmonics(20, 48.0); // TODO festwert
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
@@ -189,7 +189,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * 
 	 * @param amount number of overtones to be created
 	 * @return
-	 */
+	 *
 	@SuppressWarnings("unused")
 	private void generateHarmonicFactors_SysOut(final int amount) {
 		double[] ret = new double[amount];
@@ -202,10 +202,17 @@ public class FeatureHarmonic5 extends Feature {
 		System.exit(0);
 	}
 	
-	private void generateHarmonics(final int amount) {
+	/**
+	 * Generates relative bin positions for the overtone harmonics.
+	 * 
+	 * @param amount number of overtones to be created
+	 * @param binsPerOctave number of bins per octave in the spectral data
+	 * @return
+	 */
+	private void generateHarmonics(final int amount, final double binsPerOctave) {
 		int[] ret = new int[amount];
 		for(int i=1; i<amount; i++) {
-			ret[i] = (int)(48.0*(Math.log(i*2) / Math.log(2)));
+			ret[i] = (int)(binsPerOctave * (Math.log(i*2) / Math.log(2)));
 		}
 		harmonics = ret;
 	}
