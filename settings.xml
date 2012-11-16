@@ -34,7 +34,7 @@
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="200"
 		thresholdCandidatesPerFeature="10"
-		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic6_vari"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5_vari"
 		entropyThreshold="0"
 		
 		xMin="0"
