@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 import de.lmu.dbs.ciaa.classifier.*;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
-import de.lmu.dbs.ciaa.spectrum.analyze.DifferentialAnalyzer;
+import de.lmu.dbs.ciaa.spectrum.analyze.*;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
@@ -140,7 +140,7 @@ public class ForestTest {
 				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
 					treelogs[i] = new Logfile(params.workingFolder + File.separator + "T" + i + "_Growlog.txt");
-					trees.add(new RandomTree2(params, i, treelogs[i]));
+					trees.add(new MusicalRandomTree(params, i, treelogs[i]));
 				}
 				Logfile forestlog = new Logfile(params.workingFolder + File.separator + "ForestStats.txt");
 				forest = new Forest(trees, params, forestlog);
@@ -163,7 +163,8 @@ public class ForestTest {
 	
 			} else {
 				// Load
-				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize);
+				RandomTree treeFactory = new MusicalRandomTree(); 
+				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize, treeFactory);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 			//System.exit(0);
@@ -204,7 +205,7 @@ public class ForestTest {
 			
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
-				RandomTree2 t = (RandomTree2)forest.getTrees().get(i);
+				MusicalRandomTree t = (MusicalRandomTree)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
 			m.measure("Saved node visualization images");

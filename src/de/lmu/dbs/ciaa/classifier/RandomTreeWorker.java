@@ -11,7 +11,7 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  * @author Thomas Weber
  *
  */
-public class RandomTree2Worker extends Thread {
+public class RandomTreeWorker extends Thread {
 
 	private int minIndex = -1;
 	
@@ -24,11 +24,11 @@ public class RandomTree2Worker extends Thread {
 	private float[][] thresholds;
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
-	private RandomTree2 parent;
+	private RandomTree parent;
 	
 	public boolean finished = false;
 	
-	public RandomTree2Worker(RandomTree2 parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
+	public RandomTreeWorker(RandomTree parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		this.parent = parent;
 		
 		this.minIndex = minIndex;

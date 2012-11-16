@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.*;
@@ -17,14 +18,27 @@ import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
 /**
- * Represents one random decision tree, with pixelwise classification.
+ * Represents one random decision tree.
  * 
  * @author Thomas Weber
  *
  */
-public class RandomTree extends Tree {
+public abstract class RandomTree extends Tree {
 
 	private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
+	
+	/**
+	 * Creates a tree (main constructor).
+	 * 
+	 * @throws Exception 
+	 * 
+	 */
+	public RandomTree(ForestParameters params, int num, Logfile log) throws Exception {
+		super(num, log);
+		params.check();
+		this.params = params;
+		this.infoGain = new Statistic();
+	}
 	
 	/**
 	 * Creates a tree instance for recursion into a new thread. The arguments are just used to transport
@@ -46,17 +60,23 @@ public class RandomTree extends Tree {
 	}
 	
 	/**
-	 * Creates a tree (main constructor).
+	 * Returns a new instance of the tree.
 	 * 
+	 * @param params
+	 * @param root
+	 * @param sampler
+	 * @param classification
+	 * @param count
+	 * @param node
+	 * @param mode
+	 * @param depth
+	 * @param maxDepth
+	 * @param num
+	 * @param log
+	 * @return
 	 * @throws Exception 
-	 * 
 	 */
-	public RandomTree(ForestParameters params, int num, Logfile log) throws Exception {
-		super(num, log);
-		params.check();
-		this.params = params;
-		this.infoGain = new Statistic();
-	}
+	public abstract RandomTree getInstance(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception;
 	
 	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]
@@ -163,7 +183,7 @@ public class RandomTree extends Tree {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTree(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
+					Tree t = getInstance(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -197,7 +217,7 @@ public class RandomTree extends Tree {
 		int numOfClasses = getNumOfClasses();
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
 		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
-		evaluateFeatures(sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);		
+		evaluateFeaturesThreads(sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
 
 		// Calculate info gain upon each combination of feature/threshold 
 		double[][] gain = getGainsByEntropy(paramSet, countClassesLeft, countClassesRight);
@@ -275,6 +295,8 @@ public class RandomTree extends Tree {
 		// Split values by winner feature for deeper branches
 		List<byte[][]> classificationNext = new ArrayList<byte[][]>(sampler.getPoolSize());
 		int poolSize = sampler.getPoolSize();
+		long countLeft = 0;
+		long countRight = 0;
 		for(int i=0; i<poolSize; i++) {
 			TreeDataset dataset = (TreeDataset)sampler.get(i);
 			byte[][] data = dataset.getData();
@@ -285,8 +307,10 @@ public class RandomTree extends Tree {
 					if (mode == cla[x][y]) {
 						if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 							claNext[x][y] = 1; // Left
+							countLeft++;
 						} else {
 							claNext[x][y] = 2; // Right
+							countRight++;
 						}
 					}
 				}
@@ -299,14 +323,15 @@ public class RandomTree extends Tree {
 		
 		// Recursion to left and right
 		node.left = new Node();
-		growRec(root, sampler, classificationNext, count, node.left, 1, depth+1, maxDepth, true); // TODO count ist hier unnötig
+		growRec(root, sampler, classificationNext, countLeft, node.left, 1, depth+1, maxDepth, true);
 
 		node.right = new Node();
-		growRec(root, sampler, classificationNext, count, node.right, 2, depth+1, maxDepth, true); // TODO count ist hier unnötig
+		growRec(root, sampler, classificationNext, countRight, node.right, 2, depth+1, maxDepth, true);
 	}
 	
 	/**
 	 * Returns the number of classification classes.
+	 * TODO: Only 2 classes supported now, make multiclass
 	 * 
 	 * @return
 	 */
@@ -317,6 +342,7 @@ public class RandomTree extends Tree {
 	/**
 	 * Evaluates a couple of features with a couple of thresholds. This
 	 * is the most CPU intensive part of the tree training algorithm.
+	 * This method just controls the thread behaviour of feature evaluation.
 	 * 
 	 * @param sampler
 	 * @param paramSet
@@ -327,56 +353,81 @@ public class RandomTree extends Tree {
 	 * @param countClassesRight
 	 * @throws Exception
 	 */
-	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
-		int numOfFeatures = paramSet.size();
-
-		int poolSize = sampler.getPoolSize();
-		for(int i=0; i<poolSize; i++) {
-
-			// Each dataset...load spectral data and midi
-			TreeDataset dataset = (TreeDataset)sampler.get(i);
-			byte[][] data = dataset.getData();
-			byte[][] midi = dataset.getReference();
-			byte[][] cla = classification.get(i);
-			
-			// get feature results 
-			for(int x=0; x<data.length; x++) {
-				for(int y=0; y<params.frequencies.length; y++) {
-					// Each random value from the subframe
-					if (mode == cla[x][y]) { // Is that point in the training set for this node?
-						for(int k=0; k<numOfFeatures; k++) {
-							// Each featureset candidate...
-							float ev = paramSet.get(k).evaluate(data, x, y);
-							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
-								if (ev >= thresholds[k][g]) {
-									// Left
-									if (midi[x][y] > 0) {
-										countClassesLeft[k][g][0]++;
-									} else {
-										countClassesLeft[k][g][1]++;
-									}
-								} else {
-									// Right
-									if (midi[x][y] > 0) {
-										countClassesRight[k][g][0]++;
-									} else {
-										countClassesRight[k][g][1]++;
-									}
-								}
-							}
-						}
-					}
+	protected void evaluateFeaturesThreads(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
+		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
+		
+		if (!params.enableEvaluationThreads) {
+			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
+			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			return;
+		}
+		
+		if (count < params.minEvalThreadCount) {
+			// Not much values, no multithreading
+			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no multithreading]");
+			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			return;
+		}
+		
+		// Create workers for frequency bands
+		RandomTreeWorker[] workers = new RandomTreeWorker[params.numOfWorkerThreadsPerNode];
+		int ipw = numWork / workers.length;
+		for(int i=0; i<workers.length; i++) {
+			int min = i*ipw;
+			int max = min + ipw - 1;
+			if (max >= numWork) max = numWork-1;
+			//System.out.println(min + " to " + max);
+			workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			workers[i].start();
+		}
+		while(true) {
+			try {
+				Thread.sleep(params.threadWaitTime);
+			} catch (InterruptedException e) {
+				System.out.println("[Wait interrupted by VM, continuing...]");
+			}
+			boolean ret = true;
+			int cnt = 0;
+			for(int i=0; i<workers.length; i++) {
+				if (!workers[i].finished) {
+					ret = false;
+					cnt++;
 				}
 			}
+			if (params.debugThreadPolling) {
+				// Debug output
+				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Id " + node.id + ", Depth " + depth + "; ");
+				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
+			}
+			if (ret) break;
 		}
+		System.out.print(timeStampFormatter.format(new Date()) + ": All workers done");
 	}
 	
+	/**
+	 * This does the actual evaluation work.
+	 * 
+	 * @param sampler
+	 * @param minIndex
+	 * @param maxIndex
+	 * @param paramSet
+	 * @param classification
+	 * @param count
+	 * @param mode
+	 * @param thresholds
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @param node
+	 * @param depth
+	 * @throws Exception
+	 */
+	public abstract void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception;
 	
 	/**
 	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
 	 * 
 	 * @return
-	 */
+	 *
 	protected double[][] getGains1(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		int numOfFeatures = paramSet.size();
@@ -394,7 +445,7 @@ public class RandomTree extends Tree {
 	 * Info gain calculation. Uses an error-unfriendly [-oo,2] algo. Stabilizes at good thrs.
 	 * 
 	 * @return
-	 */
+	 *
 	protected double[][] getGains2(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
 		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
 		double note = countClassesLeft[0][0][0] + countClassesRight[0][0][0];
@@ -600,13 +651,22 @@ public class RandomTree extends Tree {
 	 * @return
 	 * @throws Exception
 	 */
-	public static RandomTree load(ForestParameters params, final String filename, final int num) throws Exception {
+	public void load(final String filename) throws Exception {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
-		RandomTree ret = new RandomTree(params, num, null);
-		ret.tree = (Node)ois.readObject();
+		tree = (Node)ois.readObject();
 		ois.close();
-		return ret;
 	}
+
+	/**
+	 * Returns a new instance of the tree.
+	 * 
+	 * @param params
+	 * @param num
+	 * @param log
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract RandomTree getInstance(ForestParameters params, int num, Logfile log) throws Exception;
 
 }

@@ -204,10 +204,12 @@ public class Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Forest load(final ForestParameters params, final String filename, final int numTrees) throws Exception {
+	public static Forest load(final ForestParameters params, final String filename, final int numTrees, RandomTree factory) throws Exception {
 		Forest f = new Forest(params);
 		for(int i=0; i<numTrees; i++) {
-			f.trees.add(RandomTree.load(params, filename + "_tree" + i, i)); // TODO Type tree / randomtree
+			RandomTree tr = factory.getInstance(params, i, null);
+			tr.load(filename + "_tree" + i);
+			f.trees.add(tr); 
 		}
 		return f;
 	}
