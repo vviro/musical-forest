@@ -33,7 +33,7 @@ public class RandomTree extends Tree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
+	public RandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<byte[][]> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
 		this(params, num, log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -42,6 +42,7 @@ public class RandomTree extends Tree {
 		this.newThreadMode = mode;
 		this.newThreadDepth = depth;
 		this.newThreadMaxDepth = maxDepth;
+		this.newThreadCount = count;
 	}
 	
 	/**
@@ -144,7 +145,7 @@ public class RandomTree extends Tree {
 		// Preclassify and grow
 		List<byte[][]> classification = getPreClassification(sampler);
 		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
-		growRec(this, sampler, classification, tree, 0, 0, maxDepth, true);
+		growRec(this, sampler, classification, Long.MAX_VALUE, tree, 0, 0, maxDepth, true);
 	}
 
 	/**
@@ -156,13 +157,13 @@ public class RandomTree extends Tree {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
+	protected void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
 		if (params.maxNumOfNodeThreads > 0) {
 			synchronized (root.forest) { 
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, num, log);
+					Tree t = new RandomTree(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -298,10 +299,10 @@ public class RandomTree extends Tree {
 		
 		// Recursion to left and right
 		node.left = new Node();
-		growRec(root, sampler, classificationNext, node.left, 1, depth+1, maxDepth, true);
+		growRec(root, sampler, classificationNext, count, node.left, 1, depth+1, maxDepth, true); // TODO count ist hier unnötig
 
 		node.right = new Node();
-		growRec(root, sampler, classificationNext, node.right, 2, depth+1, maxDepth, true);
+		growRec(root, sampler, classificationNext, count, node.right, 2, depth+1, maxDepth, true); // TODO count ist hier unnötig
 	}
 	
 	/**
