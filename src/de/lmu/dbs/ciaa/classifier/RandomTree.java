@@ -166,13 +166,14 @@ public class RandomTree extends Tree {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
 					Tree t = new RandomTree(params, root, sampler, classification, node, mode, depth, maxDepth, num, log);
-					System.out.println(t.log);
 					root.incThreadsActive();
 					t.start();
 					return;
 				}
 			}
 		}
+		
+		System.out.println(log + " dep " + depth);
 		
 		// TMP
 		String pre = "T" + root.num + ":  ";
