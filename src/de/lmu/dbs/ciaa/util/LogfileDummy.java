@@ -1,6 +1,5 @@
 package de.lmu.dbs.ciaa.util;
 
-import java.io.IOException;
 import java.io.PrintStream;
 
 /**

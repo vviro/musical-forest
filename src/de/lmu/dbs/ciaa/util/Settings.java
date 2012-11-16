@@ -7,7 +7,6 @@ import org.jdom2.input.sax.XMLReaders;
 
 import de.lmu.dbs.ciaa.classifier.ForestParameters;
 import de.lmu.dbs.ciaa.classifier.features.Feature;
-import de.lmu.dbs.ciaa.classifier.features.MCFeature;
 
 /**
  * Class for loading and managing the settings for the application.
@@ -107,9 +106,6 @@ public class Settings {
 		
 		String clsName = forest.getAttributeValue("featureFactoryClass");
 		r.featureFactory = (Feature)Class.forName(clsName).getConstructor().newInstance();
-
-		String clsName2 = forest.getAttributeValue("mcFeatureFactoryClass");
-		r.mcFeatureFactory = (MCFeature)Class.forName(clsName2).getConstructor().newInstance();
 		return r;
 	}
 	
