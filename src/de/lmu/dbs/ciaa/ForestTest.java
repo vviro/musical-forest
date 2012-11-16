@@ -131,11 +131,6 @@ public class ForestTest {
 				forest = new Forest(trees, params, forestlog);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
-				// Close logs
-				for(int i=0; i<treelogs.length; i++) {
-					treelogs[i].close();
-				}
-				forestlog.close();
 				m.measure("Finished growing random forest");
 
 				forest.save(params.workingFolder + File.separator + params.nodedataFilePrefix);
@@ -143,6 +138,13 @@ public class ForestTest {
 
 				forest.logStats();
 				m.measure("Finished logging forest stats");
+
+				// Close logs
+				for(int i=0; i<treelogs.length; i++) {
+					treelogs[i].close();
+				}
+				forestlog.close();
+				m.measure("Finished closing logs");
 	
 			} else {
 				// Load
