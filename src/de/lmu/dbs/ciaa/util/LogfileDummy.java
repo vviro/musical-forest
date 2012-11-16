@@ -11,7 +11,7 @@ import java.io.PrintStream;
  */
 public class LogfileDummy extends Logfile {
 	
-	public LogfileDummy(String logfile) throws IOException {
+	public LogfileDummy(String logfile) throws Exception {
 		super(null);
 	}
 
