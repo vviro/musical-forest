@@ -34,9 +34,9 @@ public class Logfile {
 	 * Open a new log file
 	 * 
 	 * @param logfile
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	public Logfile(String logfile) throws IOException {
+	public Logfile(String logfile) throws Exception {
 		this(logfile, false);
 	}
 	
@@ -45,10 +45,10 @@ public class Logfile {
 	 * 
 	 * @param logfile
 	 * @param append
-	 * @throws IOException
+	 * @throws Exception
 	 */
-	public Logfile(String logfile, boolean append) throws IOException {
-		if (logfile == null) return;
+	public Logfile(String logfile, boolean append) throws Exception {
+		if (logfile == null) throw new Exception("No logfile (null)");
 		FileWriter fstream = new FileWriter(logfile, append);
 		this.out = new BufferedWriter(fstream);
 		this.filename = logfile;
