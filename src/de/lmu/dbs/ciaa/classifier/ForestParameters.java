@@ -11,6 +11,8 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  */
 public class ForestParameters {
 
+	public boolean enableEvaluationThreads;
+	
 	public int numOfWorkerThreadsPerNode;
 	
 	public long minEvalThreadCount;
@@ -238,6 +240,7 @@ public class ForestParameters {
 		ret+= "maxNumOfNodeThreads: " + maxNumOfNodeThreads + "\n";
 		ret+= "threadWaitTime: " + threadWaitTime + "\n";
 		ret+= "numOfWorkerThreadsPerNode: " + numOfWorkerThreadsPerNode + "\n";
+		ret+= "enableEvaluationThreads: " + enableEvaluationThreads + "\n";
 		ret+= "minEvalThreadCount: " + minEvalThreadCount + "\n";
 		return ret;
 	}

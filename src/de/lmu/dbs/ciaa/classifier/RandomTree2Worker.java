@@ -4,6 +4,13 @@ import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.features.Feature;
 
+/**
+ * Takes the part of evaluating the feature function for all candidates
+ * and count the results in parallel.
+ * 
+ * @author Thomas Weber
+ *
+ */
 public class RandomTree2Worker extends Thread {
 
 	private ForestParameters params = null;

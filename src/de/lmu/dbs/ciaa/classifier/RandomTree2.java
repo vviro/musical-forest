@@ -18,7 +18,7 @@ import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
 /**
- * Represents one random decision tree, with pixelwise classification.
+ * Represents one random decision tree.
  * 
  * @author Thomas Weber
  *
@@ -333,6 +333,12 @@ public class RandomTree2 extends Tree {
 	 * @throws Exception
 	 */
 	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
+		if (!params.enableEvaluationThreads) {
+			RandomTree2Worker w = new RandomTree2Worker(params, 0, sampler.getPoolSize()-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+			w.evaluateFeatures();
+			return;
+		}
+		
 		if (count < params.minEvalThreadCount) {
 			// Not much values, no multithreading
 			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no multithreading]");
