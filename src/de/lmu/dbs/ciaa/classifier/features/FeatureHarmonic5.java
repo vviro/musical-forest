@@ -28,7 +28,8 @@ public class FeatureHarmonic5 extends Feature {
 	 * Factors for calculation of overtones in log frequency spectra. 
 	 * Generated with the method generateHarmonicFactors().
 	 */
-	private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
+	//private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
+	private static int[] harmonics = null;
 	
 	/**
 	 * Create feature with random feature parameters.
@@ -57,7 +58,7 @@ public class FeatureHarmonic5 extends Feature {
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}*/
 		//this.threshold = Math.random() * getMaxValue();
-		//generateHarmonicFactors(50);
+		if (harmonics == null) generateHarmonics(20);
 	}
 	
 	/**
@@ -128,13 +129,10 @@ public class FeatureHarmonic5 extends Feature {
 		float d2 = data[x][y]*data[x][y];
 		float ret = 0;
 		for(int j=0; j<chosenHarmonics.length; j++) {
-			int i = chosenHarmonics[j];
-			int ny =  y + (int)(48.0*harmonics[i]); // TODO binsPerOctave
-			if (ny >= data[0].length) return (int)ret;
-			//if (data[x][ny] >= data[x][y]/10) {
+			int ny =  y + harmonics[chosenHarmonics[j]];
+			if (ny >= data[0].length) return ret;
+			
 			ret+= d2*data[x][ny]*harmonicFactors[j];
-			//}
-			//ret+= (data[x][ny] * harmonicFactors[i]) * data[x][y]; 
 		}
 		return ret;
 	}
@@ -193,7 +191,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * @return
 	 */
 	@SuppressWarnings("unused")
-	private void generateHarmonicFactors(final int amount) {
+	private void generateHarmonicFactors_SysOut(final int amount) {
 		double[] ret = new double[amount];
 		System.out.print("{");
 		for(int i=1; i<amount; i++) {
@@ -204,6 +202,14 @@ public class FeatureHarmonic5 extends Feature {
 		System.exit(0);
 	}
 	
+	private void generateHarmonics(final int amount) {
+		int[] ret = new int[amount];
+		for(int i=1; i<amount; i++) {
+			ret[i] = (int)(48.0*(Math.log(i*2) / Math.log(2)));
+		}
+		harmonics = ret;
+	}
+
 	/**
 	 * Returns a visualization of all node features of the forest. For debugging use.
 	 * 
@@ -213,9 +219,9 @@ public class FeatureHarmonic5 extends Feature {
 		int x = data.length/2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int i = chosenHarmonics[j];
-			int ny =  + (int)(48*harmonics[i]);
+			int ny = harmonics[i];
 			if (ny > data[0].length) break;
-			data[x][ny]+= harmonicFactors[j]*100; // TODO binsPerOctave
+			data[x][ny]+= harmonicFactors[j]; 
 		}
 	}
 	
