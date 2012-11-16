@@ -29,7 +29,7 @@
 		threadWaitTime:            Milliseconds interval to check growth status in the forest.
 	-->
 	<Forest
-		forestSize="1"
+		forestSize="2"
 		maxDepth="1"
 		percentageOfRandomValuesPerFrame="0.5"
 		numOfRandomFeatures="2"
