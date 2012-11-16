@@ -36,6 +36,7 @@ public class FeatureHarmonic5 extends Feature {
 	 * 
 	 */
 	public FeatureHarmonic5(final ForestParameters params) {
+		if (harmonics == null) generateHarmonics(20);
 		harmonicFactors = new double[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
@@ -58,7 +59,6 @@ public class FeatureHarmonic5 extends Feature {
 			//System.out.println(i + ": " + harmonicFactors[i]);
 		}*/
 		//this.threshold = Math.random() * getMaxValue();
-		if (harmonics == null) generateHarmonics(20);
 	}
 	
 	/**
