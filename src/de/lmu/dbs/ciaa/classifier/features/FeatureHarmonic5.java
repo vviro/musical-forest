@@ -18,11 +18,11 @@ public class FeatureHarmonic5 extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
-	public double[] harmonicFactors = null;
+	public float[] harmonicFactors = null;
 	public int[] chosenHarmonics = null;
 	
 	public int numOfOvertones = 10; // TODO -> params
-	public double harmonicAmplification = 10; // TODO -> params
+	public float harmonicAmplification = 10; // TODO -> params
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
@@ -37,7 +37,7 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	public FeatureHarmonic5(final ForestParameters params) {
 		if (harmonics == null) generateHarmonics(20);
-		harmonicFactors = new double[numOfOvertones];
+		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
 		RandomSampler.sample(
@@ -51,7 +51,7 @@ public class FeatureHarmonic5 extends Feature {
 		//ArrayUtils.out(harms);
 		for(int i=0; i<harms.length; i++) {
 			chosenHarmonics[i] = (int)harms[i];
-			harmonicFactors[i] = Math.random()*harmonicAmplification; //*((float)(harmonics.length-i)/harmonics.length);
+			harmonicFactors[i] = (float)(Math.random()*harmonicAmplification * ((float)(harmonics.length-i)/harmonics.length));
 		}
 		/*for(int i=0; i<harmonics.length; i++) {
 			//harmonicFactors[i] = (float)Math.random(); //*((float)(harmonics.length-i)/harmonics.length); //(float)Math.random() * (i/harmonics.length);
