@@ -1,9 +1,11 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.musicalforest;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.lmu.dbs.ciaa.classifier.Dataset;
+import de.lmu.dbs.ciaa.classifier.core2d.TreeDataset2d;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.util.FileIO;
 
@@ -14,7 +16,7 @@ import de.lmu.dbs.ciaa.util.FileIO;
  * @author Thomas Weber
  *
  */
-public class MusicalTreeDataset extends TreeDataset {
+public class MusicalTreeDataset extends TreeDataset2d {
 
 	/**
 	 * IO handler for serialized byte[][] object files

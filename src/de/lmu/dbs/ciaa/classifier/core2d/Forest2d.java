@@ -1,10 +1,13 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.lmu.dbs.ciaa.classifier.Dataset;
+import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.Sampler;
 import de.lmu.dbs.ciaa.util.Logfile;
 
 /**
@@ -13,12 +16,12 @@ import de.lmu.dbs.ciaa.util.Logfile;
  * @author Thomas Weber
  *
  */
-public class Forest {
+public class Forest2d {
 
 	/**
 	 * The trees of the forest
 	 */
-	protected List<Tree> trees;
+	protected List<Tree2d> trees;
 	
 	/**
 	 * Parameters for growing the trees in the forest.
@@ -36,13 +39,14 @@ public class Forest {
 	 * @param trees
 	 * @throws Exception 
 	 */
-	public Forest(List<Tree> trees, final ForestParameters params, Logfile log) throws Exception {
+	public Forest2d(List<Tree2d> trees, final ForestParameters params, Logfile log) throws Exception {
 		this.params = params;
 		this.trees = trees;
 		this.log = log;
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).setForest(this);
 		}
+		check();
 	}
 	
 	/**
@@ -50,10 +54,12 @@ public class Forest {
 	 * 
 	 * @param numTrees
 	 * @throws Exception 
+	 * @throws Exception 
 	 */
-	public Forest(ForestParameters params) {
-		this.trees = new ArrayList<Tree>();
+	public Forest2d(ForestParameters params) throws Exception {
+		this.trees = new ArrayList<Tree2d>();
 		this.params = params;
+		check();
 	}
 
 	/**
@@ -70,7 +76,6 @@ public class Forest {
 	 * @throws Exception
 	 */
 	public void grow(final Sampler<Dataset> sampler) throws Exception {
-		if (trees.size() < 1) throw new Exception("No trees to grow");
 		startTime = System.currentTimeMillis();
 		
 		for(int i=0; i<trees.size(); i++) {
@@ -121,9 +126,9 @@ public class Forest {
 		log.write("Time elapsed: " + delta/1000.0 + " sec", System.out);
 		log.write("Avg. time per node: " + (delta/count)/1000.0 + " sec", System.out);
 		int poss = (int)Math.pow(2, params.maxDepth);
-		TreeAnalyzer ana = new TreeAnalyzer(params);
+		TreeAnalyzer2d ana = new TreeAnalyzer2d(params);
 		for(int i=0; i<trees.size(); i++) {
-			Tree t = trees.get(i);
+			Tree2d t = trees.get(i);
 			log.write("Tree " + i + ": " + ana.getNumOfLeafs(t) +  " leafs of possible " + poss + "; Information gain: " + t.getInfoGain());
 			log.write("Count nodes at depths:\n" + ana.getDepthCountsString(t));
 			log.write("Tree structure:\n" + ana.getTreeVisualization(t));
@@ -139,7 +144,7 @@ public class Forest {
 	 */
 	public int getNodeCount() throws Exception {
 		int ret = 0;
-		TreeAnalyzer ana = new TreeAnalyzer(params);
+		TreeAnalyzer2d ana = new TreeAnalyzer2d(params);
 		for(int i=0; i<trees.size(); i++) {
 			int[] d = ana.getDepthCounts(trees.get(i));
 			for(int j=0; j<d.length; j++) {
@@ -158,12 +163,19 @@ public class Forest {
 	 * @return
 	 * @throws Exception 
 	 */
-	public float classify(final byte[][] data, final int x, final int y) throws Exception {
-		float ret = 0;
+	public float[] classify(final byte[][] data, final int x, final int y) throws Exception {
+		int numOfClasses = ((RandomTree2d)trees.get(0)).getNumOfClasses();
+		float[] ret = new float[numOfClasses];
 		for(int i=0; i<trees.size(); i++) {
-			ret += trees.get(i).classify(data, x, y);
+			float[] cl = trees.get(i).classify(data, x, y);
+			for(int c=0; c<numOfClasses; c++) {
+				ret[c] += cl[c]; 
+			}
 		}
-		return ret / trees.size();
+		for(int c=0; c<numOfClasses; c++) {
+			ret[c] /= (float)trees.size();
+		}
+		return ret;
 	}
 	
 	/**
@@ -173,8 +185,8 @@ public class Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public float[][] classify(byte[][] data) throws Exception {
-		float[][] dataForest = new float[data.length][data[0].length];
+	public float[][][] classify(byte[][] data) throws Exception {
+		float[][][] dataForest = new float[data.length][data[0].length][];
 		for(int x=0; x<data.length; x++) {
 			for(int y=0; y<data[0].length; y++) {
 				dataForest[x][y] = classify(data, x, y);
@@ -204,13 +216,14 @@ public class Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Forest load(final ForestParameters params, final String filename, final int numTrees, RandomTree factory) throws Exception {
-		Forest f = new Forest(params);
+	public static Forest2d load(final ForestParameters params, final String filename, final int numTrees, RandomTree2d factory) throws Exception {
+		Forest2d f = new Forest2d(params);
 		for(int i=0; i<numTrees; i++) {
-			RandomTree tr = factory.getInstance(params, i, null);
+			RandomTree2d tr = factory.getInstance(params, i, null);
 			tr.load(filename + "_tree" + i);
 			f.trees.add(tr); 
 		}
+		f.check();
 		return f;
 	}
 	
@@ -222,7 +235,7 @@ public class Forest {
 	 */
 	public int[][] visualize(ForestParameters params) throws Exception {
 		int[][] ret = new int[(params.xMax - params.xMin + 1)*2][params.frequencies.length];
-		TreeAnalyzer ana = new TreeAnalyzer(params);
+		TreeAnalyzer2d ana = new TreeAnalyzer2d(params);
 		for(int i=0; i<trees.size(); i++) {
 			ana.visualize(trees.get(i), ret);
 		}
@@ -248,8 +261,23 @@ public class Forest {
 	 * 
 	 * @return
 	 */
-	public List<Tree> getTrees() {
+	public List<Tree2d> getTrees() {
 		return trees;
 	}
 
+	/**
+	 * Checks some integrity.
+	 * 
+	 * @throws Exception
+	 */
+	protected void check() throws Exception {
+		if (trees.size() == 0) throw new Exception("No trees in forest");
+		int numOfClasses = -1;
+		for(int i=0; i<trees.size(); i++) {
+			RandomTree2d t = (RandomTree2d)trees.get(i);
+			if (numOfClasses < 0) numOfClasses = t.getNumOfClasses();
+			if (numOfClasses != t.getNumOfClasses()) throw new Exception("All trees in the forest have to base on the same number of classes");
+		}
+	}
+	
 }

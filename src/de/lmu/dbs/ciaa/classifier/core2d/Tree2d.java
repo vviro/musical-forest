@@ -1,8 +1,11 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import de.lmu.dbs.ciaa.classifier.Dataset;
+import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.Sampler;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.Statistic;
 
@@ -12,7 +15,7 @@ import de.lmu.dbs.ciaa.util.Statistic;
  * @author Thomas Weber
  *
  */
-public abstract class Tree extends Thread {
+public abstract class Tree2d extends Thread {
 
 	/**
 	 * Log file for training the tree.
@@ -27,17 +30,17 @@ public abstract class Tree extends Thread {
 	/**
 	 * Index of the tree in its forest.
 	 */
-	protected int num = -1;
+	public int num = -1;
 	
 	/**
 	 * Reference to the parent forest (only set in root tree instances, not in threaded recursion).
 	 */
-	protected Forest forest;
+	public Forest2d forest;
 	
 	/**
 	 * The actual tree structure
 	 */
-	protected Node tree = new Node();
+	protected Node2d tree = new Node2d();
 	
 	/**
 	 * The parameter set used to grow the tree
@@ -74,13 +77,13 @@ public abstract class Tree extends Thread {
 	/**
 	 * Root tree instance, used for multithreading to watch active threads.
 	 */
-	protected Tree newThreadRoot;
+	protected Tree2d newThreadRoot;
 	
 	/**
 	 * The attributes with prefix "newThread" are used to transport parameters
 	 * to new Threads (see growRec source code)
 	 */
-	protected Node newThreadNode;
+	protected Node2d newThreadNode;
 
 	/**
 	 * The attributes with prefix "newThread" are used to transport parameters
@@ -117,7 +120,7 @@ public abstract class Tree extends Thread {
 	 * @param num
 	 * @param log
 	 */
-	public Tree(int num, Logfile log) {
+	public Tree2d(int num, Logfile log) {
 		this.num = num;
 		this.log = log;
 	}
@@ -131,7 +134,7 @@ public abstract class Tree extends Thread {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract float classify(final byte[][] data, final int x, final int y) throws Exception;
+	public abstract float[] classify(final byte[][] data, final int x, final int y) throws Exception;
 		
 	/**
 	 * Grows the tree. 
@@ -155,7 +158,7 @@ public abstract class Tree extends Thread {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected abstract void growRec(Tree root, final Sampler<Dataset> sampler, List<byte[][]> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
+	protected abstract void growRec(Tree2d root, final Sampler<Dataset> sampler, List<byte[][]> classification, final long count, final Node2d node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
 
 	/**
 	 * Saves the tree to a file.
@@ -179,7 +182,7 @@ public abstract class Tree extends Thread {
 	 * 
 	 * @param forest
 	 */
-	public void setForest(Forest forest) {
+	public void setForest(Forest2d forest) {
 		this.forest = forest;
 	}
 	
@@ -219,7 +222,7 @@ public abstract class Tree extends Thread {
 	 * 
 	 * @throws Exception
 	 */
-	protected synchronized void incThreadsActive() throws Exception {
+	public synchronized void incThreadsActive() throws Exception {
 		nodeThreadsActive++;
 		if (nodeThreadsActive > params.maxNumOfNodeThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfNodeThreads + ": " + nodeThreadsActive);
 	}
@@ -229,7 +232,7 @@ public abstract class Tree extends Thread {
 	 * 
 	 * @throws Exception
 	 */
-	protected synchronized void decThreadsActive() throws Exception {
+	public synchronized void decThreadsActive() throws Exception {
 		nodeThreadsActive--;
 		if (nodeThreadsActive < 0) throw new Exception("Thread amount below zero: " + nodeThreadsActive);
 	}
@@ -248,7 +251,7 @@ public abstract class Tree extends Thread {
 	 * 
 	 * @return
 	 */
-	public Node getRootNode() {
+	public Node2d getRootNode() {
 		return tree;
 	}
 

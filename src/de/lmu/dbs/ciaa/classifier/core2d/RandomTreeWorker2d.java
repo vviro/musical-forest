@@ -1,7 +1,9 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.util.List;
 
+import de.lmu.dbs.ciaa.classifier.Dataset;
+import de.lmu.dbs.ciaa.classifier.Sampler;
 import de.lmu.dbs.ciaa.classifier.features.Feature;
 
 /**
@@ -11,7 +13,7 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  * @author Thomas Weber
  *
  */
-public class RandomTreeWorker extends Thread {
+public class RandomTreeWorker2d extends Thread {
 
 	private int minIndex = -1;
 	
@@ -24,11 +26,11 @@ public class RandomTreeWorker extends Thread {
 	private float[][] thresholds;
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
-	private RandomTree parent;
+	private RandomTree2d parent;
 	
 	public boolean finished = false;
 	
-	public RandomTreeWorker(RandomTree parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
+	public RandomTreeWorker2d(RandomTree2d parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		this.parent = parent;
 		
 		this.minIndex = minIndex;

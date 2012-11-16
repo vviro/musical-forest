@@ -530,7 +530,7 @@ public class ArrayUtils {
 	 * @param end
 	 */
 	public static void out(float[] in, int start, int end) {
-		System.out.println(toString(in, start, end));
+		System.out.println(toString(in, start, end, true));
 	}
 
 	/**
@@ -539,8 +539,8 @@ public class ArrayUtils {
 	 * @param in
 	 * @return
 	 */
-	public static String toString(float[] in) {
-		return toString(in, 0, in.length-1);
+	public static String toString(float[] in, boolean multiline) {
+		return toString(in, 0, in.length-1, multiline);
 	}
 
 	/**
@@ -551,10 +551,10 @@ public class ArrayUtils {
 	 * @param end
 	 * @return
 	 */
-	public static String toString(float[] in, int start, int end) {
+	public static String toString(float[] in, int start, int end, boolean multiline) {
 		String ret = "";
 		for(int i=start; i<=end && i<in.length; i++) {
-			ret+= i + ": " + in[i] + "\n";
+			ret+= i + ": " + in[i] + (multiline ? "\n" : ", ");
 		}
 		return ret;
 	}

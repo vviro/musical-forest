@@ -22,7 +22,7 @@ public abstract class Dataset {
 	 * 
 	 * @throws Exception
 	 */
-	protected void init() throws Exception {
+	private void init() throws Exception {
 		samples = new int[getLength()];		
 	}
 	
@@ -32,7 +32,7 @@ public abstract class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected abstract int getLength() throws Exception;
+	public abstract int getLength() throws Exception;
 	
 	/**
 	 * Returns the samples array, containing all indices which are in the current 
@@ -41,7 +41,7 @@ public abstract class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected int[] getSamples() throws Exception {
+	public int[] getSamples() throws Exception {
 		if (samples == null) init();
 		return samples;
 	}
@@ -51,7 +51,7 @@ public abstract class Dataset {
 	 * 
 	 * @param s
 	 */
-	protected void replaceIncludedSamples(int[] s) {
+	public void replaceIncludedSamples(int[] s) {
 		samples = s;
 	}
 	
@@ -61,7 +61,7 @@ public abstract class Dataset {
 	 * @param s
 	 * @throws Exception 
 	 */
-	protected void includeSample(int s) throws Exception {
+	public void includeSample(int s) throws Exception {
 		if (samples == null) init();
 		samples[s] = 0;
 	}
@@ -72,7 +72,7 @@ public abstract class Dataset {
 	 * @param s
 	 * @throws Exception 
 	 */
-	protected void excludeSample(int s) throws Exception {
+	public void excludeSample(int s) throws Exception {
 		if (samples == null) init();
 		samples[s] = -1;
 	}
@@ -82,7 +82,7 @@ public abstract class Dataset {
 	 * 
 	 * @throws Exception 
 	 */
-	protected void excludeAll() throws Exception {
+	public void excludeAll() throws Exception {
 		if (samples == null) init();
 		for(int i=0; i<samples.length; i++) {
 			samples[i] = -1;
@@ -94,7 +94,7 @@ public abstract class Dataset {
 	 * 
 	 * @throws Exception 
 	 */
-	protected void includeAll() throws Exception {
+	public void includeAll() throws Exception {
 		samples = new int[getLength()];
 	}
 
@@ -105,7 +105,7 @@ public abstract class Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected boolean isSampled(int index) throws Exception {
+	public boolean isSampled(int index) throws Exception {
 		if (samples == null) init();
 		return samples[index] >= 0;
 	}

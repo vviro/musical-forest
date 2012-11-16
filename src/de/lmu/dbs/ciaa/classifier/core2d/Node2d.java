@@ -1,4 +1,4 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.awt.Color;
 import java.io.File;
@@ -13,7 +13,7 @@ import de.lmu.dbs.ciaa.util.ArrayToImage;
  * @author Thomas Weber
  *
  */
-public class Node implements Serializable {
+public class Node2d implements Serializable {
 	
 	private static final long serialVersionUID = 2L;
 
@@ -40,12 +40,12 @@ public class Node implements Serializable {
 	/**
 	 * Left branch node
 	 */
-	public Node left = null;
+	public Node2d left = null;
 	
 	/**
 	 * Right branch node
 	 */
-	public Node right = null;
+	public Node2d right = null;
 	
 	/**
 	 * If the node is a leaf, the probabilities for each class are stored here.
@@ -56,9 +56,9 @@ public class Node implements Serializable {
 	/**
 	 * Probability 
 	 */
-	public float probability = 0;
+	//public float probability = 0;
 	
-	public Node() {
+	public Node2d() {
 		synchronized(this) {
 			this.id = nextId;
 			nextId++;

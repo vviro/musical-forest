@@ -1,4 +1,4 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import cern.jet.random.sampling.RandomSampler;
+import de.lmu.dbs.ciaa.classifier.Dataset;
 import de.lmu.dbs.ciaa.util.PostfixFilenameFilter;
 
 /**
@@ -14,7 +15,7 @@ import de.lmu.dbs.ciaa.util.PostfixFilenameFilter;
  * @author Thomas Weber
  *
  */
-public abstract class TreeDataset extends Dataset {
+public abstract class TreeDataset2d extends Dataset {
 
 	/**
 	 * Spectrum file
@@ -45,7 +46,7 @@ public abstract class TreeDataset extends Dataset {
 	 * @param step the frame width in audio samples 
 	 * @throws Exception
 	 */
-	public TreeDataset(final File dataFile, final File referenceFile) throws Exception {
+	public TreeDataset2d(final File dataFile, final File referenceFile) throws Exception {
 		if (!dataFile.exists() || !dataFile.isFile()) {
 			throw new Exception("ERROR: " + dataFile.getAbsolutePath() + " does not exist or is no file");
 		}
@@ -90,7 +91,7 @@ public abstract class TreeDataset extends Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected int getLength() throws Exception {
+	public int getLength() throws Exception {
 		if (!isLoaded()) load();
 		return data.length;
 	}
