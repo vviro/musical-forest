@@ -45,7 +45,7 @@
 		
 		maxNumOfNodeThreads="0"
 		numOfWorkerThreadsPerNode="10"
-		minEvalThreadCount="1000000"
+		minEvalThreadCount="100000"
 		threadWaitTime="3000"
 	></Forest>
 
