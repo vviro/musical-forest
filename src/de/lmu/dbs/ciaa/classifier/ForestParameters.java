@@ -13,6 +13,8 @@ public class ForestParameters {
 
 	public int numOfWorkerThreadsPerNode;
 	
+	public long minEvalThreadCount;
+	
 	/**
 	 * Folder where the forest can save its node data. Can also be used to store test results etc.
 	 */
@@ -236,6 +238,7 @@ public class ForestParameters {
 		ret+= "maxNumOfNodeThreads: " + maxNumOfNodeThreads + "\n";
 		ret+= "threadWaitTime: " + threadWaitTime + "\n";
 		ret+= "numOfWorkerThreadsPerNode: " + numOfWorkerThreadsPerNode + "\n";
+		ret+= "minEvalThreadCount: " + minEvalThreadCount + "\n";
 		return ret;
 	}
 }

@@ -43,8 +43,9 @@
 		yMax="0"
 		thresholdMax="0"
 		
-		maxNumOfNodeThreads="1"
+		maxNumOfNodeThreads="0"
 		numOfWorkerThreadsPerNode="10"
+		minEvalThreadCount="1000000"
 		threadWaitTime="3000"
 	></Forest>
 
