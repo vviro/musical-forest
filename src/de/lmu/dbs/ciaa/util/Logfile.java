@@ -84,6 +84,7 @@ public class Logfile {
 	 * @throws Exception
 	 */
 	public synchronized void flush() throws Exception {
+		System.out.println(this + " flush");
 		close();
 		FileWriter fstream = new FileWriter(filename, true);
 		out = new BufferedWriter(fstream);
