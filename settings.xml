@@ -64,8 +64,8 @@
 		debugThreadPolling:        Show thread polling and status information in regular intervals.
 	-->
 	<General
-		loadForest="true" 
-		workingFolder="testdataResults/forestremote_d6"
+		loadForest="false" 
+		workingFolder="testdataResults/forestremote_d7"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
