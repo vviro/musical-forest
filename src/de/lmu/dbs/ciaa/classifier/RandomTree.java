@@ -401,7 +401,7 @@ public abstract class RandomTree extends Tree {
 			}
 			if (ret) break;
 		}
-		System.out.print(timeStampFormatter.format(new Date()) + ": All workers done");
+		System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + ": All workers done");
 	}
 	
 	/**
@@ -514,8 +514,8 @@ public abstract class RandomTree extends Tree {
 			
 			for(int x=0; x<midi.length; x++) {
 				for(int y=0; y<midi[0].length; y++) {
-					if (mode == cla[x][y]) { 
-						if (midi[x][y] > 0) {
+					if (mode == cla[x][y]) {
+						if (reference(midi, x, y)) {
 							// f0 is present
 							if (mode == 1) {
 								ret++;
@@ -529,6 +529,20 @@ public abstract class RandomTree extends Tree {
 								not++;
 							}
 						}
+						/*if (midi[x][y] > 0) {
+							// f0 is present
+							if (mode == 1) {
+								ret++;
+							} else {
+								not++;
+							}
+						} else {
+							if (mode == 2) {
+								ret++;
+							} else {
+								not++;
+							}
+						}*/
 					}
 				}
 			}
@@ -540,6 +554,10 @@ public abstract class RandomTree extends Tree {
 		}
 	}
 
+	public boolean reference(byte[][] refdata, int x, int y) {
+		return refdata[x][y] > 0;
+	}
+	
 	/**
 	 * Calculates shannon entropy for binary alphabet (two possible values),  
 	 * while a and b represent the count of each of the two "letters". 

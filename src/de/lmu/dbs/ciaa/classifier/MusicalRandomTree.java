@@ -69,14 +69,14 @@ public class MusicalRandomTree extends RandomTree {
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
 								if (ev >= thresholds[k][g]) {
 									// Left
-									if (midi[x][y] > 0) {
+									if (reference(midi, x, y)) {
 										countClassesLeft[k][g][0]++;
 									} else {
 										countClassesLeft[k][g][1]++;
 									}
 								} else {
 									// Right
-									if (midi[x][y] > 0) {
+									if (reference(midi, x, y)) {
 										countClassesRight[k][g][0]++;
 									} else {
 										countClassesRight[k][g][1]++;
