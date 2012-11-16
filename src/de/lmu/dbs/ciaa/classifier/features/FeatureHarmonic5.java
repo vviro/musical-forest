@@ -211,17 +211,18 @@ public class FeatureHarmonic5 extends Feature {
 	 */
 	public void visualize(int[][] data) {
 		int x = data.length/2;
-		for(int i=0; i<harmonics.length; i++) {
+		for(int j=0; j<chosenHarmonics.length; j++) {
+			int i = chosenHarmonics[j];
 			int ny =  + (int)(48*harmonics[i]);
 			if (ny > data[0].length) break;
-			data[x][ny]+= harmonicFactors[i]*100; // TODO binsPerOctave
+			data[x][ny]+= harmonicFactors[j]*100; // TODO binsPerOctave
 		}
 	}
 	
 	public String toString() {
 		String ret = "{";
 		for(int i=0; i<harmonicFactors.length; i++) {
-			ret+= harmonicFactors[i] + ", ";
+			ret+= chosenHarmonics[i] + ": " + harmonicFactors[i] + ", ";
 		}
 		return ret + "}";
 	}
