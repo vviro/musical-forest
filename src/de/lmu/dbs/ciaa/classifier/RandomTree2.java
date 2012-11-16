@@ -334,6 +334,7 @@ public class RandomTree2 extends Tree {
 	 */
 	protected void evaluateFeatures(Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
 		if (!params.enableEvaluationThreads) {
+			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations");
 			RandomTree2Worker w = new RandomTree2Worker(params, 0, sampler.getPoolSize()-1, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			w.evaluateFeatures();
 			return;
