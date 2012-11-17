@@ -15,14 +15,14 @@ import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic5 extends Feature2d {
+public class FeatureHarmonicOnset extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
 	public float[] harmonicFactors = null;
 	public int[] chosenHarmonics = null;
 	
-	public int numOfOvertones = 2; // TODO -> params
+	public int numOfOvertones = 3; // TODO -> params
 	public float harmonicAmplification = 10; // TODO -> params
 	
 	/**
@@ -36,7 +36,7 @@ public class FeatureHarmonic5 extends Feature2d {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureHarmonic5(final ForestParameters params) {
+	public FeatureHarmonicOnset(final ForestParameters params) {
 		if (harmonics == null) generateHarmonics(20, 48.0); // TODO festwert
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
@@ -60,7 +60,7 @@ public class FeatureHarmonic5 extends Feature2d {
 	/**
 	 * 
 	 */
-	public FeatureHarmonic5() {
+	public FeatureHarmonicOnset() {
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class FeatureHarmonic5 extends Feature2d {
 	public List<Object> getRandomFeatureSet(ForestParameters params) {
 		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureHarmonic5 n = new FeatureHarmonic5(params);
+			FeatureHarmonicOnset n = new FeatureHarmonicOnset(params);
 			ret.add(n);
 			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
 				ret.add(new FeatureHarmonic5(n));

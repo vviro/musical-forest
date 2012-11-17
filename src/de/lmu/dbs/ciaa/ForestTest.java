@@ -6,14 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 
-import de.lmu.dbs.ciaa.classifier.core.BootstrapSampler;
-import de.lmu.dbs.ciaa.classifier.core.Dataset;
-import de.lmu.dbs.ciaa.classifier.core.Forest;
-import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
-import de.lmu.dbs.ciaa.classifier.core.RandomTree;
-import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
-import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalRandomTree;
-import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalTreeDataset;
+import de.lmu.dbs.ciaa.classifier.core.*;
+import de.lmu.dbs.ciaa.classifier.core2d.*;
+import de.lmu.dbs.ciaa.classifier.musicalforest.*;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
 import de.lmu.dbs.ciaa.util.*;

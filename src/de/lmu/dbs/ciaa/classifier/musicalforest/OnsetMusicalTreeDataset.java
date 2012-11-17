@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
-import de.lmu.dbs.ciaa.classifier.core2d.TreeDataset2d;
+import de.lmu.dbs.ciaa.classifier.core2df.TreeDataset2df;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.FileIO;
 
 /**
@@ -16,7 +17,7 @@ import de.lmu.dbs.ciaa.util.FileIO;
  * @author Thomas Weber
  *
  */
-public class MusicalTreeDataset extends TreeDataset2d {
+public class OnsetMusicalTreeDataset extends TreeDataset2df {
 
 	/**
 	 * IO handler for serialized byte[][] object files
@@ -47,7 +48,7 @@ public class MusicalTreeDataset extends TreeDataset2d {
 	 * @param step the frame width in audio samples 
 	 * @throws Exception
 	 */
-	public MusicalTreeDataset(final File spectrumFile, final File midiFile, final double[] frequencies, final int step) throws Exception {
+	public OnsetMusicalTreeDataset(final File spectrumFile, final File midiFile, final double[] frequencies, final int step) throws Exception {
 		super(spectrumFile, midiFile);
 		this.frequencies = frequencies;
 		this.step = step;
@@ -63,13 +64,13 @@ public class MusicalTreeDataset extends TreeDataset2d {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<MusicalTreeDataset> loadDatasets(final String dataFolder, final String dataPostfix, final String referenceFolder, final String referencePostfix, final double[] frequencies, final int step) throws Exception {
-		List<MusicalTreeDataset> ret = new ArrayList<MusicalTreeDataset>();
+	public static List<OnsetMusicalTreeDataset> loadDatasets(final String dataFolder, final String dataPostfix, final String referenceFolder, final String referencePostfix, final double[] frequencies, final int step) throws Exception {
+		List<OnsetMusicalTreeDataset> ret = new ArrayList<OnsetMusicalTreeDataset>();
 		List<File> spectrumFiles = getDirList(dataFolder, dataPostfix);
 		for(int i=0; i<spectrumFiles.size(); i++) {
 			String midiFilename = referenceFolder + File.separator + spectrumFiles.get(i).getName().replace(dataPostfix, referencePostfix); 
 			File midiFile = new File(midiFilename);
-			ret.add(i, new MusicalTreeDataset(spectrumFiles.get(i), midiFile, frequencies, step));
+			ret.add(i, new OnsetMusicalTreeDataset(spectrumFiles.get(i), midiFile, frequencies, step));
 		}
 		return ret;
 	}
@@ -89,16 +90,20 @@ public class MusicalTreeDataset extends TreeDataset2d {
 		byte[][] dataC = (byte[][])data;
 		long duration = (long)((double)((dataC.length+1) * step * 1000.0) / 44100); // TODO festwerte
 		reference = ma.toDataArray(dataC.length, duration, frequencies);
+		
+		ArrayUtils.filterFirst((byte[][])reference);
+		//ArrayUtils.blur((byte[][])ref2d, 0);
+		//reference = ArrayUtils.flatten((byte[][])ref2d);
 		//ArrayUtils.blur((byte[][])reference, 0);
 
 		/*
 		// TMP
-		SpectrumToImage img = new SpectrumToImage(spectrum.length, spectrum[0].length, 1);
-		img.add(spectrum, Color.WHITE, null);
-		img.add(midi, Color.RED, null, 0);
-		img.save(new File("testdataResults/forestremote/" + this.spectrumFile.getName() + ".png"));
+		ArrayToImage img = new ArrayToImage(dataC.length, dataC[0].length, 1);
+		img.add(dataC, Color.WHITE, null);
+		img.add((byte[][])reference, Color.RED, null, 0);
+		img.save(new File("testdataResults/forestremote_sa1/" + dataFile.getName() + ".png"));
+		System.exit(0);
 		// /TMP */
-		
 		loaded = true;
 	}
 	
@@ -118,7 +123,7 @@ public class MusicalTreeDataset extends TreeDataset2d {
 	 */
 	@Override
 	public Dataset getClone() throws Exception {
-		Dataset ret = new MusicalTreeDataset(dataFile, referenceFile, frequencies, step);
+		Dataset ret = new OnsetMusicalTreeDataset(dataFile, referenceFile, frequencies, step);
 		int[] cl = getSamplesClone();
 		ret.replaceIncludedSamples(cl);
 		return ret;

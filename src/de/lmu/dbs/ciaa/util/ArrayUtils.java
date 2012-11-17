@@ -14,6 +14,44 @@ import java.nio.ByteBuffer;
 public class ArrayUtils {
 	
 	/**
+	 * Flatten a 2d array to 1d (sum)
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public static byte[] flatten(byte[][] data) {
+		byte[] ret = new byte[data.length];
+		for(int x=0; x<data.length; x++) {
+			for(int y=0; y<data[0].length; y++) {
+				if (data[x][y] > 0) {
+					ret[x] = 1;
+					break;
+				}
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * 
+	 * @param data
+	 */
+	public static void filterFirst(byte[][] data) {
+		for(int y=0; y<data[0].length; y++) {
+			boolean on = false; //(data[0][y] > 0);
+			for(int x=0; x<data.length; x++) {
+				if (on && data[x][y] == 0) {
+					on = false;
+				}
+				if (on) data[x][y] = 0;
+				if (data[x][y] > 0) {
+					on = true;
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Saves a 2-dimensional array to a png file.
 	 * 
 	 * @param filename
