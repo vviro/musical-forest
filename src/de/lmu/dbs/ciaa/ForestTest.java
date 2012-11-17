@@ -22,20 +22,10 @@ import de.lmu.dbs.ciaa.util.*;
  * TODO *************************************************************************************
  *
  * - Features: Klapuri?
- * - both side classification? 
  * 
+ * - Kapitel 3.4 in Kinect paper!
  * 
- * 
- * 	- Peak und " > 0": 
- * 		- hat schwächen über depth 3-4.
- * 			- " > 0" gegen "ohne bed." in evaluate-methode!
- * 			- und/oder: Mix peak and cqt irgendwie!
  * 	- auch feature 3b testen!!!!!!
- * - adjust threshold max of FeatureHarmonic6 ??
- * 
- * 	- ?? Mehr rekursion wird schlechter ab dep 4 oder so
- * 		- es klassifizieren sich beide seiten zur selben klasse...verhndern?
- * 		- vielleicht ist das bei vielen klassen besser...also erweiterung des kinect?
  * 
  * Forest:
  * 		Feature:
@@ -52,8 +42,6 @@ import de.lmu.dbs.ciaa.util.*;
  * 		- Performances von Vladimir
  * 
  * Code:
- * 		- make forest generic
- * 			- extend RandomTree
  * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
  * 		- protocol buffer (google code) für dateiformat, statt serialization
  * 		- automate test to get values instead of images only (s. Breiman)		

@@ -90,7 +90,7 @@ public class MusicalTreeDataset extends TreeDataset2d {
 		byte[][] dataC = (byte[][])data;
 		long duration = (long)((double)((dataC.length+1) * step * 1000.0) / 44100); // TODO festwerte
 		reference = ma.toDataArray(dataC.length, duration, frequencies);
-		ArrayUtils.blur((byte[][])reference, 0);
+		//ArrayUtils.blur((byte[][])reference, 0);
 
 		/*
 		// TMP
