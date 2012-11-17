@@ -535,7 +535,7 @@ public abstract class RandomTree extends Thread {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Id " + node.id + ", Depth " + depth + "; ");
+				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Node " + node.id + ", Depth " + depth + "; ");
 				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 			}
 			if (ret) break;
