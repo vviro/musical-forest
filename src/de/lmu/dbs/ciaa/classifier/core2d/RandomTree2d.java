@@ -2,27 +2,18 @@ package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 import de.lmu.dbs.ciaa.classifier.core.Node;
-import de.lmu.dbs.ciaa.classifier.core.RandomTreeWorker;
 import de.lmu.dbs.ciaa.classifier.core.Sampler;
 import de.lmu.dbs.ciaa.classifier.core.RandomTree;
 import de.lmu.dbs.ciaa.classifier.core.TreeDataset;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Logfile;
-import de.lmu.dbs.ciaa.util.LogScale;
-import de.lmu.dbs.ciaa.util.Scale;
 import de.lmu.dbs.ciaa.util.Statistic;
-import de.lmu.dbs.ciaa.util.Statistic2d;
 
 /**
  * Represents one random decision tree. Extend this to create randomized decision
@@ -33,8 +24,6 @@ import de.lmu.dbs.ciaa.util.Statistic2d;
  */
 public abstract class RandomTree2d extends RandomTree {
 
-	private DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
-	
 	/**
 	 * Creates a tree (main constructor).
 	 * 
@@ -68,48 +57,6 @@ public abstract class RandomTree2d extends RandomTree {
 	}
 	
 	/**
-	 * Returns a new instance of the tree.
-	 * 
-	 * @param params
-	 * @param root
-	 * @param sampler
-	 * @param classification
-	 * @param count
-	 * @param node
-	 * @param mode
-	 * @param depth
-	 * @param maxDepth
-	 * @param num
-	 * @param log
-	 * @return
-	 * @throws Exception 
-	 */
-	public abstract RandomTree2d getInstance(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception;
-	
-	/**
-	 * Returns a new instance of the tree.
-	 * 
-	 * @param params
-	 * @param num
-	 * @param log
-	 * @return
-	 * @throws Exception
-	 */
-	public abstract RandomTree2d getInstance(ForestParameters params, int num, Logfile log) throws Exception;
-
-	/**
-	 * Provides the possibility to add tree specific log output per node.
-	 * 
-	 * @param pre
-	 * @param countClassesLeft
-	 * @param countClassesRight
-	 * @param winner
-	 * @param winnerThreshold
-	 * @throws Exception
-	 */
-	public abstract void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception;
-	
-	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]
 	 * 
 	 * @param data
@@ -119,7 +66,7 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @throws Exception
 	 */
 	public float[] classify(final Object data, final int x, final int y) throws Exception {
-		return classifyRec(data, (Node2d)tree, 0, 0, x, y);
+		return classifyRec((byte[][])data, (Node2d)tree, 0, 0, x, y);
 	}
 	
 	/**
@@ -132,14 +79,13 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float[] classifyRec(final Object data, final Node2d node, int mode, int depth, final int x, final int y) throws Exception {
+	protected float[] classifyRec(final byte[][] data, final Node2d node, int mode, int depth, final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
 			return node.probabilities;
 		} else {
-			byte[][] dataC = (byte[][])data;
-			if (params.saveNodeClassifications > depth-1 && node.debugTree == null) node.debugTree = new int[dataC.length][dataC[0].length]; // TMP
+			if (params.saveNodeClassifications > depth-1 && node.debugTree == null) node.debugTree = new int[data.length][data[0].length]; // TMP
 			
-			if (node.feature.evaluate(dataC, x, y) >= node.feature.threshold) {
+			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
 				if (params.saveNodeClassifications > depth-1) node.debugTree[x][y] = 1;
 				return classifyRec(data, (Node2d)node.left, 1, depth+1, x, y);
 			} else {
@@ -178,158 +124,19 @@ public abstract class RandomTree2d extends RandomTree {
 	}
 	
 	/**
-	 * Grows the tree. 
-	 * <br><br>
-	 * Attention: If multithreading is activated, you have to care about 
-	 * progress before proceeding with testing etc., i.e. you can use the 
-	 * isGrown() method for that purpose.
+	 * Splits the training data set of one node.
 	 * 
-	 * @param sampler contains the whole data to train the tree.
-	 * @param mode 0: root node (no preceeding classification), 1: left, 2: right; -1: out of bag
+	 * @param sampler
+	 * @param classification
+	 * @param mode
+	 * @param node
+	 * @return
 	 * @throws Exception
 	 */
-	public void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception {
-		if (log == null) throw new Exception("Tree " + num + " has no logging object");
-		
-		// List training data files and parameters in log
-		logMeta(sampler);
-		
-		// Preclassify and grow
-		List<Object> classification = getPreClassification(sampler);
-		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
-		growRec(this, sampler, classification, Long.MAX_VALUE, tree, 0, 0, maxDepth, true);
-	}
-
-	/**
-	 * Internal: Grows the tree.
-	 * 
-	 * @param sampler contains the whole data to train the tree.
-	 * @param mode 0: root node (no preceeding classification), 1: left, 2: right; -1: out of bag
-	 * @param multithreading this is used to disable the threading part, if called from the run method. 
-	 *        Otherwise, an infinite loop would happen with multithreading.
-	 * @throws Exception 
-	 */
-	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		if (params.maxNumOfNodeThreads > 0) {
-			synchronized (root.forest) { 
-				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
-					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
-					// watched with the isGrown method of the original RandomTree instance.
-					RandomTree t = getInstance(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
-					root.incThreadsActive();
-					t.start();
-					return;
-				}
-			}
-		}
-		
-		// TMP
-		String pre = "T" + root.num + ":  ";
-		for(int i=0; i<depth; i++) pre+="-  ";
-
-		// See if we exceeded max recursion depth
-		if (depth >= maxDepth) {
-			// Make it a leaf node
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) log.write(pre + " Mode " + mode + " leaf; Probabilities " + ArrayUtils.toString(node.probabilities, true));
-			return;
-		}
-		
+	public List<Object> splitValues(Sampler<Dataset> sampler, List<Object> classification, int mode, Node node, long[] counts) throws Exception {
 		Node2d node2d = (Node2d)node;
-		
-		// Get random feature parameter sets
-		List<Feature2d> paramSet = params.featureFactory.getRandomFeatureSet(params);
-		int numOfFeatures = paramSet.size();
-
-		// Generate random thresholds for each feature param set
-		float[][] thresholds = new float[numOfFeatures][];
-		for(int i=0; i<thresholds.length; i++) {
-			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
-		}
-
-		// Evaluate the features
-		//int numOfClasses = getNumOfClasses();
-		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
-		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
-		evaluateFeaturesThreads(sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
-
-		// Calculate info gain upon each combination of feature/threshold 
-		double[][] gain = getGainsByEntropy(paramSet, countClassesLeft, countClassesRight);
-		
-		// Get maximum gain feature/threshold combination
-		double max = -Double.MAX_VALUE;
-		int winner = 0;
-		int winnerThreshold = 0;
-
-		double min = Double.MAX_VALUE; // TMP just used for stats
-		Statistic2d gainStat = new Statistic2d(); // TMP gain statistics for gain/threshold diagrams
-		
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				if(gain[i][j] > max) {
-					max = gain[i][j];
-					winner = i;
-					winnerThreshold = j;
-				}
-				if (params.logNodeInfo && gain[i][j] < min) min = gain[i][j]; // TMP just used for stats
-				if (params.saveGainThresholdDiagrams > depth) gainStat.add(thresholds[i][j], gain[i][j]); // TMP gain statistics for gain/threshold diagrams
-			}
-		}
-		
-		// Debug //////////////////////////////////////////
-		root.infoGain.add(gain[winner][winnerThreshold]);
-		if (params.logNodeInfo) {
-			// General node info
-			log.write(pre + "------------------------");
-			log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
-			log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
-			log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
-			float tmin = Float.MAX_VALUE;
-			float tmax = -Float.MAX_VALUE;
-			for(int i=0; i<thresholds[winner].length; i++) {
-				if (thresholds[winner][i] > tmax) tmax = thresholds[winner][i];
-				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
-			}
-			log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
-			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-
-			// Tree specific log entries
-			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
-
-			// Thresholds
-			for(int i=0; i<thresholds[winner].length; i++) {
-				log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
-			}
-			//*/
-		}
-		// Save gain/threshold diagrams for each grown node
-		if (params.saveGainThresholdDiagrams > depth) {
-			String nf = "T" + num + "_GainDistribution_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-			Scale s = new LogScale(10);
-			gainStat.saveDistributionImage(params.workingFolder + File.separator + nf, 400, 400, s);
-		}
-		//////////////////////////////////////////////////
-		
-		// See in info gain is sufficient:
-		if (gain[winner][winnerThreshold] > params.entropyThreshold) {
-			// Yes, save feature and continue recursion
-			node2d.feature = paramSet.get(winner);
-			node2d.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node2d.feature.threshold + "; Coeffs: " + node2d.feature);
-		} else {
-			// No, make leaf and return
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) log.write(pre + "Mode " + mode + " leaf; Probabilities: " + ArrayUtils.toString(node.probabilities, true));
-			return;
-		}
-		
-		// Split values by winner feature for deeper branches
 		List<Object> classificationNext = new ArrayList<Object>(sampler.getPoolSize());
 		int poolSize = sampler.getPoolSize();
-		long countLeft = 0;
-		long countRight = 0;
 		for(int i=0; i<poolSize; i++) {
 			TreeDataset dataset = (TreeDataset)sampler.get(i);
 			byte[][] data = (byte[][])dataset.getData();
@@ -340,91 +147,17 @@ public abstract class RandomTree2d extends RandomTree {
 					if (mode == cla[x][y]) {
 						if (node2d.feature.evaluate(data, x, y) >= node2d.feature.threshold) {
 							claNext[x][y] = 1; // Left
-							countLeft++;
+							counts[0]++;
 						} else {
 							claNext[x][y] = 2; // Right
-							countRight++;
+							counts[1]++;
 						}
 					}
 				}
 			}
 			classificationNext.add(claNext);
 		}
-		
-		// Flush log changes to preserve them if crashes happen
-		log.flush();
-		
-		// Recursion to left and right
-		node.left = new Node2d();
-		growRec(root, sampler, classificationNext, countLeft, node.left, 1, depth+1, maxDepth, true);
-
-		node.right = new Node2d();
-		growRec(root, sampler, classificationNext, countRight, node.right, 2, depth+1, maxDepth, true);
-	}
-	
-	/**
-	 * Evaluates a couple of features with a couple of thresholds. This
-	 * is the most CPU intensive part of the tree training algorithm.
-	 * This method just controls the thread behaviour of feature evaluation.
-	 * 
-	 * @param sampler
-	 * @param paramSet
-	 * @param classification
-	 * @param mode
-	 * @param thresholds
-	 * @param countClassesLeft
-	 * @param countClassesRight
-	 * @throws Exception
-	 */
-	protected void evaluateFeaturesThreads(Sampler<Dataset> sampler, List<Feature2d> paramSet, List<Object> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
-		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
-		
-		if (!params.enableEvaluationThreads) {
-			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
-			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			return;
-		}
-		
-		if (count < params.minEvalThreadCount) {
-			// Not much values, no multithreading
-			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no multithreading]");
-			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			return;
-		}
-		
-		// Create workers for frequency bands
-		RandomTreeWorker[] workers = new RandomTreeWorker[params.numOfWorkerThreadsPerNode];
-		int ipw = numWork / workers.length;
-		for(int i=0; i<workers.length; i++) {
-			int min = i*ipw;
-			int max = min + ipw - 1;
-			if (max >= numWork) max = numWork-1;
-			//System.out.println(min + " to " + max);
-			workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			workers[i].start();
-		}
-		while(true) {
-			try {
-				Thread.sleep(params.threadWaitTime);
-			} catch (InterruptedException e) {
-				System.out.println("[Wait interrupted by VM, continuing...]");
-			}
-			boolean ret = true;
-			int cnt = 0;
-			for(int i=0; i<workers.length; i++) {
-				if (!workers[i].finished) {
-					ret = false;
-					cnt++;
-				}
-			}
-			if (params.debugThreadPolling) {
-				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Id " + node.id + ", Depth " + depth + "; ");
-				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
-			}
-			if (ret) break;
-		}
-		System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + ": All workers done");
+		return classificationNext;
 	}
 	
 	/**
@@ -444,7 +177,11 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @param depth
 	 * @throws Exception
 	 */
-	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Feature2d> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
+	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
+		List<Feature2d> paramSetC = new ArrayList<Feature2d>();
+		for(int i=0; i<paramSet.size(); i++) {
+			paramSetC.add((Feature2d)paramSet.get(i));
+		}
 		int numOfFeatures = paramSet.size();
 		int poolSize = sampler.getPoolSize();
 		float[][] thresholdsC = (float[][])thresholds;
@@ -462,7 +199,7 @@ public abstract class RandomTree2d extends RandomTree {
 					if (mode == cla[x][y]) { // Is that point in the training set for this node?
 						for(int k=0; k<numOfFeatures; k++) {
 							// Each featureset candidate...
-							float ev = paramSet.get(k).evaluate(data, x, y);
+							float ev = paramSetC.get(k).evaluate(data, x, y);
 							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
 								if (ev >= thresholdsC[k][g]) {
 									// Left
@@ -480,77 +217,6 @@ public abstract class RandomTree2d extends RandomTree {
 	}
 	
 	/**
-	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
-	 * 
-	 * @return
-	 *
-	protected double[][] getGains1(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = ((double)countClassesLeft[i][j][0]/noteRatio) / countClassesLeft[i][j][1];
-				double rightGain = countClassesRight[i][j][1] / ((double)countClassesRight[i][j][0]/noteRatio);
-				gain[i][j] = leftGain * rightGain;
-			}
-		}
-		return gain;
-	}
-
-	/**
-	 * Info gain calculation. Uses an error-unfriendly [-oo,2] algo. Stabilizes at good thrs.
-	 * 
-	 * @return
-	 *
-	protected double[][] getGains2(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		double note = countClassesLeft[0][0][0] + countClassesRight[0][0][0];
-		double silence = countClassesLeft[0][0][1] + countClassesRight[0][0][1];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = (double)countClassesLeft[i][j][0] / note - (double)countClassesLeft[i][j][1] / silence;
-				double rightGain= (double)countClassesRight[i][j][1] / silence - (double)countClassesRight[i][j][0] / note;
-				gain[i][j] = leftGain + rightGain;
-			}
-		}
-		return gain;
-	}
-
-	/**
-	 * Info gain calculation upon shannon entropy, Kinect formula.
-	 * 
-	 */
-	protected double[][] getGainsByEntropy(List<Feature2d> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		// Get overall sum of classes
-		int numOfClasses = countClassesLeft[0][0].length;
-		long[] classes = new long[numOfClasses];
-		long all = 0;
-		for(int y=0; y<numOfClasses; y++) {
-			classes[y] = countClassesLeft[0][0][y] + countClassesRight[0][0][y];
-			all += classes[y];
-		}
-		// Calculate gains
-		double entropyAll = getEntropy(classes);
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double entropyLeft = getEntropy(countClassesLeft[i][j]);
-				double entropyRight = getEntropy(countClassesRight[i][j]);
-				long amountLeft = 0;
-				long amountRight = 0;
-				for(int d=0; d<numOfClasses; d++) {
-					amountLeft += countClassesLeft[i][j][d];
-					amountRight += countClassesRight[i][j][d];
-				}
-				gain[i][j] = entropyAll - ((double)amountLeft/all)*entropyLeft - ((double)amountRight/all)*entropyRight;
-			}
-		}
-		return gain;
-	}
-
-	/**
 	 * Calculates leaf probability.
 	 * 
 	 * @param sampler
@@ -559,7 +225,7 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	private float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception {
+	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception {
 		//int numOfClasses = this.getNumOfClasses();
 		float[] l = new float[numOfClasses];
 		long all = 0;
@@ -615,46 +281,6 @@ public abstract class RandomTree2d extends RandomTree {
 	}
 
 	/**
-	 * Calculates shannon entropy for binary alphabet (two possible values),  
-	 * while a and b represent the count of each of the two "letters". 
-	 * 
-	 * @param a
-	 * @param b
-	 * @return
-	 *
-	public static double getEntropy(final long a, final long b) {
-		long all = a+b;
-		if(all <= 0) return 0;
-		double pa = (double)a/all;
-		double pb = (double)b/all;
-		return - pa * (Math.log(pa)/LOG2) - pb * (Math.log(pb)/LOG2);
-	}
-
-	/**
-	 * Calculates shannon entropy. 
-	 *  
-	 * 
-	 * @param counts delivers the counts for each "letter" of the alphabet. 
-	 * @return
-	 */
-	public static double getEntropy(final long[] counts) {
-		long all = 0;
-		for(int i=0; i<counts.length; i++) {
-			all += counts[i];
-		}
-		if(all <= 0) return 0;
-		
-		double ret = 0;
-		for(int i=0; i<counts.length; i++) {
-			if (counts[i] > 0) {
-				double p = (double)counts[i]/all;
-				ret -= p * (Math.log(p)/LOG2);
-			}
-		}
-		return ret;
-	}
-
-	/**
 	 * Saves the current debugTree for visualization of the nodes decisions 
 	 * at the last classification run.
 	 * 
@@ -688,35 +314,6 @@ public abstract class RandomTree2d extends RandomTree {
 		saveDebugTreeRec((Node2d)node.right, depth+1, 2);
 	}
 
-	/**
-	 * Write some params to log file.
-	 * @throws Exception 
-	 * 
-	 */
-	private void logMeta(Sampler<Dataset> sampler) throws Exception {
-		String lst = "";
-		for(int o=0; o<sampler.getPoolSize(); o++) {
-			TreeDataset d = (TreeDataset)sampler.get(o);
-			lst += "Dataset " + o + ": " + d.getDataFile().getAbsolutePath() + " (Reference: " + d.getReferenceFile().getAbsolutePath() + ")\n";
-		}
-		log.write("Parameters: \n" + params.toString());
-		log.write("Training data for tree " + num + ":\n" + lst);
-		log.write("\n");
-	}
-	
-	/**
-	 * Saves the tree to a file.
-	 * 
-	 * @param file
-	 * @throws Exception
-	 */
-	public void save(final String filename) throws Exception {
-		FileOutputStream fout = new FileOutputStream(filename);
-		ObjectOutputStream oos = new ObjectOutputStream(fout);   
-		oos.writeObject(tree);
-		oos.close();
-	}
-	
 	/**
 	 * Loads a tree from file and returns it.
 	 * 

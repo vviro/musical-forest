@@ -27,7 +27,7 @@ public abstract class Feature2d implements Serializable {
 	 * @param params the RandomTreeParameters object holding parameters.
 	 * @return
 	 */
-	public abstract List<Feature2d> getRandomFeatureSet(final ForestParameters params);
+	public abstract List<Object> getRandomFeatureSet(final ForestParameters params);
 
 	/**
 	 * Feature function called to classify values. 

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 
-import de.lmu.dbs.ciaa.classifier.*;
 import de.lmu.dbs.ciaa.classifier.core.BootstrapSampler;
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core.Forest;

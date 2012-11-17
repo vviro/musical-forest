@@ -2,9 +2,6 @@ package de.lmu.dbs.ciaa.classifier.core;
 
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
-import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
-
 /**
  * Takes the part of evaluating the feature function for all candidates
  * and count the results in parallel.
@@ -19,17 +16,17 @@ public class RandomTreeWorker extends Thread {
 	private int maxIndex = -1;
 
 	private Sampler<Dataset> sampler;
-	private List<Feature2d> paramSet;
+	private List<Object> paramSet;
 	private List<Object> classification;
 	private int mode;
 	private Object thresholds;
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
-	private RandomTree2d parent;
+	private RandomTree parent;
 	
 	public boolean finished = false;
 	
-	public RandomTreeWorker(RandomTree2d parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature2d> paramSet, List<Object> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
+	public RandomTreeWorker(RandomTree parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Object> paramSet, List<Object> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		this.parent = parent;
 		
 		this.minIndex = minIndex;

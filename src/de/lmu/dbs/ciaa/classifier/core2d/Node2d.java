@@ -15,6 +15,11 @@ import de.lmu.dbs.ciaa.util.ArrayToImage;
 public class Node2d extends Node {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2L;
+
+	/**
 	 * The feature which classifies the node branches
 	 */
 	public Feature2d feature;

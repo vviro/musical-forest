@@ -81,8 +81,8 @@ public class FeatureHarmonic6 extends Feature2d {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature2d> getRandomFeatureSet(ForestParameters params) {
-		List<Feature2d> ret = new ArrayList<Feature2d>();
+	public List<Object> getRandomFeatureSet(ForestParameters params) {
+		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic6 n = new FeatureHarmonic6(params);
 			ret.add(n);

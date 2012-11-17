@@ -9,7 +9,7 @@ import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
 import de.lmu.dbs.ciaa.util.Logfile;
 
 /**
- * Random forest implementation. 
+ * Random forest implementation for all dimensions (1d, 2d...). 
  * 
  * @author Thomas Weber
  *
@@ -162,7 +162,7 @@ public class Forest {
 	 * @throws Exception 
 	 */
 	public float[] classify(final Object data, final int x, final int y) throws Exception {
-		int numOfClasses = ((RandomTree2d)trees.get(0)).getNumOfClasses();
+		int numOfClasses = trees.get(0).getNumOfClasses();
 		float[] ret = new float[numOfClasses];
 		for(int i=0; i<trees.size(); i++) {
 			float[] cl = trees.get(i).classify(data, x, y);
@@ -215,10 +215,10 @@ public class Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Forest load(final ForestParameters params, final String filename, final int numTrees, RandomTree2d factory) throws Exception {
+	public static Forest load(final ForestParameters params, final String filename, final int numTrees, RandomTree factory) throws Exception {
 		Forest f = new Forest(params);
 		for(int i=0; i<numTrees; i++) {
-			RandomTree2d tr = factory.getInstance(params, i, null);
+			RandomTree tr = factory.getInstance(params, i, null);
 			tr.load(filename + "_tree" + i);
 			f.trees.add(tr); 
 		}

@@ -95,4 +95,5 @@ public class MusicalRandomTree extends RandomTree2d {
 		log.write(pre + "Left note: " + noteLeftW + ", silence: " + silenceLeftW + ", sum: " + (silenceLeftW+noteLeftW));
 		log.write(pre + "Right note: " + noteRightW + ", silence: " + silenceRightW + ", sum: " + (silenceRightW+noteRightW));
 	}
+
 }

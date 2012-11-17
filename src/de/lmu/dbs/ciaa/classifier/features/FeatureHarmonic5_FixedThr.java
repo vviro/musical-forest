@@ -68,8 +68,8 @@ public class FeatureHarmonic5_FixedThr extends Feature2d {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature2d> getRandomFeatureSet(ForestParameters params) {
-		List<Feature2d> ret = new ArrayList<Feature2d>();
+	public List<Object> getRandomFeatureSet(ForestParameters params) {
+		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic5_FixedThr n = new FeatureHarmonic5_FixedThr(params);
 			ret.add(n);
