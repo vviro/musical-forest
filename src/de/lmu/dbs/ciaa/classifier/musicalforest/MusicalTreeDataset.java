@@ -7,6 +7,7 @@ import java.util.List;
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core2d.TreeDataset2d;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.FileIO;
 
 /**
@@ -89,7 +90,7 @@ public class MusicalTreeDataset extends TreeDataset2d {
 		byte[][] dataC = (byte[][])data;
 		long duration = (long)((double)((dataC.length+1) * step * 1000.0) / 44100); // TODO festwerte
 		reference = ma.toDataArray(dataC.length, duration, frequencies);
-		//ArrayUtils.blur(midi, 0);
+		ArrayUtils.blur((byte[][])reference, 0);
 
 		/*
 		// TMP
