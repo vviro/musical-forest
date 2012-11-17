@@ -22,7 +22,7 @@ public class FeatureHarmonic5 extends Feature2d {
 	public float[] harmonicFactors = null;
 	public int[] chosenHarmonics = null;
 	
-	public int numOfOvertones = 2; // TODO -> params
+	public int numOfOvertones = 6; // TODO -> params
 	public float harmonicAmplification = 10; // TODO -> params
 	
 	/**

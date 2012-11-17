@@ -7,6 +7,7 @@ import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
  * Feature implementation for music analysis.
@@ -15,15 +16,15 @@ import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonicOnset extends Feature2d {
+public class FeatureOnsetLR extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
-	public float[] harmonicFactors = null;
-	public int[] chosenHarmonics = null;
+	//public float[] harmonicFactors = null;
+	//public int[] chosenHarmonics = null;
 	
-	public int numOfOvertones = 3; // TODO -> params
-	public float harmonicAmplification = 10; // TODO -> params
+	//public int numOfOvertones = 3; // TODO -> params
+	//public float harmonicAmplification = 10; // TODO -> params
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
@@ -32,13 +33,18 @@ public class FeatureHarmonicOnset extends Feature2d {
 	//private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
 	private static int[] harmonics = null;
 	
+	public int uX;
+	public int vX;
+	
 	/**
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureHarmonicOnset(final ForestParameters params) {
-		if (harmonics == null) generateHarmonics(20, 48.0); // TODO festwert
-		harmonicFactors = new float[numOfOvertones];
+	public FeatureOnsetLR(final ForestParameters params) {
+		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
+		uX = RandomUtils.randomInt(1, 10);
+		vX = RandomUtils.randomInt(1, 10);
+		/*harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
 		RandomSampler.sample(
@@ -53,14 +59,14 @@ public class FeatureHarmonicOnset extends Feature2d {
 		for(int i=0; i<harms.length; i++) {
 			chosenHarmonics[i] = (int)harms[i];
 			harmonicFactors[i] = (float)(Math.random()*harmonicAmplification * ((float)(harmonics.length-i)/harmonics.length));
-		}
+		}*/
 		//this.threshold = Math.random() * getMaxValue();
 	}
 	
 	/**
 	 * 
 	 */
-	public FeatureHarmonicOnset() {
+	public FeatureOnsetLR() {
 	}
 
 	/**
@@ -72,11 +78,8 @@ public class FeatureHarmonicOnset extends Feature2d {
 	public List<Object> getRandomFeatureSet(ForestParameters params) {
 		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureHarmonicOnset n = new FeatureHarmonicOnset(params);
+			FeatureOnsetLR n = new FeatureOnsetLR(params);
 			ret.add(n);
-			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
-				ret.add(new FeatureHarmonic5(n));
-			}*/
 		}
 		return ret;
 		
@@ -93,14 +96,14 @@ public class FeatureHarmonicOnset extends Feature2d {
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return 0;
-		float d2 = data[x][y]*data[x][y];
+		float d2 = data[x][y]; //*data[x][y];
+		if (x-uX < 0) return 0;
+		if (x+vX >= data.length) return 0;
 		float ret = 0;
-		for(int j=0; j<chosenHarmonics.length; j++) {
-			int ny =  y + harmonics[chosenHarmonics[j]];
+		for(int j=0; j<harmonics.length; j++) {
+			int ny =  y + harmonics[j];
 			if (ny >= data[0].length) return ret;
-			if (data[x][ny] > 0) {
-				ret+= d2*data[x][ny]*harmonicFactors[j];
-			}
+			ret+= (data[x][ny] - data[x-uX][ny]) * d2 * data[x+vX][ny];
 		}
 		return ret;
 	}
@@ -134,6 +137,7 @@ public class FeatureHarmonicOnset extends Feature2d {
 	 * @param data the array to store results (additive)
 	 */
 	public void visualize(Object data2) {
+		/*
 		int[][] data = (int[][])data2;
 		int x = data.length/2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
@@ -142,21 +146,15 @@ public class FeatureHarmonicOnset extends Feature2d {
 			if (ny > data[0].length) break;
 			data[x][ny]+= harmonicFactors[j]; 
 		}
-	}
-	
-	public String toString() {
-		String ret = "{";
-		for(int i=0; i<harmonicFactors.length; i++) {
-			ret+= chosenHarmonics[i] + ": " + harmonicFactors[i] + ", ";
-		}
-		return ret + "}";
+		*/
 	}
 
 	/**
-	 * Lambda parameter for exponential distribution of randomly 
-	 * created threshold candidates
-	 *
-	public double lambda = 0.005;
+	 * 
+	 */
+	public String toString() {
+		return "uX: " + uX + ", vX: " + vX;
+	}
 
 	/**
 	 * Divide border for threshold resolution
@@ -172,7 +170,7 @@ public class FeatureHarmonicOnset extends Feature2d {
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 */
+	 *
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];
@@ -184,4 +182,5 @@ public class FeatureHarmonicOnset extends Feature2d {
 		}
 		return ret;
 	}
+	//*/
 }
