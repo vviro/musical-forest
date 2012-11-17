@@ -1,15 +1,15 @@
 package de.lmu.dbs.ciaa.classifier.core;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
-import de.lmu.dbs.ciaa.classifier.core2d.Node2d;
 import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Logfile;
@@ -56,7 +56,7 @@ public abstract class RandomTree extends Thread {
 	/**
 	 * The actual tree structure
 	 */
-	protected Node tree = null;
+	protected Node tree = new Node();
 	
 	/**
 	 * The parameter set used to grow the tree
@@ -136,8 +136,7 @@ public abstract class RandomTree extends Thread {
 	 * @param num
 	 * @param log
 	 */
-	public RandomTree(Node tree, int numOfClasses, int num, Logfile log) {
-		this.tree = tree;
+	public RandomTree(int numOfClasses, int num, Logfile log) {
 		this.num = num;
 		this.log = log;
 		this.numOfClasses = numOfClasses;
@@ -230,7 +229,12 @@ public abstract class RandomTree extends Thread {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract void load(final String filename) throws Exception;
+	public void load(final String filename) throws Exception {
+		FileInputStream fin = new FileInputStream(filename);
+		ObjectInputStream ois = new ObjectInputStream(fin);
+		tree = (Node)ois.readObject();
+		ois.close();
+	}
 
 	/**
 	 * Returns if the tree is grown. For multithreading mode.
@@ -350,8 +354,6 @@ public abstract class RandomTree extends Thread {
 			return;
 		}
 		
-		Node2d node2d = (Node2d)node;
-		
 		// Get random feature parameter sets
 		List<Object> paramSet = params.featureFactory.getRandomFeatureSet(params);
 		int numOfFeatures = paramSet.size();
@@ -429,9 +431,9 @@ public abstract class RandomTree extends Thread {
 		// See in info gain is sufficient:
 		if (gain[winner][winnerThreshold] > params.entropyThreshold) {
 			// Yes, save feature and continue recursion
-			node2d.feature = (Feature2d)paramSet.get(winner);
-			node2d.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node2d.feature.threshold + "; Coeffs: " + node2d.feature);
+			node.feature = (Feature)paramSet.get(winner);
+			node.feature.threshold = thresholds[winner][winnerThreshold];
+			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
 			// No, make leaf and return
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
@@ -448,10 +450,10 @@ public abstract class RandomTree extends Thread {
 		log.flush();
 		
 		// Recursion to left and right
-		node.left = new Node2d();
+		node.left = new Node();
 		growRec(root, sampler, classificationNext, counts[0], node.left, 1, depth+1, maxDepth, true);
 
-		node.right = new Node2d();
+		node.right = new Node();
 		growRec(root, sampler, classificationNext, counts[1], node.right, 2, depth+1, maxDepth, true);
 	}
 

@@ -5,8 +5,8 @@ import java.util.List;
 
 import cern.jet.random.sampling.RandomSampler;
 
+import de.lmu.dbs.ciaa.classifier.core.Feature;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
-import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
@@ -16,7 +16,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic6_vari extends Feature2d {
+public class FeatureHarmonic6_vari extends Feature {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -211,7 +211,8 @@ public class FeatureHarmonic6_vari extends Feature2d {
 	 * 
 	 * @param data the array to store results (additive)
 	 */
-	public void visualize(int[][] data) {
+	public void visualize(Object data2) {
+		byte[][] data = (byte[][])data2;
 		int x = data.length/2;
 		for(int i=0; i<harmonics.length; i++) {
 			int ny =  + (int)(48*harmonics[i]);

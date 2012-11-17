@@ -1,8 +1,7 @@
 package de.lmu.dbs.ciaa.classifier.core2d;
 
+import java.awt.Color;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import de.lmu.dbs.ciaa.classifier.core.Node;
 import de.lmu.dbs.ciaa.classifier.core.Sampler;
 import de.lmu.dbs.ciaa.classifier.core.RandomTree;
 import de.lmu.dbs.ciaa.classifier.core.TreeDataset;
+import de.lmu.dbs.ciaa.util.ArrayToImage;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.Statistic;
 
@@ -31,7 +31,7 @@ public abstract class RandomTree2d extends RandomTree {
 	 * 
 	 */
 	public RandomTree2d(ForestParameters params, int numOfClasses, int num, Logfile log) throws Exception {
-		super(new Node2d(), numOfClasses, num, log);
+		super(numOfClasses, num, log);
 		params.check();
 		this.params = params;
 		this.infoGain = new Statistic();
@@ -66,7 +66,7 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @throws Exception
 	 */
 	public float[] classify(final Object data, final int x, final int y) throws Exception {
-		return classifyRec((byte[][])data, (Node2d)tree, 0, 0, x, y);
+		return classifyRec((byte[][])data, tree, 0, 0, x, y);
 	}
 	
 	/**
@@ -79,18 +79,18 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float[] classifyRec(final byte[][] data, final Node2d node, int mode, int depth, final int x, final int y) throws Exception {
+	protected float[] classifyRec(final byte[][] data, final Node node, int mode, int depth, final int x, final int y) throws Exception {
 		if (node.isLeaf()) {
 			return node.probabilities;
 		} else {
-			if (params.saveNodeClassifications > depth-1 && node.debugTree == null) node.debugTree = new int[data.length][data[0].length]; // TMP
+			if (params.saveNodeClassifications > depth-1 && node.debugObject == null) node.debugObject = new int[data.length][data[0].length]; // TMP
 			
-			if (node.feature.evaluate(data, x, y) >= node.feature.threshold) {
-				if (params.saveNodeClassifications > depth-1) node.debugTree[x][y] = 1;
-				return classifyRec(data, (Node2d)node.left, 1, depth+1, x, y);
+			if (((Feature2d)node.feature).evaluate(data, x, y) >= node.feature.threshold) {
+				if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 1;
+				return classifyRec(data, node.left, 1, depth+1, x, y);
 			} else {
-				if (params.saveNodeClassifications > depth-1) node.debugTree[x][y] = 2;
-				return classifyRec(data, (Node2d)node.right, 2, depth+1, x, y);
+				if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 2;
+				return classifyRec(data, node.right, 2, depth+1, x, y);
 			}
 		}
 	}
@@ -134,7 +134,7 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @throws Exception
 	 */
 	public List<Object> splitValues(Sampler<Dataset> sampler, List<Object> classification, int mode, Node node, long[] counts) throws Exception {
-		Node2d node2d = (Node2d)node;
+		Feature2d feature = (Feature2d)node.feature;
 		List<Object> classificationNext = new ArrayList<Object>(sampler.getPoolSize());
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
@@ -145,7 +145,7 @@ public abstract class RandomTree2d extends RandomTree {
 			for(int x=0; x<data.length; x++) {
 				for(int y=0; y<params.frequencies.length; y++) {
 					if (mode == cla[x][y]) {
-						if (node2d.feature.evaluate(data, x, y) >= node2d.feature.threshold) {
+						if (feature.evaluate(data, x, y) >= feature.threshold) {
 							claNext[x][y] = 1; // Left
 							counts[0]++;
 						} else {
@@ -302,32 +302,38 @@ public abstract class RandomTree2d extends RandomTree {
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
 		if (params.saveNodeClassifications <= depth-1) return;
 		if (node.isLeaf())  return;
-		Node2d node2d = (Node2d)node;
 		
 		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";
-		if (node == null || node2d.debugTree == null) {
-			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node2d.debugTree);
+		if (node == null || node.debugObject == null) {
+			System.out.println("ERROR: Could not save image, node: " + node + ", debugTree: " + node.debugObject);
 			return;
 		}
-		node2d.saveDebugTree(nf);
-		saveDebugTreeRec((Node2d)node.left, depth+1, 1);
-		saveDebugTreeRec((Node2d)node.right, depth+1, 2);
+		saveDebugTree(node, nf);
+		saveDebugTreeRec(node.left, depth+1, 1);
+		saveDebugTreeRec(node.right, depth+1, 2);
 	}
 
 	/**
-	 * Loads a tree from file and returns it.
-	 * 
-	 * TODO: Save params with forest
+	 * Saves the current debugTree for visualization of the nodes decisions 
+	 * at the last classification run.
 	 * 
 	 * @param filename
-	 * @return
-	 * @throws Exception
+	 * @throws Exception 
 	 */
-	public void load(final String filename) throws Exception {
-		FileInputStream fin = new FileInputStream(filename);
-		ObjectInputStream ois = new ObjectInputStream(fin);
-		tree = (Node2d)ois.readObject();
-		ois.close();
+	private void saveDebugTree(Node node, String filename) throws Exception {
+		int[][] debugTree = (int[][])node.debugObject;
+		ArrayToImage img = new ArrayToImage(debugTree.length, debugTree[0].length);
+		int[][] l = new int[debugTree.length][debugTree[0].length];
+		int[][] r = new int[debugTree.length][debugTree[0].length];
+		for (int i=0; i<l.length; i++) {
+			for (int j=0; j<l[0].length; j++) {
+				if (debugTree[i][j] == 1) l[i][j] = 1;
+				if (debugTree[i][j] == 2) r[i][j] = 1;
+			}
+		}
+		img.add(l, new Color(0,255,0), null, 0);
+		img.add(r, new Color(255,0,0), null, 0);
+		img.save(new File(filename));
 	}
 
 }

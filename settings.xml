@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="6"
+		maxDepth="3"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="150"
 		thresholdCandidatesPerFeature="30"
