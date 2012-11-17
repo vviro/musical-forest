@@ -246,7 +246,19 @@ public abstract class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		
+		// TMP
+		String pre = "T" + root.num + ":  ";
+		for(int i=0; i<depth; i++) pre+="-  ";
+
+		// See if we exceeded max recursion depth
+		if (depth >= maxDepth) {
+			// Make it a leaf node
+			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			if (params.logNodeInfo) log.write(pre + "Reached max depth, Leaf probabilities " + ArrayUtils.toString(node.probabilities, true));
+			return;
+		}
+
+		// Node threading
 		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
 			(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
 			
@@ -260,18 +272,6 @@ public abstract class RandomTree extends Thread {
 					return;
 				}
 			}
-		}
-		
-		// TMP
-		String pre = "T" + root.num + ":  ";
-		for(int i=0; i<depth; i++) pre+="-  ";
-
-		// See if we exceeded max recursion depth
-		if (depth >= maxDepth) {
-			// Make it a leaf node
-			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) log.write(pre + " Mode " + mode + " leaf; Probabilities " + ArrayUtils.toString(node.probabilities, true));
-			return;
 		}
 		
 		// Get random feature parameter sets
@@ -328,8 +328,8 @@ public abstract class RandomTree extends Thread {
 				if (thresholds[winner][i] < tmin) tmin = thresholds[winner][i];
 			}
 			log.write(pre + "Threshold min: " + decimalFormat.format(tmin) + "; max: " + decimalFormat.format(tmax));
-			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
-			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold], System.out);
+			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold]);
+			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold]);
 
 			// Tree specific log entries
 			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
@@ -357,8 +357,7 @@ public abstract class RandomTree extends Thread {
 		} else {
 			// No, make leaf and return
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			//node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) log.write(pre + "Mode " + mode + " leaf; Probabilities: " + ArrayUtils.toString(node.probabilities, true));
+			if (params.logNodeInfo) log.write(pre + "Info gain insufficient, Leaf probabilities: " + ArrayUtils.toString(node.probabilities, true));
 			return;
 		}
 		
@@ -366,7 +365,15 @@ public abstract class RandomTree extends Thread {
 		long[] counts = new long[2];
 		List<Object> classificationNext = splitValues(sampler, classification, mode, node, counts);
 		
-		// Flush log changes to preserve them if crashes happen
+		// If one side has 0 values to classify, make this node a leaf
+		if (counts[0] == 0 || counts[1] == 0) {
+			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+			if (params.logNodeInfo) log.write(pre + "One side zero -> leaf; Probabilities: " + ArrayUtils.toString(node.probabilities, true));
+			log.flush();
+			return;
+		}
+		
+		// Flush log file changes to disk to preserve them if crashes happen
 		log.flush();
 		
 		// Recursion to left and right
