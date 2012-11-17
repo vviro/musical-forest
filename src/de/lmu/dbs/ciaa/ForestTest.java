@@ -21,6 +21,13 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * TODO *************************************************************************************
  *
+ * Vladimir:
+ * 		- mp3 testen (cqt)
+ * 		- onset/offset
+ * 		- Ableitung
+ * 		- Github -> eigenes Repo
+ *
+ *
  * - Saubere Tests nach Breiman
  *
  * - Testdaten: Andere Instrumente? Noisy data?
