@@ -21,7 +21,9 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * TODO *************************************************************************************
  *
- * - Count zero: was dann? wird momentan noch normal abgearbeitet!
+ * - Saubere Tests nach Breiman
+ *
+ * - Testdaten: Andere Instrumente? Noisy data?
  *
  * - Features: Klapuri?
  * 
