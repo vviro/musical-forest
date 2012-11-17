@@ -2,12 +2,8 @@ package de.lmu.dbs.ciaa.classifier.musicalforest;
 
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.Dataset;
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
-import de.lmu.dbs.ciaa.classifier.Sampler;
-import de.lmu.dbs.ciaa.classifier.core2d.Node2d;
+import de.lmu.dbs.ciaa.classifier.core.*;
 import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
-import de.lmu.dbs.ciaa.classifier.core2d.Tree2d;
 import de.lmu.dbs.ciaa.util.Logfile;
 
 /**
@@ -36,7 +32,7 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception 
 	 * 
 	 */
-	public MusicalRandomTree(ForestParameters params, Tree2d root, Sampler<Dataset> sampler, List<byte[][]> classification, long count, Node2d node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
+	public MusicalRandomTree(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
 		super(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
 	}
 
@@ -67,7 +63,7 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception 
 	 */
 	@Override
-	public RandomTree2d getInstance(ForestParameters params, Tree2d root, Sampler<Dataset> sampler, List<byte[][]> classification, long count, Node2d node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
+	public RandomTree2d getInstance(ForestParameters params, Tree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
 		return new MusicalRandomTree(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
 	}
 

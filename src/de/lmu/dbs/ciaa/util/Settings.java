@@ -5,8 +5,8 @@ import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
-import de.lmu.dbs.ciaa.classifier.features.Feature;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 
 /**
  * Class for loading and managing the settings for the application.
@@ -108,7 +108,7 @@ public class Settings {
 		r.cqtBufferLocation = transform.getAttributeValue("cqtBufferLocation");
 		
 		String clsName = forest.getAttributeValue("featureFactoryClass");
-		r.featureFactory = (Feature)Class.forName(clsName).getConstructor().newInstance();
+		r.featureFactory = (Feature2d)Class.forName(clsName).getConstructor().newInstance();
 		return r;
 	}
 	

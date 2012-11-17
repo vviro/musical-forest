@@ -1,10 +1,9 @@
-package de.lmu.dbs.ciaa.classifier.core2d;
+package de.lmu.dbs.ciaa.classifier.core;
 
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.Dataset;
-import de.lmu.dbs.ciaa.classifier.Sampler;
-import de.lmu.dbs.ciaa.classifier.features.Feature;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
+import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
 
 /**
  * Takes the part of evaluating the feature function for all candidates
@@ -13,24 +12,24 @@ import de.lmu.dbs.ciaa.classifier.features.Feature;
  * @author Thomas Weber
  *
  */
-public class RandomTreeWorker2d extends Thread {
+public class RandomTreeWorker extends Thread {
 
 	private int minIndex = -1;
 	
 	private int maxIndex = -1;
 
 	private Sampler<Dataset> sampler;
-	private List<Feature> paramSet;
-	private List<byte[][]> classification;
+	private List<Feature2d> paramSet;
+	private List<Object> classification;
 	private int mode;
-	private float[][] thresholds;
+	private Object thresholds;
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
 	private RandomTree2d parent;
 	
 	public boolean finished = false;
 	
-	public RandomTreeWorker2d(RandomTree2d parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature> paramSet, List<byte[][]> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
+	public RandomTreeWorker(RandomTree2d parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Feature2d> paramSet, List<Object> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		this.parent = parent;
 		
 		this.minIndex = minIndex;

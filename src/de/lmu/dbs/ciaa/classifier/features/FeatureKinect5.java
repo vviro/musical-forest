@@ -3,7 +3,8 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
@@ -12,7 +13,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureKinect5 extends Feature {
+public class FeatureKinect5 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -58,8 +59,8 @@ public class FeatureKinect5 extends Feature {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature> getRandomFeatureSet(final ForestParameters params) {
-		List<Feature> ret = new ArrayList<Feature>();
+	public List<Feature2d> getRandomFeatureSet(final ForestParameters params) {
+		List<Feature2d> ret = new ArrayList<Feature2d>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureKinect5 n = new FeatureKinect5(params);
 			ret.add(n);

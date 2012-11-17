@@ -3,7 +3,8 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
@@ -13,7 +14,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic2 extends Feature {
+public class FeatureHarmonic2 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -67,8 +68,8 @@ public class FeatureHarmonic2 extends Feature {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature> getRandomFeatureSet(ForestParameters params) {
-		List<Feature> ret = new ArrayList<Feature>();
+	public List<Feature2d> getRandomFeatureSet(ForestParameters params) {
+		List<Feature2d> ret = new ArrayList<Feature2d>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic2 n = new FeatureHarmonic2(params);
 			ret.add(n);

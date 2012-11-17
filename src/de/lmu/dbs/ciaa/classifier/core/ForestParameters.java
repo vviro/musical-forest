@@ -1,6 +1,6 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core;
 
-import de.lmu.dbs.ciaa.classifier.features.Feature;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 
 /**
  * Contains parameters for growing random trees and features. In normal 
@@ -133,7 +133,7 @@ public class ForestParameters {
 	 * features with the getRandomFeatureSet method. It is never used for classification
 	 * itself, just as a factory.
 	 */
-	public Feature featureFactory = null;
+	public Feature2d featureFactory = null;
 	
 	/**
 	 * Samples per frame, used to interpret training data and for testing

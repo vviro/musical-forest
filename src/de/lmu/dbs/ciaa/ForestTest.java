@@ -7,9 +7,12 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import de.lmu.dbs.ciaa.classifier.*;
-import de.lmu.dbs.ciaa.classifier.core2d.Forest2d;
+import de.lmu.dbs.ciaa.classifier.core.BootstrapSampler;
+import de.lmu.dbs.ciaa.classifier.core.Dataset;
+import de.lmu.dbs.ciaa.classifier.core.Forest;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.Tree;
 import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
-import de.lmu.dbs.ciaa.classifier.core2d.Tree2d;
 import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalRandomTree;
 import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalTreeDataset;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
@@ -137,17 +140,17 @@ public class ForestTest {
 			*/
 			
 			// Grow forest with training part of data
-			Forest2d forest;
+			Forest forest;
 			if (!params.loadForest) {
 				// Grow
 				Logfile[] treelogs = new Logfile[params.forestSize]; 
-				List<Tree2d> trees = new ArrayList<Tree2d>();
+				List<Tree> trees = new ArrayList<Tree>();
 				for(int i=0; i<params.forestSize; i++) {
 					treelogs[i] = new Logfile(params.workingFolder + File.separator + "T" + i + "_Growlog.txt");
 					trees.add(new MusicalRandomTree(params, i, treelogs[i]));
 				}
 				Logfile forestlog = new Logfile(params.workingFolder + File.separator + "ForestStats.txt");
-				forest = new Forest2d(trees, params, forestlog);
+				forest = new Forest(trees, params, forestlog);
 				//forest.grow(samplers.get(0));
 				forest.grow(sampler);
 				m.measure("Finished growing random forest");
@@ -168,7 +171,7 @@ public class ForestTest {
 			} else {
 				// Load
 				RandomTree2d treeFactory = new MusicalRandomTree(); 
-				forest = Forest2d.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize, treeFactory);
+				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize, treeFactory);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 			//System.exit(0);
@@ -204,7 +207,7 @@ public class ForestTest {
 			m.measure("Finished transformation and scaling");
 			
 			// Test classification
-			float[][][] dataForestCl = forest.classify(dataOob);
+			float[][][] dataForestCl = forest.classify2d(dataOob);
 			float[][] dataForest = new float[dataForestCl.length][dataForestCl[0].length];
 			for (int x=0; x<dataForest.length; x++) {
 				for (int y=0; y<dataForest[0].length; y++) {

@@ -1,4 +1,4 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core;
 
 import java.util.ArrayList;
 import java.util.List;

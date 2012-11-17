@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.io.Serializable;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 
 /**
  * Abstract feature implementation with its parameters and feature evaluation function,

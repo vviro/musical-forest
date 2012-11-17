@@ -1,4 +1,4 @@
-package de.lmu.dbs.ciaa.classifier;
+package de.lmu.dbs.ciaa.classifier.core;
 
 /**
  * Dataset base class. Supports basic sampling of samples.

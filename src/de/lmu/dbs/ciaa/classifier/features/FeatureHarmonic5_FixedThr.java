@@ -5,7 +5,8 @@ import java.util.List;
 
 import cern.jet.random.sampling.RandomSampler;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 
 /**
  * Feature implementation for music analysis.
@@ -14,7 +15,7 @@ import de.lmu.dbs.ciaa.classifier.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic5_FixedThr extends Feature {
+public class FeatureHarmonic5_FixedThr extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -67,8 +68,8 @@ public class FeatureHarmonic5_FixedThr extends Feature {
 	 * @param num
 	 * @return
 	 */
-	public List<Feature> getRandomFeatureSet(ForestParameters params) {
-		List<Feature> ret = new ArrayList<Feature>();
+	public List<Feature2d> getRandomFeatureSet(ForestParameters params) {
+		List<Feature2d> ret = new ArrayList<Feature2d>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
 			FeatureHarmonic5_FixedThr n = new FeatureHarmonic5_FixedThr(params);
 			ret.add(n);

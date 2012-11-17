@@ -1,6 +1,5 @@
-package de.lmu.dbs.ciaa.classifier.core2d;
+package de.lmu.dbs.ciaa.classifier.core;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
 
 /**
  * Analysis routines on top of Trees.
@@ -8,7 +7,7 @@ import de.lmu.dbs.ciaa.classifier.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class TreeAnalyzer2d {
+public class TreeAnalyzer {
 
 	private ForestParameters params;
 	
@@ -18,7 +17,7 @@ public class TreeAnalyzer2d {
 	 * @param params
 	 * @throws Exception
 	 */
-	public TreeAnalyzer2d(ForestParameters params) throws Exception {
+	public TreeAnalyzer(ForestParameters params) throws Exception {
 		this.params = params;
 	}
 
@@ -27,7 +26,7 @@ public class TreeAnalyzer2d {
 	 * 
 	 * @param data the array to store results (additive)
 	 */
-	public void visualize(Tree2d rtree, int[][] data) {
+	public void visualize(Tree rtree, Object data) {
 		rtree.getRootNode().visualize(data);
 	}
 
@@ -36,7 +35,7 @@ public class TreeAnalyzer2d {
 	 * 
 	 * @return
 	 */
-	public int getNumOfLeafs(Tree2d rtree) {
+	public int getNumOfLeafs(Tree rtree) {
 		return getNumOfLeafs(rtree.getRootNode().left) + getNumOfLeafs(rtree.getRootNode().right);
 	}
 	
@@ -46,7 +45,7 @@ public class TreeAnalyzer2d {
 	 * @param node
 	 * @return
 	 */
-	private int getNumOfLeafs(Node2d node) {
+	private int getNumOfLeafs(Node node) {
 		if (node == null) return 0;
 		if (node.isLeaf()) return 1;
 		return getNumOfLeafs(node.left) + getNumOfLeafs(node.right);
@@ -58,7 +57,7 @@ public class TreeAnalyzer2d {
 	 * 
 	 * @return
 	 */
-	public int[] getDepthCounts(Tree2d rtree) {
+	public int[] getDepthCounts(Tree rtree) {
 		int[] counts = new int[params.maxDepth+1];
 		getDepthCountsRec(rtree.getRootNode(), counts, 0);
 		return counts;
@@ -71,7 +70,7 @@ public class TreeAnalyzer2d {
 	 * @param counts
 	 * @param depth
 	 */
-	private void getDepthCountsRec(Node2d node, int[] counts, int depth) {
+	private void getDepthCountsRec(Node node, int[] counts, int depth) {
 		counts[depth]++;
 		if (!node.isLeaf()) {
 			getDepthCountsRec(node.left, counts, depth+1);
@@ -84,7 +83,7 @@ public class TreeAnalyzer2d {
 	 * 
 	 * @return
 	 */
-	public String getDepthCountsString(Tree2d rtree) {
+	public String getDepthCountsString(Tree rtree) {
 		String ret = "";
 		int[] counts = getDepthCounts(rtree);
 		for(int i=0; i<counts.length; i++) {
@@ -98,7 +97,7 @@ public class TreeAnalyzer2d {
 	 * 
 	 * @return
 	 */
-	public String getTreeVisualization(Tree2d rtree) {
+	public String getTreeVisualization(Tree rtree) {
 		String[] s = new String[params.maxDepth+1];
 		int b = (int)Math.pow(2, params.maxDepth) * 2;
 		for(int i=0; i<s.length; i++) {
@@ -117,7 +116,7 @@ public class TreeAnalyzer2d {
 	 * 
 	 * @return
 	 */
-	private void getTreeVisualizationRec(Node2d node, String[] s, int mode, int part, int depth, int all) {
+	private void getTreeVisualizationRec(Node node, String[] s, int mode, int part, int depth, int all) {
 		int div = (int)Math.pow(2, depth);
 		int x = (all/div) * part;
 		int i = x + (all/div)/2 + 2;

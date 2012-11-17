@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.Dataset;
+import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core2d.TreeDataset2d;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.util.FileIO;
@@ -86,8 +86,9 @@ public class MusicalTreeDataset extends TreeDataset2d {
 		data = dataIo.load(dataFile.getAbsolutePath()); 
 		// MIDI
 		MIDIAdapter ma = new MIDIAdapter(referenceFile);
-		long duration = (long)((double)((data.length+1) * step * 1000.0) / 44100); // TODO festwerte
-		reference = ma.toDataArray(data.length, duration, frequencies);
+		byte[][] dataC = (byte[][])data;
+		long duration = (long)((double)((dataC.length+1) * step * 1000.0) / 44100); // TODO festwerte
+		reference = ma.toDataArray(dataC.length, duration, frequencies);
 		//ArrayUtils.blur(midi, 0);
 
 		/*
@@ -127,4 +128,40 @@ public class MusicalTreeDataset extends TreeDataset2d {
 	public String toString() {
 		return "Dataset: MIDI file " + referenceFile.getAbsolutePath() + "; Spectrum file: " + dataFile.getAbsolutePath();
 	}
+
+	/**
+	 * Returns a part of the spectrum.
+	 * 
+	 * @param x starting frame
+	 * @param frames length of the subspectrum
+	 * @return
+	 * @throws Exception
+	 *
+	public synchronized Object getSpectrum(final int x, final int frames) throws Exception {
+		if (!isLoaded()) load();
+		byte[][] ret = new byte[frames][];
+		for (int i=0; i<frames; i++) {
+			ret[i] = data[x+i];
+		}
+		return ret;
+	}
+
+	/**
+	 * Splits up the spectrum and returns the results.
+	 * 
+	 * @param frames length of one chunk
+	 * @return
+	 * @throws Exception 
+	 *
+	public synchronized byte[][][] divideSpectrum(final int frames) throws Exception {
+		if (!isLoaded()) load();
+		int chunks = data.length/frames;
+		byte[][][] ret = new byte[chunks][][];
+		for(int i=0; i<chunks; i++) {
+			ret[i] = getSpectrum(i*frames, frames);
+		}
+		return ret;
+	}
+	//*/
+
 }

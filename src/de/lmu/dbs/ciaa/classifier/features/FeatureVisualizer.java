@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.awt.Color;
 import java.io.File;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 import de.lmu.dbs.ciaa.spectrum.*;
 import de.lmu.dbs.ciaa.spectrum.analyze.DifferentialAnalyzer;
 import de.lmu.dbs.ciaa.spectrum.analyze.F0Detector;

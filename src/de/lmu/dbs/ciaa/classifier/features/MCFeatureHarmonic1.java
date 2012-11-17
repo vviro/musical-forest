@@ -5,7 +5,7 @@ import java.util.List;
 
 import cern.jet.random.Exponential;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 
 /**
  * Feature implementation with Kinect formula.

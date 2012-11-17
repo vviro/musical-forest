@@ -1,9 +1,9 @@
-package de.lmu.dbs.ciaa.classifier.features;
+package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.io.Serializable;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.ForestParameters;
+import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 
 /**
  * Abstract feature implementation with its parameters and feature evaluation function,
@@ -12,7 +12,7 @@ import de.lmu.dbs.ciaa.classifier.ForestParameters;
  * @author Thomas Weber
  *
  */
-public abstract class Feature implements Serializable {
+public abstract class Feature2d implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -27,7 +27,7 @@ public abstract class Feature implements Serializable {
 	 * @param params the RandomTreeParameters object holding parameters.
 	 * @return
 	 */
-	public abstract List<Feature> getRandomFeatureSet(final ForestParameters params);
+	public abstract List<Feature2d> getRandomFeatureSet(final ForestParameters params);
 
 	/**
 	 * Feature function called to classify values. 
