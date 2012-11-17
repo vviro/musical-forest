@@ -31,7 +31,7 @@
 	<Forest
 		forestSize="1"
 		maxDepth="14"
-		percentageOfRandomValuesPerFrame="0.1"
+		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="150"
 		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"

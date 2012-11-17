@@ -25,9 +25,6 @@ import de.lmu.dbs.ciaa.util.Statistic2d;
  */
 public abstract class RandomTree extends Thread {
 
-
-	protected DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
-	
 	/**
 	 * Number of classes to divide
 	 */
@@ -79,22 +76,62 @@ public abstract class RandomTree extends Thread {
 	protected int evaluationThreadsActive = 0;
 	
 	/**
+	 * Date formatter for debug output.
+	 */
+	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
+
+	/**
+	 * Number formatter for debug output.
+	 */
+	protected DecimalFormat decimalFormat = new DecimalFormat("#0.000000");
+	
+	/**
 	 * The attributes with prefix "newThread" are used to transport parameters
 	 * to new Threads (see growRec source code)
 	 */
 	protected Sampler<Dataset> newThreadSampler;
+
+	/**
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
+	 */
 	protected List<Object> newThreadClassification;
+
+	/**
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
+	 */
 	protected RandomTree newThreadRoot;
-	protected Node newThreadNode;
-	protected int newThreadMode;
-	protected int newThreadDepth;
-	protected int newThreadMaxDepth;
-	protected long newThreadCount;
 	
 	/**
-	 * Date formatter for debug output.
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
 	 */
-	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
+	protected Node newThreadNode;
+	
+	/**
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
+	 */
+	protected int newThreadMode;
+
+	/**
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
+	 */
+	protected int newThreadDepth;
+	
+	/**
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
+	 */
+	protected int newThreadMaxDepth;
+	
+	/**
+	 * The attributes with prefix "newThread" are used to transport parameters
+	 * to new Threads (see growRec source code)
+	 */
+	protected long newThreadCount;
 	
 	/**
 	 * Create a tree.
@@ -120,7 +157,7 @@ public abstract class RandomTree extends Thread {
 	protected abstract float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception;
 
 	/**
-	 * Splits the training data set of one node.
+	 * Splits the training data set of a node.
 	 * 
 	 * @param sampler
 	 * @param classification
@@ -172,19 +209,6 @@ public abstract class RandomTree extends Thread {
 	 */
 	public abstract float[] classify(final Object data, final int x, final int y) throws Exception;
 		
-	/**
-	 * Provides the possibility to add tree specific log output per node.
-	 * 
-	 * @param pre
-	 * @param countClassesLeft
-	 * @param countClassesRight
-	 * @param winner
-	 * @param winnerThreshold
-	 * @throws Exception
-	 */
-	public void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception {
-	}
-	
 	/**
 	 * Build first classification array (from bootstrapping samples and random values per sampled frame)
 	 * 
@@ -297,10 +321,8 @@ public abstract class RandomTree extends Thread {
 		double max = -Double.MAX_VALUE;
 		int winner = 0;
 		int winnerThreshold = 0;
-
 		double min = Double.MAX_VALUE; // TMP just used for stats
 		Statistic2d gainStat = new Statistic2d(); // TMP gain statistics for gain/threshold diagrams
-		
 		for(int i=0; i<numOfFeatures; i++) {
 			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
 				if(gain[i][j] > max) {
@@ -331,10 +353,10 @@ public abstract class RandomTree extends Thread {
 			if (thresholds[winner][winnerThreshold] == tmin) log.write(pre + "WARNING: Threshold winner is min: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold]);
 			if (thresholds[winner][winnerThreshold] == tmax) log.write(pre + "WARNING: Threshold winner is max: Depth " + depth + ", mode: " + mode + ", thr: " + thresholds[winner][winnerThreshold]);
 
-			// Tree specific log entries
+			// Application specific log entries
 			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
 
-			// Thresholds
+			// Log thresholds
 			for(int i=0; i<thresholds[winner].length; i++) {
 				log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
 			}
@@ -350,12 +372,12 @@ public abstract class RandomTree extends Thread {
 		
 		// See in info gain is sufficient:
 		if (gain[winner][winnerThreshold] > params.entropyThreshold) {
-			// Yes, save feature and continue recursion
+			// Yes, save best feature
 			node.feature = (Feature)paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
 			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
 		} else {
-			// No, make leaf and return
+			// No, make this node a leaf and return
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) log.write(pre + "Info gain insufficient, Leaf probabilities: " + ArrayUtils.toString(node.probabilities, true));
 			return;
@@ -365,7 +387,7 @@ public abstract class RandomTree extends Thread {
 		long[] counts = new long[2];
 		List<Object> classificationNext = splitValues(sampler, classification, mode, node, counts);
 		
-		// If one side has 0 values to classify, make this node a leaf
+		// If one side has 0 values to classify, make this node a leaf and return
 		if (counts[0] == 0 || counts[1] == 0) {
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
 			if (params.logNodeInfo) log.write(pre + "One side zero -> leaf; Probabilities: " + ArrayUtils.toString(node.probabilities, true));
@@ -379,15 +401,14 @@ public abstract class RandomTree extends Thread {
 		// Recursion to left and right
 		node.left = new Node();
 		growRec(root, sampler, classificationNext, counts[0], node.left, 1, depth+1, maxDepth, true);
-
 		node.right = new Node();
 		growRec(root, sampler, classificationNext, counts[1], node.right, 2, depth+1, maxDepth, true);
 	}
 
 	/**
-	 * Evaluates a couple of features with a couple of thresholds. This
-	 * is the most CPU intensive part of the tree training algorithm.
+	 * Evaluates a couple of features with a couple of thresholds. 
 	 * This method just controls the thread behaviour of feature evaluation.
+	 * The CPU-intensive calculation takes place in abstract method evaluateFeatures().
 	 * 
 	 * @param sampler
 	 * @param paramSet
@@ -402,19 +423,21 @@ public abstract class RandomTree extends Thread {
 		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
 		
 		if (!params.enableEvaluationThreads) {
+			// Eval threads are disabled -> simply calculate it
 			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
 		
 		if (count < params.minEvalThreadCount) {
-			// Not much values, no multithreading
+			// Not enough values -> no eval multithreading (there might happen some node 
+			// threading from this point on, see option "boostOnSmallNodes"...)
 			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no eval multithreading]");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
 		
-		// Create workers for frequency bands
+		// Create worker threads for groups of frequency bands and start them
 		RandomTreeWorker[] workers = new RandomTreeWorker[params.numOfWorkerThreadsPerNode];
 		int ipw = numWork / workers.length;
 		for(int i=0; i<workers.length; i++) {
@@ -425,6 +448,8 @@ public abstract class RandomTree extends Thread {
 			workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			workers[i].start();
 		}
+		
+		// Wait for the worker threads
 		while(true) {
 			try {
 				Thread.sleep(params.threadWaitTime);
@@ -549,7 +574,6 @@ public abstract class RandomTree extends Thread {
 			all += counts[i];
 		}
 		if(all <= 0) return 0;
-		
 		double ret = 0;
 		for(int i=0; i<counts.length; i++) {
 			if (counts[i] > 0) {
@@ -564,7 +588,7 @@ public abstract class RandomTree extends Thread {
 	 * Wraps the growRec() method for multithreaded tree growing, using the 
 	 * instance attributes postfixed with "newThread".
 	 * Represents an "anonymous" RandomTree instance to wrap the growRec method. 
-	 * Results have to be watched with the isGrown method of the original RandomTree instance.
+	 * Results have to be watched with the isGrown method of the original (root) RandomTree instance.
 	 * 
 	 */
 	public void run() {
@@ -612,7 +636,7 @@ public abstract class RandomTree extends Thread {
 	}
 
 	/**
-	 * Returns a info gain statistic instance.
+	 * Returns the info gain statistic instance.
 	 * 
 	 * @return
 	 */
@@ -668,7 +692,7 @@ public abstract class RandomTree extends Thread {
 	}
 
 	/**
-	 * Returns if the tree is grown. For multithreading mode.
+	 * Returns if the tree is grown.
 	 * 
 	 * @return
 	 */
@@ -686,7 +710,7 @@ public abstract class RandomTree extends Thread {
 	}
 	
 	/**
-	 * Write some params to log file.
+	 * Write some growing params to the tree log file.
 	 * @throws Exception 
 	 * 
 	 */
@@ -700,4 +724,19 @@ public abstract class RandomTree extends Thread {
 		log.write("Training data for tree " + num + ":\n" + lst);
 		log.write("\n");
 	}
+	
+	/**
+	 * Provides the possibility to add tree specific log output per node.
+	 * Override this method to insert your individual log entries for each node during training.
+	 * 
+	 * @param pre
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @param winner
+	 * @param winnerThreshold
+	 * @throws Exception
+	 */
+	public void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception {
+	}
+	
 }
