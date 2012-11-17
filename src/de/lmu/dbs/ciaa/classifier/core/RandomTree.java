@@ -246,7 +246,10 @@ public abstract class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
-		if (params.maxNumOfNodeThreads > 0) {
+		
+		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
+			(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
+			
 			synchronized (root.forest) { 
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 

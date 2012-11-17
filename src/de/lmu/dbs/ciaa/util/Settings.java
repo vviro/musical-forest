@@ -86,6 +86,7 @@ public class Settings {
 		r.numOfWorkerThreadsPerNode = Integer.parseInt(forest.getAttributeValue("numOfWorkerThreadsPerNode"));
 		r.minEvalThreadCount = Long.parseLong(forest.getAttributeValue("minEvalThreadCount"));
 		r.enableEvaluationThreads = Boolean.parseBoolean(forest.getAttributeValue("enableEvaluationThreads"));
+		r.boostOnSmallNodes = Boolean.parseBoolean(forest.getAttributeValue("boostOnSmallNodes"));
 		r.threadWaitTime = Integer.parseInt(forest.getAttributeValue("threadWaitTime"));
 		r.percentageOfRandomValuesPerFrame = Double.parseDouble(forest.getAttributeValue("percentageOfRandomValuesPerFrame"));
 		r.numOfRandomFeatures = Integer.parseInt(forest.getAttributeValue("numOfRandomFeatures"));

@@ -45,11 +45,12 @@
 		
 		threadWaitTime="3000"
 		
-		maxNumOfNodeThreads="0"
 		
+		maxNumOfNodeThreads="8"
 		enableEvaluationThreads="true"
+		boostOnSmallNodes="true"
 		numOfWorkerThreadsPerNode="10"
-		minEvalThreadCount="30000"
+		minEvalThreadCount="80000"
 	></Forest>
 
 	<!--  

@@ -14,6 +14,8 @@ public class ForestParameters {
 	
 	public int numOfWorkerThreadsPerNode;
 	
+	public boolean boostOnSmallNodes;
+	
 	public long minEvalThreadCount;
 	
 	/**
