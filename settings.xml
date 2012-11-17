@@ -30,10 +30,10 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="16"
-		percentageOfRandomValuesPerFrame="0.7"
-		numOfRandomFeatures="200"
-		thresholdCandidatesPerFeature="50"
+		maxDepth="6"
+		percentageOfRandomValuesPerFrame="0.5"
+		numOfRandomFeatures="150"
+		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
 		entropyThreshold="0"
 		
@@ -71,7 +71,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_frNightly"
+		workingFolder="testdataResults/forestremote_sa1"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
