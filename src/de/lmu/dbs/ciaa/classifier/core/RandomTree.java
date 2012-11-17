@@ -83,46 +83,12 @@ public abstract class RandomTree extends Thread {
 	 * to new Threads (see growRec source code)
 	 */
 	protected Sampler<Dataset> newThreadSampler;
-
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
 	protected List<Object> newThreadClassification;
-
-	/**
-	 * Root tree instance, used for multithreading to watch active threads.
-	 */
 	protected RandomTree newThreadRoot;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
 	protected Node newThreadNode;
-
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
 	protected int newThreadMode;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
 	protected int newThreadDepth;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
 	protected int newThreadMaxDepth;
-	
-	/**
-	 * The attributes with prefix "newThread" are used to transport parameters
-	 * to new Threads (see growRec source code)
-	 */
 	protected long newThreadCount;
 	
 	/**
@@ -142,6 +108,29 @@ public abstract class RandomTree extends Thread {
 		this.numOfClasses = numOfClasses;
 	}
 	
+	/**
+	 * Calculates leaf probability.
+	 * 
+	 * @param sampler
+	 * @param mode
+	 * @param depth
+	 * @return
+	 * @throws Exception
+	 */
+	protected abstract float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception;
+
+	/**
+	 * Splits the training data set of one node.
+	 * 
+	 * @param sampler
+	 * @param classification
+	 * @param mode
+	 * @param node
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract List<Object> splitValues(Sampler<Dataset> sampler, List<Object> classification, int mode, Node node, long[] counts) throws Exception;
+
 	/**
 	 * Returns a new instance of the tree.
 	 * 
@@ -184,98 +173,6 @@ public abstract class RandomTree extends Thread {
 	public abstract float[] classify(final Object data, final int x, final int y) throws Exception;
 		
 	/**
-	 * Grows the tree. 
-	 * <br><br>
-	 * Attention: If multithreading is activated, you have to care about 
-	 * progress before proceeding with testing etc., i.e. you can use the 
-	 * isGrown() method for that purpose.
-	 * 
-	 * @param sampler contains the whole data to train the tree.
-	 * @param mode 0: root node (no preceeding classification), 1: left, 2: right; -1: out of bag
-	 * @throws Exception
-	 *
-	public abstract void grow(final Sampler<Dataset> sampler, final int maxDepth) throws Exception;
-
-	/**
-	 * Internal: Grows the tree.
-	 * 
-	 * @param sampler contains the whole data to train the tree.
-	 * @param mode 0: root node (no preceeding classification), 1: left, 2: right; -1: out of bag
-	 * @param multithreading this is used to disable the threading part, if called from the run method. 
-	 *        Otherwise, an infinite loop would happen with multithreading.
-	 * @throws Exception 
-	 *
-	protected abstract void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
-
-	/**
-	 * Saves the tree to a file.
-	 * 
-	 * @param file
-	 * @throws Exception
-	 */
-	public void save(final String filename) throws Exception {
-		FileOutputStream fout = new FileOutputStream(filename);
-		ObjectOutputStream oos = new ObjectOutputStream(fout);   
-		oos.writeObject(tree);
-		oos.close();
-	}
-	
-	/**
-	 * Loads a tree from file and returns it.
-	 * 
-	 * TODO: Save params with forest
-	 * 
-	 * @param filename
-	 * @return
-	 * @throws Exception
-	 */
-	public void load(final String filename) throws Exception {
-		FileInputStream fin = new FileInputStream(filename);
-		ObjectInputStream ois = new ObjectInputStream(fin);
-		tree = (Node)ois.readObject();
-		ois.close();
-	}
-
-	/**
-	 * Returns if the tree is grown. For multithreading mode.
-	 * 
-	 * @return
-	 */
-	public boolean isGrown() {
-		return (nodeThreadsActive == 0) && (evaluationThreadsActive == 0);
-	}
-
-	/**
-	 * Sets a forest as parent.
-	 * 
-	 * @param forest
-	 */
-	public void setForest(Forest forest) {
-		this.forest = forest;
-	}
-	
-	/**
-	 * Wraps the growRec() method for multithreaded tree growing, using the 
-	 * instance attributes postfixed with "newThread".
-	 * Represents an "anonymous" RandomTree instance to wrap the growRec method. 
-	 * Results have to be watched with the isGrown method of the original RandomTree instance.
-	 * 
-	 */
-	public void run() {
-		try {
-			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
-
-			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			newThreadRoot.decThreadsActive();
-			
-			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": <-- Thread at depth " + newThreadDepth + " released.");
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
-	
-	/**
 	 * Provides the possibility to add tree specific log output per node.
 	 * 
 	 * @param pre
@@ -285,7 +182,8 @@ public abstract class RandomTree extends Thread {
 	 * @param winnerThreshold
 	 * @throws Exception
 	 */
-	public abstract void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception;
+	public void logAdditional(String pre, long[][][] countClassesLeft, long[][][] countClassesRight, int winner, int winnerThreshold) throws Exception {
+	}
 	
 	/**
 	 * Build first classification array (from bootstrapping samples and random values per sampled frame)
@@ -295,6 +193,25 @@ public abstract class RandomTree extends Thread {
 	 * @throws Exception 
 	 */
 	protected abstract List<Object> getPreClassification(Sampler<Dataset> sampler) throws Exception;
+
+	/**
+	 * This does the actual evaluation work.
+	 * 
+	 * @param sampler
+	 * @param minIndex
+	 * @param maxIndex
+	 * @param paramSet
+	 * @param classification
+	 * @param count
+	 * @param mode
+	 * @param thresholds
+	 * @param countClassesLeft
+	 * @param countClassesRight
+	 * @param node
+	 * @param depth
+	 * @throws Exception
+	 */
+	public abstract void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception;
 
 	/**
 	 * Grows the tree. 
@@ -458,29 +375,6 @@ public abstract class RandomTree extends Thread {
 	}
 
 	/**
-	 * Calculates leaf probability.
-	 * 
-	 * @param sampler
-	 * @param mode
-	 * @param depth
-	 * @return
-	 * @throws Exception
-	 */
-	protected abstract float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception;
-
-	/**
-	 * Splits the training data set of one node.
-	 * 
-	 * @param sampler
-	 * @param classification
-	 * @param mode
-	 * @param node
-	 * @return
-	 * @throws Exception
-	 */
-	public abstract List<Object> splitValues(Sampler<Dataset> sampler, List<Object> classification, int mode, Node node, long[] counts) throws Exception;
-
-	/**
 	 * Evaluates a couple of features with a couple of thresholds. This
 	 * is the most CPU intensive part of the tree training algorithm.
 	 * This method just controls the thread behaviour of feature evaluation.
@@ -545,25 +439,6 @@ public abstract class RandomTree extends Thread {
 		System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + ": All workers done");
 	}
 	
-	/**
-	 * This does the actual evaluation work.
-	 * 
-	 * @param sampler
-	 * @param minIndex
-	 * @param maxIndex
-	 * @param paramSet
-	 * @param classification
-	 * @param count
-	 * @param mode
-	 * @param thresholds
-	 * @param countClassesLeft
-	 * @param countClassesRight
-	 * @param node
-	 * @param depth
-	 * @throws Exception
-	 */
-	public abstract void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception;
-
 	/**
 	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
 	 * 
@@ -676,6 +551,27 @@ public abstract class RandomTree extends Thread {
 	}
 
 	/**
+	 * Wraps the growRec() method for multithreaded tree growing, using the 
+	 * instance attributes postfixed with "newThread".
+	 * Represents an "anonymous" RandomTree instance to wrap the growRec method. 
+	 * Results have to be watched with the isGrown method of the original RandomTree instance.
+	 * 
+	 */
+	public void run() {
+		try {
+			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
+
+			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
+			newThreadRoot.decThreadsActive();
+			
+			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": <-- Thread at depth " + newThreadDepth + " released.");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+	
+	/**
 	 * Returns the amount of active threads for this tree.
 	 * 
 	 * @return
@@ -732,6 +628,53 @@ public abstract class RandomTree extends Thread {
 		return numOfClasses;
 	}
 
+	/**
+	 * Saves the tree to a file.
+	 * 
+	 * @param file
+	 * @throws Exception
+	 */
+	public void save(final String filename) throws Exception {
+		FileOutputStream fout = new FileOutputStream(filename);
+		ObjectOutputStream oos = new ObjectOutputStream(fout);   
+		oos.writeObject(tree);
+		oos.close();
+	}
+	
+	/**
+	 * Loads a tree from file and returns it.
+	 * 
+	 * TODO: Save params with forest
+	 * 
+	 * @param filename
+	 * @return
+	 * @throws Exception
+	 */
+	public void load(final String filename) throws Exception {
+		FileInputStream fin = new FileInputStream(filename);
+		ObjectInputStream ois = new ObjectInputStream(fin);
+		tree = (Node)ois.readObject();
+		ois.close();
+	}
+
+	/**
+	 * Returns if the tree is grown. For multithreading mode.
+	 * 
+	 * @return
+	 */
+	public boolean isGrown() {
+		return (nodeThreadsActive == 0) && (evaluationThreadsActive == 0);
+	}
+
+	/**
+	 * Sets a forest as parent.
+	 * 
+	 * @param forest
+	 */
+	public void setForest(Forest forest) {
+		this.forest = forest;
+	}
+	
 	/**
 	 * Write some params to log file.
 	 * @throws Exception 

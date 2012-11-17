@@ -5,7 +5,7 @@ import java.util.List;
 
 import cern.jet.random.sampling.RandomSampler;
 
-import de.lmu.dbs.ciaa.classifier.core.Feature;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 
 /**
@@ -15,7 +15,7 @@ import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic5 extends Feature {
+public class FeatureHarmonic5 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	

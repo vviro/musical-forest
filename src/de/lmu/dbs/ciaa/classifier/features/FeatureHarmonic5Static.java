@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.classifier.core.Feature;
+import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 
 /**
@@ -13,7 +13,7 @@ import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
  * @author Thomas Weber
  *
  */
-public class FeatureHarmonic5Static extends Feature {
+public class FeatureHarmonic5Static extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
