@@ -133,7 +133,7 @@ public class FeatureHarmonic5_FixedThr extends Feature2d {
 	 * @param data the array to store results (additive)
 	 */
 	public void visualize(Object data2) {
-		byte[][] data = (byte[][])data2;
+		int[][] data = (int[][])data2;
 		int x = data.length/2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int i = chosenHarmonics[j];
