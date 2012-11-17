@@ -38,7 +38,7 @@ public abstract class TreeDataset2d extends TreeDataset {
 		byte[][] dataC = (byte[][])data;
 		byte[][] ret = new byte[dataC.length][dataC[0].length];
 		for(int f=0; f<ret.length; f++) {
-			if (isSampled(f)) {
+			if (!isSampled(f)) {
 				for(int g=0; g<ret[0].length; g++) {
 					ret[f][g] = -1; // Throw all out of bag
 				}

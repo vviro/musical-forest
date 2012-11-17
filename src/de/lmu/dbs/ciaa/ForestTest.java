@@ -21,10 +21,8 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * TODO *************************************************************************************
  *
- * - Eval threads sauber (per paramSet)
- * - Count zeroes (how effective is > 0?)
  * - Features: Klapuri?
- * - both side classification 
+ * - both side classification? 
  * 
  * 
  * 
