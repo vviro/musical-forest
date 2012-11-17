@@ -356,7 +356,8 @@ public abstract class RandomTree extends Thread {
 			// Application specific log entries
 			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
 
-			// Log thresholds
+			/*
+			// Log all tested thresholds of the winner feature
 			for(int i=0; i<thresholds[winner].length; i++) {
 				log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
 			}
