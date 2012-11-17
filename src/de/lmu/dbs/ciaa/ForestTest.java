@@ -11,7 +11,7 @@ import de.lmu.dbs.ciaa.classifier.core.BootstrapSampler;
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core.Forest;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
-import de.lmu.dbs.ciaa.classifier.core.Tree;
+import de.lmu.dbs.ciaa.classifier.core.RandomTree;
 import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
 import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalRandomTree;
 import de.lmu.dbs.ciaa.classifier.musicalforest.MusicalTreeDataset;
@@ -144,7 +144,7 @@ public class ForestTest {
 			if (!params.loadForest) {
 				// Grow
 				Logfile[] treelogs = new Logfile[params.forestSize]; 
-				List<Tree> trees = new ArrayList<Tree>();
+				List<RandomTree> trees = new ArrayList<RandomTree>();
 				for(int i=0; i<params.forestSize; i++) {
 					treelogs[i] = new Logfile(params.workingFolder + File.separator + "T" + i + "_Growlog.txt");
 					trees.add(new MusicalRandomTree(params, i, treelogs[i]));

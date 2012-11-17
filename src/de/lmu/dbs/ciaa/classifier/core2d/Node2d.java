@@ -7,13 +7,18 @@ import de.lmu.dbs.ciaa.classifier.core.Node;
 import de.lmu.dbs.ciaa.util.ArrayToImage;
 
 /**
- * Provides some debugging extras specially for 2d trees.
+ * 2d node.
  * 
  * @author Thomas Weber
  *
  */
 public class Node2d extends Node {
 
+	/**
+	 * The feature which classifies the node branches
+	 */
+	public Feature2d feature;
+	
 	/**
 	 * Stores the last classification done by this node. For debugging.
 	 */
@@ -41,5 +46,16 @@ public class Node2d extends Node {
 		img.save(new File(filename));
 	}
 	
+	/**
+	 * Returns a visualization of all node features of the forest. For debugging use.
+	 * 
+	 * @param data the array to store results (additive)
+	 */
+	public void visualize(Object data) {
+		if (isLeaf()) return;
+		feature.visualize((int[][])data);
+		left.visualize(data);
+		right.visualize(data);
+	}
 
 }

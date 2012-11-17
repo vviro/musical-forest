@@ -19,7 +19,7 @@ public class Forest {
 	/**
 	 * The trees of the forest
 	 */
-	protected List<Tree> trees;
+	protected List<RandomTree> trees;
 	
 	/**
 	 * Parameters for growing the trees in the forest.
@@ -37,7 +37,7 @@ public class Forest {
 	 * @param trees
 	 * @throws Exception 
 	 */
-	public Forest(List<Tree> trees, final ForestParameters params, Logfile log) throws Exception {
+	public Forest(List<RandomTree> trees, final ForestParameters params, Logfile log) throws Exception {
 		this.params = params;
 		this.trees = trees;
 		this.log = log;
@@ -55,7 +55,7 @@ public class Forest {
 	 * @throws Exception 
 	 */
 	public Forest(ForestParameters params) throws Exception {
-		this.trees = new ArrayList<Tree>();
+		this.trees = new ArrayList<RandomTree>();
 		this.params = params;
 		check();
 	}
@@ -126,7 +126,7 @@ public class Forest {
 		int poss = (int)Math.pow(2, params.maxDepth);
 		TreeAnalyzer ana = new TreeAnalyzer(params);
 		for(int i=0; i<trees.size(); i++) {
-			Tree t = trees.get(i);
+			RandomTree t = trees.get(i);
 			log.write("Tree " + i + ": " + ana.getNumOfLeafs(t) +  " leafs of possible " + poss + "; Information gain: " + t.getInfoGain());
 			log.write("Count nodes at depths:\n" + ana.getDepthCountsString(t));
 			log.write("Tree structure:\n" + ana.getTreeVisualization(t));
@@ -260,7 +260,7 @@ public class Forest {
 	 * 
 	 * @return
 	 */
-	public List<Tree> getTrees() {
+	public List<RandomTree> getTrees() {
 		return trees;
 	}
 

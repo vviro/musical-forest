@@ -33,7 +33,7 @@ public abstract class TreeDataset2d extends TreeDataset {
 	 * @return
 	 * @throws Exception
 	 */
-	public synchronized byte[][] getInitialClassification() throws Exception {
+	public synchronized Object getInitialClassification() throws Exception {
 		if (!isLoaded()) load();
 		byte[][] dataC = (byte[][])data;
 		byte[][] ret = new byte[dataC.length][dataC[0].length];
@@ -57,7 +57,7 @@ public abstract class TreeDataset2d extends TreeDataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public synchronized byte[][] getInitialClassification(final int valuesPerFrame) throws Exception {
+	public synchronized Object getInitialClassification(final int valuesPerFrame) throws Exception {
 		if (!isLoaded()) load();
 		byte[][] dataC = (byte[][])data;
 		if (valuesPerFrame >= dataC[0].length) {

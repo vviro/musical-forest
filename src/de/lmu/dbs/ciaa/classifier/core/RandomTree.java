@@ -12,7 +12,7 @@ import de.lmu.dbs.ciaa.util.Statistic;
  * @author Thomas Weber
  *
  */
-public abstract class Tree extends Thread {
+public abstract class RandomTree extends Thread {
 
 	/**
 	 * Number of classes to divide
@@ -42,7 +42,7 @@ public abstract class Tree extends Thread {
 	/**
 	 * The actual tree structure
 	 */
-	protected Node tree = new Node();
+	protected Node tree = null;
 	
 	/**
 	 * The parameter set used to grow the tree
@@ -79,7 +79,7 @@ public abstract class Tree extends Thread {
 	/**
 	 * Root tree instance, used for multithreading to watch active threads.
 	 */
-	protected Tree newThreadRoot;
+	protected RandomTree newThreadRoot;
 	
 	/**
 	 * The attributes with prefix "newThread" are used to transport parameters
@@ -122,7 +122,8 @@ public abstract class Tree extends Thread {
 	 * @param num
 	 * @param log
 	 */
-	public Tree(int numOfClasses, int num, Logfile log) {
+	public RandomTree(Node tree, int numOfClasses, int num, Logfile log) {
+		this.tree = tree;
 		this.num = num;
 		this.log = log;
 		this.numOfClasses = numOfClasses;
@@ -161,7 +162,7 @@ public abstract class Tree extends Thread {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected abstract void growRec(Tree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
+	protected abstract void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception;
 
 	/**
 	 * Saves the tree to a file.

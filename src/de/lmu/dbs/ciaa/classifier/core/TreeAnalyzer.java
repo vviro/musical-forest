@@ -26,7 +26,7 @@ public class TreeAnalyzer {
 	 * 
 	 * @param data the array to store results (additive)
 	 */
-	public void visualize(Tree rtree, Object data) {
+	public void visualize(RandomTree rtree, Object data) {
 		rtree.getRootNode().visualize(data);
 	}
 
@@ -35,7 +35,7 @@ public class TreeAnalyzer {
 	 * 
 	 * @return
 	 */
-	public int getNumOfLeafs(Tree rtree) {
+	public int getNumOfLeafs(RandomTree rtree) {
 		return getNumOfLeafs(rtree.getRootNode().left) + getNumOfLeafs(rtree.getRootNode().right);
 	}
 	
@@ -57,7 +57,7 @@ public class TreeAnalyzer {
 	 * 
 	 * @return
 	 */
-	public int[] getDepthCounts(Tree rtree) {
+	public int[] getDepthCounts(RandomTree rtree) {
 		int[] counts = new int[params.maxDepth+1];
 		getDepthCountsRec(rtree.getRootNode(), counts, 0);
 		return counts;
@@ -83,7 +83,7 @@ public class TreeAnalyzer {
 	 * 
 	 * @return
 	 */
-	public String getDepthCountsString(Tree rtree) {
+	public String getDepthCountsString(RandomTree rtree) {
 		String ret = "";
 		int[] counts = getDepthCounts(rtree);
 		for(int i=0; i<counts.length; i++) {
@@ -97,7 +97,7 @@ public class TreeAnalyzer {
 	 * 
 	 * @return
 	 */
-	public String getTreeVisualization(Tree rtree) {
+	public String getTreeVisualization(RandomTree rtree) {
 		String[] s = new String[params.maxDepth+1];
 		int b = (int)Math.pow(2, params.maxDepth) * 2;
 		for(int i=0; i<s.length; i++) {

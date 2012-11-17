@@ -71,6 +71,26 @@ public abstract class TreeDataset extends Dataset {
 	public abstract void load() throws Exception;
 	
 	/**
+	 * Returns the initial classification array for this dataset.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract Object getInitialClassification() throws Exception;
+
+	/**
+	 * Returns the initial classification array for this dataset.
+	 * <br><br>
+	 * Selects valuesPerFrame randomly chosen pixels from the dataset.
+	 * This is done by classifying the value to -1 (out of bag). 
+	 * 
+	 * @param valuesPerFrame
+	 * @return
+	 * @throws Exception 
+	 */
+	public abstract Object getInitialClassification(final int valuesPerFrame) throws Exception;
+
+	/**
 	 * Determines if the dataset has been loaded.
 	 * 
 	 * @return

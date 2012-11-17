@@ -1,9 +1,9 @@
 package de.lmu.dbs.ciaa.classifier.core;
 
+import java.io.Serializable;
 
-import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 
-public class Node {
+public abstract class Node implements Serializable {
 
 	private static final long serialVersionUID = 2L;
 
@@ -16,11 +16,6 @@ public class Node {
 	 * Next node id
 	 */
 	public static long nextId = 0;
-	
-	/**
-	 * The feature which classifies the node branches
-	 */
-	public Feature2d feature;
 	
 	/**
 	 * Left branch node
@@ -63,11 +58,6 @@ public class Node {
 	 * 
 	 * @param data the array to store results (additive)
 	 */
-	public void visualize(Object data) {
-		if (isLeaf()) return;
-		feature.visualize((int[][])data);
-		left.visualize(data);
-		right.visualize(data);
-	}
+	public abstract void visualize(Object data);
 
 }
