@@ -402,7 +402,7 @@ public abstract class RandomTree extends Thread {
 		
 		if (count < params.minEvalThreadCount) {
 			// Not much values, no multithreading
-			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no multithreading]");
+			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no eval multithreading]");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
