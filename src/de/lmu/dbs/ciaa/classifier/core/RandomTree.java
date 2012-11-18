@@ -360,11 +360,11 @@ public abstract class RandomTree extends Thread {
 			if (params.logFeatureCandidates) {
 				for(int i=0; i<paramSet.size(); i++) {
 					// Get max info gain of this feature candidate
-					double maxFT = -Double.MAX_VALUE;
-					for(int j=0; j<thresholds[i].length; j++) {
-						if (thresholds[i][j] > maxFT) maxFT = thresholds[i][j];
+					double maxFG = -Double.MAX_VALUE;
+					for(int j=0; j<gain[i].length; j++) {
+						if (gain[i][j] > maxFG) maxFG = gain[i][j];
 					}
-					log.write(pre + "Feature " + i + ": " + paramSet.get(i) + "; max info gain: " + maxFT);
+					log.write(pre + "Feature " + i + ": " + paramSet.get(i) + "; max info gain: " + maxFG);
 				}
 			}
 			
