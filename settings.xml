@@ -84,7 +84,7 @@
 		saveNodeClassifications="3"
 		
 		debugThreadPolling="true"
-		debugNodeThreads="true"
+		debugNodeThreads="false"
 	></General>
 
 	<!--  
