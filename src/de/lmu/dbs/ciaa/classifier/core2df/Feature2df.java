@@ -25,5 +25,5 @@ public abstract class Feature2df extends Feature {
 	 * @throws Exception 
 	 */
 	public abstract float evaluate(final byte[][] data, final int x) throws Exception;
-
+	
 }

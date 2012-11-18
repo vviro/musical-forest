@@ -204,4 +204,9 @@ public class FeatureHarmonic5Static extends Feature2d {
 		return ret + "}";
 	}
 
+	@Override
+	public Feature2d getInstance(ForestParameters params) {
+		return new FeatureHarmonic5Static(params);
+	}
+
 }

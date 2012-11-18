@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa.classifier.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.lmu.dbs.ciaa.classifier.core.Feature;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 import de.lmu.dbs.ciaa.classifier.core2df.Feature2df;
 
@@ -60,21 +61,13 @@ public class Feature2df_1 extends Feature2df {
 	 * 
 	 */
 	@Override
-	public List<Object> getRandomFeatureSet(ForestParameters params) {
-		List<Object> ret = new ArrayList<Object>();
-		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			Feature2df_1 n = new Feature2df_1(params);
-			ret.add(n);
-		}
-		return ret;
-	}
-
-	/**
-	 * 
-	 */
-	@Override
 	public void visualize(Object data) {
 		//data[][];
+	}
+
+	@Override
+	public Feature getInstance(ForestParameters params) {
+		return new Feature2df_1(params);
 	}
 
 }

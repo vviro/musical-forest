@@ -63,25 +63,6 @@ public class FeatureHarmonic5_FixedThr extends Feature2d {
 	}
 
 	/**
-	 * Returns num feature parameter instances, each randomly generated.
-	 * 
-	 * @param num
-	 * @return
-	 */
-	public List<Object> getRandomFeatureSet(ForestParameters params) {
-		List<Object> ret = new ArrayList<Object>();
-		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureHarmonic5_FixedThr n = new FeatureHarmonic5_FixedThr(params);
-			ret.add(n);
-			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
-				ret.add(new FeatureHarmonic5(n));
-			}*/
-		}
-		return ret;
-		
-	}
-	
-	/**
 	 * Feature function called to classify tree nodes.  -> feature5.png, quite good
 	 * 
 	 * @param data data sample
@@ -149,6 +130,11 @@ public class FeatureHarmonic5_FixedThr extends Feature2d {
 			ret+= chosenHarmonics[i] + ": " + harmonicFactors[i] + ", ";
 		}
 		return ret + "}";
+	}
+
+	@Override
+	public Feature2d getInstance(ForestParameters params) {
+		return new FeatureHarmonic5_FixedThr(params);
 	}
 
 	/**

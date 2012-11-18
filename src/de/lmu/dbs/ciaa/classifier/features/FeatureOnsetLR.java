@@ -181,4 +181,9 @@ public class FeatureOnsetLR extends Feature2d {
 		return ret;
 	}
 	//*/
+
+	@Override
+	public Feature2d getInstance(ForestParameters params) {
+		return new FeatureOnsetLR(params);
+	}
 }

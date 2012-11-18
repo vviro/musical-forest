@@ -259,4 +259,9 @@ public class FeatureHarmonic6 extends Feature2d {
 		}
 		return ret;
 	}
+
+	@Override
+	public Feature2d getInstance(ForestParameters params) {
+		return new FeatureHarmonic6(params);
+	}
 }

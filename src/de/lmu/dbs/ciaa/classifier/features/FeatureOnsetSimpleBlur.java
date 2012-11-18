@@ -160,6 +160,11 @@ public class FeatureOnsetSimpleBlur extends Feature2d {
 	 * Percentage of thresholds taken from below border
 	 */
 	public float borderDiv = 0.2f;
+
+	@Override
+	public Feature2d getInstance(ForestParameters params) {
+		return new FeatureOnsetSimpleBlur(params);
+	}
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.

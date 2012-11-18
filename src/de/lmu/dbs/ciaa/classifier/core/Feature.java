@@ -1,8 +1,8 @@
 package de.lmu.dbs.ciaa.classifier.core;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Core feature class.
@@ -23,12 +23,27 @@ public abstract class Feature implements Serializable {
 	public double threshold;
 	
 	/**
-	 * Returns a list of generated features.
+	 * Factory method.
 	 * 
-	 * @param params the RandomTreeParameters object holding parameters.
+	 * @param params
 	 * @return
 	 */
-	public abstract List<Object> getRandomFeatureSet(final ForestParameters params);
+	public abstract Feature getInstance(ForestParameters params);
+	
+	/**
+	 * Returns num feature parameter instances, each randomly generated.
+	 * 
+	 * @param num
+	 * @return
+	 */
+	public List<Object> getRandomFeatureSet(ForestParameters params) {
+		List<Object> ret = new ArrayList<Object>();
+		for(int i=0; i<params.numOfRandomFeatures; i++) {
+			Feature n = getInstance(params);
+			ret.add(n);
+		}
+		return ret;
+	}
 
 	/**
 	 * Returns a visualization of all node features of the forest. For debugging use.

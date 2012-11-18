@@ -1,8 +1,5 @@
 package de.lmu.dbs.ciaa.classifier.features;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
@@ -76,25 +73,6 @@ public class FeatureHarmonic5_vari extends Feature2d {
 	public FeatureHarmonic5_vari() {
 	}
 
-	/**
-	 * Returns num feature parameter instances, each randomly generated.
-	 * 
-	 * @param num
-	 * @return
-	 */
-	public List<Object> getRandomFeatureSet(ForestParameters params) {
-		List<Object> ret = new ArrayList<Object>();
-		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureHarmonic5_vari n = new FeatureHarmonic5_vari(params);
-			ret.add(n);
-			/*for(int j=0; j<params.thresholdCandidatesPerFeature-1; j++) {
-				ret.add(new FeatureHarmonic5(n));
-			}*/
-		}
-		return ret;
-		
-	}
-	
 	/**
 	 * Feature function called to classify tree nodes. 
 	 * 
@@ -273,5 +251,10 @@ public class FeatureHarmonic5_vari extends Feature2d {
 			ret[i] = (float)(border + Math.random() * getMaxValue());
 		}
 		return ret;
+	}
+
+	@Override
+	public Feature2d getInstance(ForestParameters params) {
+		return new FeatureHarmonic5_vari(params);
 	}
 }
