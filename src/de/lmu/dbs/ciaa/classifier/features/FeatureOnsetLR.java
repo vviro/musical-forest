@@ -111,7 +111,7 @@ public class FeatureOnsetLR extends Feature2d {
 	 */
 	@Override
 	public float getMaxValue() {
-		return 40000; 
+		return 400000; 
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class FeatureOnsetLR extends Feature2d {
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 *
+	 */
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];
