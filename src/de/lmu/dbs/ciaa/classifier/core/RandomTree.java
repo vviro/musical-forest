@@ -355,6 +355,9 @@ public abstract class RandomTree extends Thread {
 
 			// Application specific log entries
 			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
+			
+			// Feature specific log entries
+			//node.feature.logAdditional(pre, log);
 
 			// Log all feature candidates
 			if (params.logFeatureCandidates) {
@@ -388,7 +391,7 @@ public abstract class RandomTree extends Thread {
 			// Yes, save best feature
 			node.feature = (Feature)paramSet.get(winner);
 			node.feature.threshold = thresholds[winner][winnerThreshold];
-			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Coeffs: " + node.feature);
+			if (params.logNodeInfo) log.write(pre + "Feature threshold: " + node.feature.threshold + "; Class: " + node.feature.getClass().getName() + ", Coeffs: " + node.feature);
 		} else {
 			// No, make this node a leaf and return
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);

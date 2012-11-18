@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.lmu.dbs.ciaa.util.Logfile;
+
 /**
  * Core feature class.
  * 
@@ -73,4 +75,14 @@ public abstract class Feature implements Serializable {
 		}
 		return ret;
 	}
+
+	/**
+	 * Override this to get access to the logging point in RandomTree.
+	 * 
+	 * @param pre
+	 * @throws Exception 
+	 *
+	public void logAdditional(String pre, Logfile log) throws Exception {
+	}
+	//*/
 }

@@ -40,5 +40,4 @@ public abstract class FeatureComposite2d extends Feature2d {
 		int i = RandomUtils.randomInt(factories.size()-1);
 		return factories.get(i).getInstance(params);
 	}
-
 }
