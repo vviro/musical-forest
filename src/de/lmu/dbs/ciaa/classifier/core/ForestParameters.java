@@ -10,6 +10,10 @@ package de.lmu.dbs.ciaa.classifier.core;
  */
 public class ForestParameters {
 
+	public boolean logWinnerThresholdCandidates;
+	
+	public boolean logFeatureCandidates;
+	
 	public boolean enableEvaluationThreads;
 	
 	public int numOfWorkerThreadsPerNode;

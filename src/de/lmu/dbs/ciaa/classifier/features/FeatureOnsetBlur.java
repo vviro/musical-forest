@@ -14,7 +14,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureOnsetLR extends Feature2d {
+public class FeatureOnsetBlur extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -31,17 +31,16 @@ public class FeatureOnsetLR extends Feature2d {
 	//private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
 	private static int[] harmonics = null;
 	
-	public int uX;
-	public int vX;
+	public int uY;
+	//public int vY;
 	
 	/**
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureOnsetLR(final ForestParameters params) {
+	public FeatureOnsetBlur(final ForestParameters params) {
 		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
-		uX = RandomUtils.randomInt(1, 10);
-		vX = RandomUtils.randomInt(1, 10);
+		uY = RandomUtils.randomInt(1, 5);
 		/*harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
@@ -64,7 +63,7 @@ public class FeatureOnsetLR extends Feature2d {
 	/**
 	 * 
 	 */
-	public FeatureOnsetLR() {
+	public FeatureOnsetBlur() {
 	}
 
 	/**
@@ -76,7 +75,7 @@ public class FeatureOnsetLR extends Feature2d {
 	public List<Object> getRandomFeatureSet(ForestParameters params) {
 		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureOnsetLR n = new FeatureOnsetLR(params);
+			FeatureOnsetBlur n = new FeatureOnsetBlur(params);
 			ret.add(n);
 		}
 		return ret;
@@ -95,13 +94,11 @@ public class FeatureOnsetLR extends Feature2d {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return 0;
 		float d2 = data[x][y]; //*data[x][y];
-		if (x-uX < 0) return 0;
-		if (x+vX >= data.length) return 0;
 		float ret = 0;
 		for(int j=0; j<harmonics.length; j++) {
 			int ny =  y + harmonics[j];
-			if (ny >= data[0].length) return ret;
-			ret+= (data[x][ny] - data[x-uX][ny]) * d2 * data[x+vX][ny];
+			if (ny+uY >= data[0].length) return ret;
+			ret+= d2*data[x][ny+uY];
 		}
 		return ret;
 	}
@@ -111,7 +108,7 @@ public class FeatureOnsetLR extends Feature2d {
 	 */
 	@Override
 	public float getMaxValue() {
-		return 40000; 
+		return 4000000; 
 	}
 
 	/**
@@ -151,7 +148,7 @@ public class FeatureOnsetLR extends Feature2d {
 	 * 
 	 */
 	public String toString() {
-		return "LR: uX: " + uX + ", vX: " + vX;
+		return "Blur: uY: " + uY;
 	}
 
 	/**
@@ -168,7 +165,7 @@ public class FeatureOnsetLR extends Feature2d {
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
-	 *
+	 */
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];

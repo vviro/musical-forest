@@ -74,6 +74,8 @@ public class Settings {
 		
 		r.logProgress = Boolean.parseBoolean(general.getAttributeValue("logProgress"));
 		r.logNodeInfo = Boolean.parseBoolean(general.getAttributeValue("logNodeInfo"));
+		r.logFeatureCandidates = Boolean.parseBoolean(general.getAttributeValue("logFeatureCandidates"));
+		r.logWinnerThresholdCandidates = Boolean.parseBoolean(general.getAttributeValue("logWinnerThresholdCandidates"));
 		r.saveGainThresholdDiagrams = Integer.parseInt(general.getAttributeValue("saveGainThresholdDiagrams"));
 		r.saveNodeClassifications = Integer.parseInt(general.getAttributeValue("saveNodeClassifications"));
 		r.debugThreadForking = Boolean.parseBoolean(general.getAttributeValue("debugThreadForking"));

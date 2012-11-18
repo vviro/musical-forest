@@ -30,11 +30,11 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="16"
+		maxDepth="1"
 		percentageOfRandomValuesPerFrame="0.25"
-		numOfRandomFeatures="150"
-		thresholdCandidatesPerFeature="15"
-		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureHarmonic5"
+		numOfRandomFeatures="15"
+		thresholdCandidatesPerFeature="10"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetBlur"
 		entropyThreshold="0"
 		
 		xMin="0"
@@ -71,12 +71,14 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_sa1"
+		workingFolder="testdataResults/forestremote_sa2"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
 		logProgress="true"
 		logNodeInfo="true"
+		logWinnerThresholdCandidates="false"
+		logFeatureCandidates="true"
 		
 		saveGainThresholdDiagrams="0"
 		saveNodeClassifications="3"

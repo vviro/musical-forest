@@ -356,12 +356,24 @@ public abstract class RandomTree extends Thread {
 			// Application specific log entries
 			logAdditional(pre, countClassesLeft, countClassesRight, winner, winnerThreshold);
 
-			/*
-			// Log all tested thresholds of the winner feature
-			for(int i=0; i<thresholds[winner].length; i++) {
-				log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
+			// Log all feature candidates
+			if (params.logFeatureCandidates) {
+				for(int i=0; i<paramSet.size(); i++) {
+					// Get max info gain of this feature candidate
+					double maxFT = -Double.MAX_VALUE;
+					for(int j=0; j<thresholds[i].length; j++) {
+						if (thresholds[i][j] > maxFT) maxFT = thresholds[i][j];
+					}
+					log.write(pre + "Feature " + i + ": " + paramSet.get(i) + "; max info gain: " + maxFT);
+				}
 			}
-			//*/
+			
+			// Log all tested thresholds of the winner feature
+			if (params.logWinnerThresholdCandidates) {
+				for(int i=0; i<thresholds[winner].length; i++) {
+					log.write(pre + "Thr. " + i + ": " + decimalFormat.format(thresholds[winner][i]) + ", Gain: " + decimalFormat.format(gain[winner][i]));
+				}
+			}
 		}
 		// Save gain/threshold diagrams for each grown node
 		if (params.saveGainThresholdDiagrams > depth) {
