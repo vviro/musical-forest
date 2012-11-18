@@ -340,7 +340,7 @@ public abstract class RandomTree extends Thread {
 		if (params.logNodeInfo) {
 			// General node info
 			log.write(pre + "------------------------");
-			log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode, System.out);
+			log.write(pre + "Finished node " + node.id + " at Depth " + depth + ", Mode: " + mode); //, System.out);
 			log.write(pre + "Winner: " + winner + " Thr Index: " + winnerThreshold + "; Information gain: " + decimalFormat.format(gain[winner][winnerThreshold]));
 			log.write(pre + "Gain min: " + decimalFormat.format(min) + ", max: " + decimalFormat.format(max));
 			float tmin = Float.MAX_VALUE;

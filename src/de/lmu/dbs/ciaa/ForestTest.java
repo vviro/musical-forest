@@ -22,6 +22,8 @@ import de.lmu.dbs.ciaa.util.*;
  * 		- Ableitung
  * 		- Github -> eigenes Repo
  *
+ * - Wälder bauen
+ * - !!! Features komplett serialisierbar?
  *
  * - Saubere Tests nach Breiman
  *
