@@ -292,7 +292,7 @@ public abstract class RandomTree extends Thread {
 		if (depth >= maxDepth) {
 			// Make it a leaf node
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) log.write(pre + "Reached max depth, Leaf probabilities " + ArrayUtils.toString(node.probabilities, true));
+			if (params.logNodeInfo) log.write(pre + "Reached max depth, Leaf probabilities " + ArrayUtils.toString(node.probabilities, false));
 			return;
 		}
 
@@ -410,7 +410,7 @@ public abstract class RandomTree extends Thread {
 		} else {
 			// No, make this node a leaf and return
 			node.probabilities = calculateLeaf(sampler, classification, mode, depth);
-			if (params.logNodeInfo) log.write(pre + "Info gain insufficient, Leaf probabilities: " + ArrayUtils.toString(node.probabilities, true));
+			if (params.logNodeInfo) log.write(pre + "Info gain insufficient, Leaf probabilities: " + ArrayUtils.toString(node.probabilities, false));
 			return;
 		}
 		

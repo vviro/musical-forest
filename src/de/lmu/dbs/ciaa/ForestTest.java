@@ -25,6 +25,9 @@ import de.lmu.dbs.ciaa.util.*;
  * - Wälder bauen
  * - !!! Features komplett serialisierbar?
  *
+ * - Threading: Node treads sollen warten bis eval threads was übrig haben
+ * 		-> Counter für eval threads einführen
+ *
  * - Saubere Tests nach Breiman
  *
  * - Testdaten: Andere Instrumente? Noisy data?
