@@ -305,7 +305,7 @@ public abstract class RandomTree extends Thread {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
 					RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
-					System.out.println("  T" + num + ": Starting node thread, depth: " + depth + ", active: " + root.forest.getThreadsActive() + ", values: " + count);
+					if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.getThreadsActive() + ", values: " + count);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -327,7 +327,7 @@ public abstract class RandomTree extends Thread {
 		//int numOfClasses = getNumOfClasses();
 		long[][][] countClassesLeft = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
 		long[][][] countClassesRight = new long[numOfFeatures][params.thresholdCandidatesPerFeature][numOfClasses];
-		evaluateFeaturesThreads(sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
+		evaluateFeaturesThreads(root, sampler, paramSet, classification, count, mode, thresholds, countClassesLeft, countClassesRight, node, depth);		
 
 		// Calculate info gain upon each combination of feature/threshold 
 		double[][] gain = getGainsByEntropy(paramSet.size(), countClassesLeft, countClassesRight);
@@ -450,7 +450,7 @@ public abstract class RandomTree extends Thread {
 	 * @param countClassesRight
 	 * @throws Exception
 	 */
-	protected void evaluateFeaturesThreads(Sampler<Dataset> sampler, List<Object> paramSet, List<Object> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
+	protected void evaluateFeaturesThreads(RandomTree root, Sampler<Dataset> sampler, List<Object> paramSet, List<Object> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
 		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
 		
 		if (!params.enableEvaluationThreads) {
@@ -497,51 +497,13 @@ public abstract class RandomTree extends Thread {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Node " + node.id + ", Depth " + depth + ", Values: " + count + "; ");
+				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + "(+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + count + "; ");
 				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 			}
 			if (ret) break;
 		}
 	}
 	
-	/**
-	 * Info gain calculation. Uses an error-unfriendly [0,oo] algo. Stabilizes at good thrs.
-	 * 
-	 * @return
-	 *
-	protected double[][] getGains1(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = ((double)countClassesLeft[i][j][0]/noteRatio) / countClassesLeft[i][j][1];
-				double rightGain = countClassesRight[i][j][1] / ((double)countClassesRight[i][j][0]/noteRatio);
-				gain[i][j] = leftGain * rightGain;
-			}
-		}
-		return gain;
-	}
-
-	/**
-	 * Info gain calculation. Uses an error-unfriendly [-oo,2] algo. Stabilizes at good thrs.
-	 * 
-	 * @return
-	 *
-	protected double[][] getGains2(List<Feature> paramSet, long[][][] countClassesLeft, long[][][] countClassesRight, double noteRatio) {
-		double[][] gain = new double[paramSet.size()][params.thresholdCandidatesPerFeature];
-		double note = countClassesLeft[0][0][0] + countClassesRight[0][0][0];
-		double silence = countClassesLeft[0][0][1] + countClassesRight[0][0][1];
-		int numOfFeatures = paramSet.size();
-		for(int i=0; i<numOfFeatures; i++) {
-			for(int j=0; j<params.thresholdCandidatesPerFeature; j++) {
-				double leftGain = (double)countClassesLeft[i][j][0] / note - (double)countClassesLeft[i][j][1] / silence;
-				double rightGain= (double)countClassesRight[i][j][1] / silence - (double)countClassesRight[i][j][0] / note;
-				gain[i][j] = leftGain + rightGain;
-			}
-		}
-		return gain;
-	}
-
 	/**
 	 * Info gain calculation upon shannon entropy, Kinect formula.
 	 * 
@@ -576,7 +538,7 @@ public abstract class RandomTree extends Thread {
 	}
 
 	/**
-	 * Calculates shannon entropy for binary alphabet (two possible values),  
+	 * Calculates shannon entropy for a binary alphabet (two possible values),  
 	 * while a and b represent the count of each of the two "letters". 
 	 * 
 	 * @param a

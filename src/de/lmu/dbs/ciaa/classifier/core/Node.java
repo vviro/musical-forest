@@ -57,10 +57,8 @@ public class Node implements Serializable {
 	 * 
 	 */
 	public Node() {
-		synchronized(this) {
-			this.id = nextId;
-			nextId++;
-		}
+		this.id = nextId;
+		nextId++;
 	}
 	
 	/**
@@ -73,7 +71,7 @@ public class Node implements Serializable {
 	}
 	
 	/**
-	 * Returns a visualization of all node features of the forest. For debugging use.
+	 * Returns a visualization of all node features of the forest. For debugging purpose.
 	 * 
 	 * @param data the array to store results (additive)
 	 */
