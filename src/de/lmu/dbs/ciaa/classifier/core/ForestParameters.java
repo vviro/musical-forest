@@ -176,11 +176,6 @@ public class ForestParameters {
 	public boolean logNodeInfo = false;
 	
 	/**
-	 * Show a message every time a new thread is created.
-	 */
-	public boolean debugThreadForking = false;
-	
-	/**
 	 * Show thread polling status information.
 	 */
 	public boolean debugThreadPolling = false;

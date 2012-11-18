@@ -78,7 +78,6 @@ public class Settings {
 		r.logWinnerThresholdCandidates = Boolean.parseBoolean(general.getAttributeValue("logWinnerThresholdCandidates"));
 		r.saveGainThresholdDiagrams = Integer.parseInt(general.getAttributeValue("saveGainThresholdDiagrams"));
 		r.saveNodeClassifications = Integer.parseInt(general.getAttributeValue("saveNodeClassifications"));
-		r.debugThreadForking = Boolean.parseBoolean(general.getAttributeValue("debugThreadForking"));
 		r.debugThreadPolling = Boolean.parseBoolean(general.getAttributeValue("debugThreadPolling"));
 		
 		// Forest

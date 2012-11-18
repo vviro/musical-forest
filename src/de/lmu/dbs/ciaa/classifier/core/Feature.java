@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.lmu.dbs.ciaa.util.Logfile;
-
 /**
  * Core feature class.
  * 

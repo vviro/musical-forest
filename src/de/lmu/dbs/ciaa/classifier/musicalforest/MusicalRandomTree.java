@@ -32,8 +32,8 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception 
 	 * 
 	 */
-	public MusicalRandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
-		super(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
+	public MusicalRandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+		super(root, sampler, classification, count, node, mode, depth, maxDepth);
 	}
 
 	/**
@@ -43,37 +43,6 @@ public class MusicalRandomTree extends RandomTree2d {
 	 */
 	public MusicalRandomTree() throws Exception {
 		super(null, 2, -1, null);
-	}
-
-	/**
-	 * Returns a new instance of the tree.
-	 * 
-	 * @param params
-	 * @param root
-	 * @param sampler
-	 * @param classification
-	 * @param count
-	 * @param node
-	 * @param mode
-	 * @param depth
-	 * @param maxDepth
-	 * @param num
-	 * @param log
-	 * @return
-	 * @throws Exception 
-	 */
-	@Override
-	public RandomTree2d getInstance(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
-		return new MusicalRandomTree(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
-	}
-
-	/**
-	 * Returns a new instance of the tree.
-	 * 
-	 */
-	@Override
-	public RandomTree2d getInstance(ForestParameters params, int num, Logfile log) throws Exception {
-		return new MusicalRandomTree(params, num, log);
 	}
 
 	/**

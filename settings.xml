@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="10"
+		maxDepth="12"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="150"
 		thresholdCandidatesPerFeature="20"
@@ -83,7 +83,6 @@
 		saveGainThresholdDiagrams="0"
 		saveNodeClassifications="3"
 		
-		debugThreadForking="false"
 		debugThreadPolling="true"
 	></General>
 

@@ -22,7 +22,7 @@ import de.lmu.dbs.ciaa.util.Statistic;
  * @author Thomas Weber
  *
  */
-public abstract class RandomTree2d extends RandomTree {
+public class RandomTree2d extends RandomTree {
 
 	/**
 	 * Creates a tree (main constructor).
@@ -30,10 +30,18 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @throws Exception 
 	 * 
 	 */
+	public RandomTree2d(ForestParameters params, int num) throws Exception {
+		super(params, num);
+	}
+	
+	/**
+	 * Creates a tree (main constructor).
+	 * 
+	 * @throws Exception 
+	 * 
+	 */
 	public RandomTree2d(ForestParameters params, int numOfClasses, int num, Logfile log) throws Exception {
-		super(numOfClasses, num, log);
-		params.check();
-		this.params = params;
+		super(params, numOfClasses, num, log);
 		this.infoGain = new Statistic();
 	}
 	
@@ -44,8 +52,8 @@ public abstract class RandomTree2d extends RandomTree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree2d(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
-		this(params, root.numOfClasses, num, log);
+	public RandomTree2d(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+		this(root.params, root.numOfClasses, root.num, root.log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;
@@ -238,42 +246,12 @@ public abstract class RandomTree2d extends RandomTree {
 			for(int x=0; x<ref.length; x++) {
 				for(int y=0; y<ref[0].length; y++) {
 					if (mode == cla[x][y]) {
-						//if (mode == 1) {
-							l[ref[x][y]]++;
-							all++;
-						//}
-						/*
-						if (mode == 2) {
-							for(int c=0; c<numOfClasses; c++) {
-								r[c]+= cl[c]; 
-							}
-						}
-/*						if () {
-							// f0 is present
-							if (mode == 1) {
-								ret++;
-							} else {
-								not++;
-							}
-						} else {
-							if (mode == 2) {
-								ret++;
-							} else {
-								not++;
-							}
-						}
-*/
+						l[ref[x][y]]++;
+						all++;
 					}
 				}
 			}
 		}
-		/*
-		if (mode == 1) {
-			return ret/(ret+not);
-		} else {
-			return 1-(ret/(ret+not));
-		}
-		*/
 		for(int c=0; c<numOfClasses; c++) {
 			l[c] /= (float)all;
 		}
@@ -334,6 +312,37 @@ public abstract class RandomTree2d extends RandomTree {
 		img.add(l, new Color(0,255,0), null, 0);
 		img.add(r, new Color(255,0,0), null, 0);
 		img.save(new File(filename));
+	}
+
+	/**
+	 * Returns a new instance of the tree.
+	 * 
+	 * @param params
+	 * @param root
+	 * @param sampler
+	 * @param classification
+	 * @param count
+	 * @param node
+	 * @param mode
+	 * @param depth
+	 * @param maxDepth
+	 * @param num
+	 * @param log
+	 * @return
+	 * @throws Exception 
+	 */
+	@Override
+	public RandomTree2d getInstance(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+		return new RandomTree2d(root, sampler, classification, count, node, mode, depth, maxDepth);
+	}
+
+	/**
+	 * Returns a new instance of the tree.
+	 * 
+	 */
+	@Override
+	public RandomTree2d getInstance(ForestParameters params, int num) throws Exception {
+		return new RandomTree2d(params, num);
 	}
 
 }

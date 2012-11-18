@@ -33,7 +33,7 @@ public abstract class RandomTree extends Thread {
 	/**
 	 * Log file for training the tree.
 	 */
-	protected Logfile log = null;
+	public Logfile log = null;
 	
 	/**
 	 * Statistic about the trees information gain.
@@ -58,7 +58,7 @@ public abstract class RandomTree extends Thread {
 	/**
 	 * The parameter set used to grow the tree
 	 */
-	protected ForestParameters params = null;
+	public ForestParameters params = null;
 
 	/**
 	 * Log to base 2 for better performance
@@ -134,13 +134,27 @@ public abstract class RandomTree extends Thread {
 	protected long newThreadCount;
 	
 	/**
+	 * Create a tree (for loading).
+	 * 
+	 * @param num
+	 * @param log
+	 * @throws Exception 
+	 */
+	public RandomTree(ForestParameters params, int num) throws Exception {
+		params.check();
+		this.params = params;
+		this.num = num;
+	}
+	
+	/**
 	 * Create a tree.
 	 * 
 	 * @param num
 	 * @param log
+	 * @throws Exception 
 	 */
-	public RandomTree(int numOfClasses, int num, Logfile log) {
-		this.num = num;
+	public RandomTree(ForestParameters params, int numOfClasses, int num, Logfile log) throws Exception {
+		this(params, num);
 		this.log = log;
 		this.numOfClasses = numOfClasses;
 	}
@@ -185,7 +199,7 @@ public abstract class RandomTree extends Thread {
 	 * @return
 	 * @throws Exception 
 	 */
-	public abstract RandomTree getInstance(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception;
+	public abstract RandomTree getInstance(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception;
 	
 	/**
 	 * Returns a new instance of the tree.
@@ -196,7 +210,7 @@ public abstract class RandomTree extends Thread {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract RandomTree getInstance(ForestParameters params, int num, Logfile log) throws Exception;
+	public abstract RandomTree getInstance(ForestParameters params, int num) throws Exception;
 
 	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]
@@ -290,7 +304,8 @@ public abstract class RandomTree extends Thread {
 				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
-					RandomTree t = getInstance(params, root, sampler, classification, count, node, mode, depth, maxDepth, num, log);
+					RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
+					System.out.println("  T" + num + ": Starting node thread, depth: " + depth + ", values: " + count);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -440,7 +455,7 @@ public abstract class RandomTree extends Thread {
 		
 		if (!params.enableEvaluationThreads) {
 			// Eval threads are disabled -> simply calculate it
-			System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
+			//System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
@@ -448,7 +463,7 @@ public abstract class RandomTree extends Thread {
 		if (count < params.minEvalThreadCount) {
 			// Not enough values -> no eval multithreading (there might happen some node 
 			// threading from this point on, see option "boostOnSmallNodes"...)
-			System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values, no eval multithreading]");
+			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
@@ -482,12 +497,11 @@ public abstract class RandomTree extends Thread {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Node " + node.id + ", Depth " + depth + "; ");
+				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + ", Node " + node.id + ", Depth " + depth + ", Values: " + count + "; ");
 				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 			}
 			if (ret) break;
 		}
-		System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + ": All workers done");
 	}
 	
 	/**
@@ -609,12 +623,8 @@ public abstract class RandomTree extends Thread {
 	 */
 	public void run() {
 		try {
-			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": --> Forking new thread at depth " + newThreadDepth);
-
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive();
-			
-			if (params.debugThreadForking) System.out.println("T" + newThreadRoot.num + ": <-- Thread at depth " + newThreadDepth + " released.");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

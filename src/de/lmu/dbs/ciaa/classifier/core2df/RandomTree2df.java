@@ -31,9 +31,7 @@ public abstract class RandomTree2df extends RandomTree {
 	 * 
 	 */
 	public RandomTree2df(ForestParameters params, int numOfClasses, int num, Logfile log) throws Exception {
-		super(numOfClasses, num, log);
-		params.check();
-		this.params = params;
+		super(params, numOfClasses, num, log);
 		this.infoGain = new Statistic();
 	}
 	
@@ -44,8 +42,8 @@ public abstract class RandomTree2df extends RandomTree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree2df(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth, int num, Logfile log) throws Exception {
-		this(params, root.numOfClasses, num, log);
+	public RandomTree2df(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+		this(root.params, root.numOfClasses, root.num, root.log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
 		this.newThreadClassification = classification;

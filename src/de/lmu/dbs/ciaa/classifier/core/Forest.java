@@ -218,7 +218,7 @@ public class Forest {
 	public static Forest load(final ForestParameters params, final String filename, final int numTrees, RandomTree factory) throws Exception {
 		Forest f = new Forest(params);
 		for(int i=0; i<numTrees; i++) {
-			RandomTree tr = factory.getInstance(params, i, null);
+			RandomTree tr = factory.getInstance(params, i);
 			tr.load(filename + "_tree" + i);
 			f.trees.add(tr); 
 		}
