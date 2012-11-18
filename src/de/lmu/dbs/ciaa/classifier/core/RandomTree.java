@@ -587,7 +587,7 @@ public abstract class RandomTree extends Thread {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive();
-			//System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.getThreadsActive() + ", values: " + newThreadCount);
+			if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
