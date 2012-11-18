@@ -305,7 +305,7 @@ public abstract class RandomTree extends Thread {
 		// Generate random thresholds for each feature param set
 		float[][] thresholds = new float[numOfFeatures][];
 		for(int i=0; i<thresholds.length; i++) {
-			thresholds[i] = params.featureFactory.getRandomThresholds(params.thresholdCandidatesPerFeature);
+			thresholds[i] = ((Feature)paramSet.get(i)).getRandomThresholds(params.thresholdCandidatesPerFeature);
 		}
 
 		// Evaluate the features
