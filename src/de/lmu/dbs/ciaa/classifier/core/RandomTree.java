@@ -305,7 +305,7 @@ public abstract class RandomTree extends Thread {
 					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 					// watched with the isGrown method of the original RandomTree instance.
 					RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
-					System.out.println("  T" + num + ": Starting node thread, depth: " + depth + ", values: " + count);
+					System.out.println("  T" + num + ": Starting node thread, depth: " + depth + ", active: " + root.forest.getThreadsActive() + ", values: " + count);
 					root.incThreadsActive();
 					t.start();
 					return;
@@ -625,6 +625,8 @@ public abstract class RandomTree extends Thread {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive();
+			
+			System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
