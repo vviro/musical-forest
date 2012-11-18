@@ -40,7 +40,7 @@ public class FeatureOnsetBlur extends Feature2d {
 	 */
 	public FeatureOnsetBlur(final ForestParameters params) {
 		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
-		uY = RandomUtils.randomInt(1, 5);
+		uY = RandomUtils.randomInt(1, 10);
 		/*harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
