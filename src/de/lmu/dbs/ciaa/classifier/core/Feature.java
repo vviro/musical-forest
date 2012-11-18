@@ -56,15 +56,17 @@ public abstract class Feature implements Serializable {
 	 * Returns the maximum evaluate value
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	public abstract float getMaxValue();
+	public abstract float getMaxValue() throws Exception;
 	
 	/**
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
-	public float[] getRandomThresholds(int num) {
+	public float[] getRandomThresholds(int num) throws Exception {
 		float[] ret = new float[num];
 		for(int i=0; i<num; i++) {
 			ret[i] = (float)(Math.random() * getMaxValue());

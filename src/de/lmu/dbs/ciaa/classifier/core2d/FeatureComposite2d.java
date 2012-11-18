@@ -13,7 +13,6 @@ public abstract class FeatureComposite2d extends Feature2d {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Feature2d feature;
 	private List<Feature2d> factories;
 	
 	public abstract List<Feature2d> getFactories();
@@ -24,12 +23,12 @@ public abstract class FeatureComposite2d extends Feature2d {
 	
 	@Override
 	public float evaluate(byte[][] data, int x, int y) throws Exception {
-		return feature.evaluate(data, x, y);
+		throw new Exception(this.getClass().getName() + ": This is just a factory feature, dont use it to classify.");
 	}
 
 	@Override
-	public float getMaxValue() {
-		return feature.getMaxValue();
+	public float getMaxValue() throws Exception {
+		throw new Exception(this.getClass().getName() + ": This is just a factory feature, dont use it to classify.");
 	}
 
 	@Override
