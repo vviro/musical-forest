@@ -497,7 +497,7 @@ public abstract class RandomTree extends Thread {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + "(+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + count + "; ");
+				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + count + "; ");
 				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 			}
 			if (ret) break;
@@ -587,8 +587,7 @@ public abstract class RandomTree extends Thread {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.decThreadsActive();
-			
-			System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.getThreadsActive() + ", values: " + newThreadCount);
+			//System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

@@ -43,8 +43,7 @@
 		yMax="0"
 		thresholdMax="0"
 		
-		threadWaitTime="6000"
-		
+		threadWaitTime="4000"
 		
 		maxNumOfNodeThreads="7"
 		boostOnSmallNodes="true"
