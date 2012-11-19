@@ -102,10 +102,10 @@ public class Forest {
 				}
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(timeStampFormatter.format(new Date()) + ": Node Threads: ");
-					for(int i=0; i<trees.size(); i++) {
+					System.out.print(timeStampFormatter.format(new Date()) + ": Waiting for node threads: " + scheduler.getThreadsActive());
+					/*for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive() + " ");
-					}
+					}*/
 					System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
 				}
 				if (ret) break;
