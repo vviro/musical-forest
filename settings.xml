@@ -32,7 +32,7 @@
 		forestSize="1"
 		maxDepth="8"
 		percentageOfRandomValuesPerFrame="0.25"
-		numOfRandomFeatures="300"
+		numOfRandomFeatures="150"
 		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
@@ -45,7 +45,7 @@
 		
 		threadWaitTime="4000"
 		
-		maxNumOfNodeThreads="4"
+		maxNumOfNodeThreads="5"
 		boostOnSmallNodes="true"
 		enableEvaluationThreads="true"
 		numOfWorkerThreadsPerNode="8"
