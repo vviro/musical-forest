@@ -480,7 +480,7 @@ public abstract class RandomTree extends Thread {
 			int min = i*ipw;
 			int max = min + ipw - 1;
 			if (max >= numWork) max = numWork-1;
-			//System.out.println(min + " to " + max);
+			System.out.println(min + " to " + max);
 			workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			workers[i].start();
 		}
@@ -502,8 +502,10 @@ public abstract class RandomTree extends Thread {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
-				System.out.print(timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + count + "; ");
-				System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
+				System.out.println(
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + count + "; " + 
+						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
+				);
 			}
 			if (ret) break;
 		}
