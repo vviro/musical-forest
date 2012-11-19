@@ -190,8 +190,11 @@ public class RandomTree2d extends RandomTree {
 		for(int i=0; i<paramSet.size(); i++) {
 			paramSetC.add((Feature2d)paramSet.get(i));
 		}*/
-		Feature2d[] features = (Feature2d[])paramSet.toArray();
 		int numOfFeatures = paramSet.size();
+		Feature2d[] features = new Feature2d[numOfFeatures];
+		for(int i=0; i<paramSet.size(); i++) {
+			features[i] = (Feature2d)paramSet.get(i);
+		}
 		int poolSize = sampler.getPoolSize();
 		float[][] thresholdsC = (float[][])thresholds;
 		int tcpf = params.thresholdCandidatesPerFeature;
