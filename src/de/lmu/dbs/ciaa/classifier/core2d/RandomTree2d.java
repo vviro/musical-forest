@@ -207,14 +207,15 @@ public class RandomTree2d extends RandomTree {
 			byte[][] cla = (byte[][])classification.get(poolIndex);
 			
 			// get feature results 
-			for(int x=0; x<data.length; x++) {
-				for(int y=minIndex; y<=maxIndex; y++) {
-					// Each random value from the subframe
-					if (mode == cla[x][y]) { // Is that point in the training set for this node?
-						for(int k=0; k<numOfFeatures; k++) {
-							// Each featureset candidate...
-							//float ev = paramSetC.get(k).evaluate(data, x, y);
-							float ev = features[k].evaluate(data, x, y);
+			for(int k=0; k<numOfFeatures; k++) {
+				// Each featureset candidate...
+				//float ev = paramSetC.get(k).evaluate(data, x, y);
+				Feature2d f = features[k];
+				for(int x=0; x<data.length; x++) {
+					for(int y=minIndex; y<=maxIndex; y++) {
+						// Each random value from the subframe
+						if (mode == cla[x][y]) { // Is that point in the training set for this node?
+							float ev = f.evaluate(data, x, y);
 							for(int g=0; g<tcpf; g++) {
 								if (ev >= thresholdsC[k][g]) {
 									// Left
