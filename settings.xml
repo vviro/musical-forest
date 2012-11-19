@@ -49,7 +49,7 @@
 		boostOnSmallNodes="true"
 		enableEvaluationThreads="true"
 		numOfWorkerThreadsPerNode="20"
-		minEvalThreadCount="100000"
+		minEvalThreadCount="80000"
 	></Forest>
 
 	<!--  
