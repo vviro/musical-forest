@@ -275,7 +275,7 @@ public class Forest {
 	 * @throws Exception
 	 */
 	protected void check() throws Exception {
-		if (trees.size() == 0) throw new Exception("No trees in forest");
+		//if (trees.size() == 0) throw new Exception("No trees in forest");
 		int numOfClasses = -1;
 		for(int i=0; i<trees.size(); i++) {
 			RandomTree2d t = (RandomTree2d)trees.get(i);
