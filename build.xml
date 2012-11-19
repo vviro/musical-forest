@@ -25,6 +25,7 @@
     	<pathelement path="${lib-directory}/colt.jar"/>
     	<pathelement path="${lib-directory}/jdom-2.0.2.jar"/>
     	<pathelement path="${lib-directory}/commons-io-2.2.jar"/>
+    	<pathelement path="${lib-directory}/trove-3.0.3.jar"/>
 	</path>
 
 	<pathconvert property="jar.classpath" pathsep=" ">

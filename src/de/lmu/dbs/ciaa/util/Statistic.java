@@ -1,8 +1,9 @@
 package de.lmu.dbs.ciaa.util;
 
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.array.TDoubleArrayList;
+
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Simple class to get statistics about something.
@@ -35,7 +36,7 @@ public class Statistic {
 	/**
 	 * List containing all entries
 	 */
-	private List<Double> entries = new ArrayList<Double>();
+	private TDoubleList entries = new TDoubleArrayList();
 	
 	/**
 	 * Add a value to the statistic.
@@ -43,7 +44,7 @@ public class Statistic {
 	 * @param value
 	 */
 	public void add(double value) {
-		entries.add(value);
+		entries.add(new Double(value));
 		if (value < minimum) minimum = value;
 		if (value > maximum) maximum = value;
 		sum += value;
@@ -139,11 +140,20 @@ public class Statistic {
 	 * @return
 	 */
 	public String getDistributionString(int bins, int maxL) {
+		if (entries.size() == 0) {
+			System.out.println("WARNING: Statistic contains no entries");
+			return "[No entries]";
+		}
 		String ret = "";
 		double[] s = new double[bins];
 		double f = (bins-1) / (maximum - minimum);
-		double maxS = Double.MIN_VALUE;
+		double maxS = -Double.MAX_VALUE;
 		for(int i=0; i<entries.size(); i++) {
+			/*if (entries.get(i) == null) {
+				System.out.println("WARNING: Statistic entry is null: " + i);
+				ret += "[Statistic corrupt] ";
+				break;
+			}*/
 			int index = (int)((entries.get(i)-minimum)*f);
 			s[index] ++;
 			if (s[index] > maxS) maxS = s[index];
@@ -164,7 +174,7 @@ public class Statistic {
 	 * 
 	 * @return
 	 */
-	public List<Double> getEntries() {
+	public TDoubleList getEntries() {
 		return entries;
 	}
 	

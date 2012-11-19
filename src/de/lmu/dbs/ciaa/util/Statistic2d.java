@@ -1,8 +1,9 @@
 package de.lmu.dbs.ciaa.util;
 
+import gnu.trove.list.TDoubleList;
+
 import java.awt.Color;
 import java.io.File;
-import java.util.List;
 
 /**
  * Simple class to get statistics about something 2-dimensional.
@@ -101,8 +102,16 @@ public class Statistic2d {
 	public void saveDistributionImage(String filename, int width, int height, Scale scale) throws Exception {
 		long[][] data = new long[width][height];
 		byte[][] grid = new byte[width][height];
-		List<Double> entries1 = var1.getEntries();
-		List<Double> entries2 = var2.getEntries();
+		TDoubleList entries1 = var1.getEntries();
+		if (entries1.size() == 0) {
+			System.out.println("WARNING: Statistic2d contains no x entries");
+			return;
+		}
+		TDoubleList entries2 = var2.getEntries();
+		if (entries2.size() == 0) {
+			System.out.println("WARNING: Statistic2d contains no y entries");
+			return;
+		}
 		double m1 = var1.getMinimum();
 		double m2 = var2.getMinimum();
 		double xfactor = ((double)width-1) / (var1.getMaximum()-m1);
