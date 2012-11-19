@@ -19,6 +19,10 @@ public class ThreadScheduler {
 		this.maxThreads = maxThreads;
 	}
 	
+	public void setMaxThreads(int max) {
+		maxThreads = max;
+	}
+	
 	public synchronized int getThreadsAvailable() throws Exception {
 		return maxThreads - getThreadsActive();
 	}
