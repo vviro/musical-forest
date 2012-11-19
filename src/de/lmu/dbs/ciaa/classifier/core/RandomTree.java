@@ -14,6 +14,7 @@ import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.LogScale;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.Scale;
+import de.lmu.dbs.ciaa.util.ScheduledThread;
 import de.lmu.dbs.ciaa.util.Statistic;
 import de.lmu.dbs.ciaa.util.Statistic2d;
 
@@ -23,7 +24,7 @@ import de.lmu.dbs.ciaa.util.Statistic2d;
  * @author Thomas Weber
  *
  */
-public abstract class RandomTree extends Thread {
+public abstract class RandomTree extends ScheduledThread {
 
 	/**
 	 * Number of classes to divide
@@ -323,8 +324,9 @@ public abstract class RandomTree extends Thread {
 						// watched with the isGrown method of the original RandomTree instance.
 						RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
 						//if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.scheduler.getThreadsActive() + ", values: " + count);
-						root.forest.scheduler.incThreadsActive();
-						t.start();
+						//root.forest.scheduler.incThreadsActive();
+						root.forest.scheduler.startThread(t);
+						//t.start();
 						return;
 					}
 				}
@@ -504,8 +506,9 @@ public abstract class RandomTree extends Thread {
 					if (max >= numWork) max = numWork-1;
 					//System.out.println(min + " to " + max);
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-					root.forest.scheduler.incThreadsActive();
-					workers[i].start();
+					//root.forest.scheduler.incThreadsActive();
+					//workers[i].start();
+					root.forest.scheduler.startThread(workers[i]);
 				}
 			} else {
 				System.out.println("No available threads (amt: " + root.forest.scheduler.getThreadsActive() + "), evaluating normally");
@@ -524,7 +527,7 @@ public abstract class RandomTree extends Thread {
 			boolean ret = true;
 			int cnt = 0;
 			for(int i=0; i<workers.length; i++) {
-				if (!workers[i].finished) {
+				if (!workers[i].threadIsFinished()) {
 					ret = false;
 					cnt++;
 				}
@@ -623,13 +626,14 @@ public abstract class RandomTree extends Thread {
 	public void run() {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			newThreadRoot.forest.scheduler.decThreadsActive();
-			System.out.println("Finished node thread at depth " + newThreadDepth);
+			//newThreadRoot.forest.scheduler.decThreadsActive();
 			//if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.scheduler.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
+		setThreadFinished();
+		System.out.println("Finished node thread id " + getThreadId() + " at depth " + newThreadDepth);
 	}
 	
 	/**

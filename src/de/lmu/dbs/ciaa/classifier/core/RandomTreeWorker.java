@@ -2,6 +2,8 @@ package de.lmu.dbs.ciaa.classifier.core;
 
 import java.util.List;
 
+import de.lmu.dbs.ciaa.util.ScheduledThread;
+
 /**
  * Takes the part of evaluating the feature function for all candidates
  * and count the results in parallel.
@@ -9,7 +11,7 @@ import java.util.List;
  * @author Thomas Weber
  *
  */
-public class RandomTreeWorker extends Thread {
+public class RandomTreeWorker extends ScheduledThread {
 
 	private int minIndex = -1;
 	
@@ -23,8 +25,6 @@ public class RandomTreeWorker extends Thread {
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
 	private RandomTree parent;
-	
-	public boolean finished = false;
 	
 	public RandomTreeWorker(RandomTree parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Object> paramSet, List<Object> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		this.parent = parent;
@@ -43,13 +43,13 @@ public class RandomTreeWorker extends Thread {
 	public void run() {
 		try {
 			parent.evaluateFeatures(sampler, minIndex, maxIndex, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			parent.forest.scheduler.decThreadsActive();
-			System.out.println("Finished evaluation thread");
+			//parent.forest.scheduler.decThreadsActive();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
-		finished = true;
+		setThreadFinished();
+		System.out.println("Finished evaluation thread id " + getThreadId());
 	}
 	
 }
