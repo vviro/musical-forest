@@ -196,7 +196,7 @@ public class RandomTree2d extends RandomTree {
 			features[i] = (Feature2d)paramSet.get(i);
 		}
 		int poolSize = sampler.getPoolSize();
-		float[][] thresholdsC = (float[][])thresholds;
+		float[][] thresholdsArray = (float[][])thresholds;
 		int tcpf = params.thresholdCandidatesPerFeature;
 		
 		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
@@ -217,7 +217,7 @@ public class RandomTree2d extends RandomTree {
 						if (mode == cla[x][y]) { // Is that point in the training set for this node?
 							float ev = f.evaluate(data, x, y);
 							for(int g=0; g<tcpf; g++) {
-								if (ev >= thresholdsC[k][g]) {
+								if (ev >= thresholdsArray[k][g]) {
 									// Left
 									countClassesLeft[k][g][ref[x][y]]++;
 								} else {
