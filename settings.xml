@@ -30,10 +30,10 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="1"
-		percentageOfRandomValuesPerFrame="0.0025"
-		numOfRandomFeatures="3"
-		thresholdCandidatesPerFeature="1"
+		maxDepth="8"
+		percentageOfRandomValuesPerFrame="0.25"
+		numOfRandomFeatures="300"
+		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
 		
@@ -45,11 +45,11 @@
 		
 		threadWaitTime="4000"
 		
-		maxNumOfNodeThreads="5"
+		maxNumOfNodeThreads="8"
 		boostOnSmallNodes="true"
 		enableEvaluationThreads="true"
-		numOfWorkerThreadsPerNode="8"
-		minEvalThreadCount="80000"
+		numOfWorkerThreadsPerNode="20"
+		minEvalThreadCount="100000"
 	></Forest>
 
 	<!--  
