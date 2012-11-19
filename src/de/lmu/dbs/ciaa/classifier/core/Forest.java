@@ -46,7 +46,7 @@ public class Forest {
 		this.trees = trees;
 		this.log = log;
 		this.nodeScheduler = new ThreadScheduler(params.maxNumOfNodeThreads);
-		this.evalScheduler = new ThreadScheduler(params.numOfWorkerThreadsPerNode);
+		this.evalScheduler = new ThreadScheduler(params.maxNumOfEvalThreads);
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).setForest(this);
 		}
@@ -89,7 +89,7 @@ public class Forest {
 			// Multithreading is active, so wait for the results 
 			// TODO: Busy waiting, can be done more effectively, but not critical for this application
 			
-			nodeScheduler.setMaxThreads(params.numOfWorkerThreadsPerNode);
+			nodeScheduler.setMaxThreads(params.maxNumOfEvalThreads);
 			
 			System.out.println("Finished main growing procedure, waiting for running node threads...");
 			while(true) {

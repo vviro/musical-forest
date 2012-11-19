@@ -45,11 +45,13 @@
 		
 		threadWaitTime="4000"
 		
+		maxNumOfEvalThreads="22"
+		enableEvaluationThreads="true"
+
 		maxNumOfNodeThreads="8"
 		boostOnSmallNodes="true"
-		enableEvaluationThreads="true"
-		numOfWorkerThreadsPerNode="22"
-		minEvalThreadCount="80000"
+		nodeThreadingThreshold="80000"
+		
 	></Forest>
 
 	<!--  
@@ -81,7 +83,7 @@
 		
 		saveGainThresholdDiagrams="0"
 		saveNodeClassifications="3"
-		
+
 		debugThreadPolling="true"
 	></General>
 

@@ -84,8 +84,8 @@ public class Settings {
 		r.forestSize = Integer.parseInt(forest.getAttributeValue("forestSize"));
 		r.maxDepth = Integer.parseInt(forest.getAttributeValue("maxDepth"));
 		r.maxNumOfNodeThreads = Integer.parseInt(forest.getAttributeValue("maxNumOfNodeThreads"));
-		r.numOfWorkerThreadsPerNode = Integer.parseInt(forest.getAttributeValue("numOfWorkerThreadsPerNode"));
-		r.minEvalThreadCount = Long.parseLong(forest.getAttributeValue("minEvalThreadCount"));
+		r.maxNumOfEvalThreads = Integer.parseInt(forest.getAttributeValue("maxNumOfEvalThreads"));
+		r.nodeThreadingThreshold = Long.parseLong(forest.getAttributeValue("nodeThreadingThreshold"));
 		r.enableEvaluationThreads = Boolean.parseBoolean(forest.getAttributeValue("enableEvaluationThreads"));
 		r.boostOnSmallNodes = Boolean.parseBoolean(forest.getAttributeValue("boostOnSmallNodes"));
 		r.threadWaitTime = Integer.parseInt(forest.getAttributeValue("threadWaitTime"));

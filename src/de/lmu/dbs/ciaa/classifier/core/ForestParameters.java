@@ -16,11 +16,11 @@ public class ForestParameters {
 	
 	public boolean enableEvaluationThreads;
 	
-	public int numOfWorkerThreadsPerNode;
+	public int maxNumOfEvalThreads;
 	
 	public boolean boostOnSmallNodes;
 	
-	public long minEvalThreadCount;
+	public long nodeThreadingThreshold;
 	
 	/**
 	 * Folder where the forest can save its node data. Can also be used to store test results etc.
@@ -209,7 +209,7 @@ public class ForestParameters {
 		if (forestSize < 1) throw new Exception("Forest must have at least one tree: " + forestSize);
 		if (maxDepth < 1) throw new Exception("Maximum tree depth has to be at least 1: " + maxDepth);
 		if (maxNumOfNodeThreads < 0) throw new Exception("Illegal thread max value: " + maxNumOfNodeThreads);
-		if (numOfWorkerThreadsPerNode < 0) throw new Exception("Illegal thread value: " + numOfWorkerThreadsPerNode);
+		if (maxNumOfEvalThreads < 0) throw new Exception("Illegal thread value: " + maxNumOfEvalThreads);
 		if (threadWaitTime < 10) throw new Exception("Thread wait time too short: " + threadWaitTime);
 		if (step < 1) throw new Exception("Frame step in samples too low: " + step);
 		if (threshold < 0) throw new Exception("CQT transformation threshold is too low: " + threshold);
@@ -239,9 +239,9 @@ public class ForestParameters {
 		ret+= "frequencyTableFile: " + frequencyTableFile + "\n";
 		ret+= "maxNumOfNodeThreads: " + maxNumOfNodeThreads + "\n";
 		ret+= "threadWaitTime: " + threadWaitTime + "\n";
-		ret+= "numOfWorkerThreadsPerNode: " + numOfWorkerThreadsPerNode + "\n";
+		ret+= "numOfWorkerThreadsPerNode: " + maxNumOfEvalThreads + "\n";
 		ret+= "enableEvaluationThreads: " + enableEvaluationThreads + "\n";
-		ret+= "minEvalThreadCount: " + minEvalThreadCount + "\n";
+		ret+= "minEvalThreadCount: " + nodeThreadingThreshold + "\n";
 		return ret;
 	}
 }

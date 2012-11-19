@@ -297,36 +297,15 @@ public abstract class RandomTree extends ScheduledThread {
 			return;
 		}
 
-		// Node threading
-/*		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
-			(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
-			
-			synchronized (root.forest) { 
-				if (multithreading && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
-					// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
-					// watched with the isGrown method of the original RandomTree instance.
-					RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
-					if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.getThreadsActive() + ", values: " + count);
-					root.incThreadsActive();
-					t.start();
-					return;
-				}
-			}
-		}
-//*/
 		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
-				(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
+				(params.boostOnSmallNodes && count < params.nodeThreadingThreshold && params.maxNumOfNodeThreads > 0)) {
 				
 				synchronized (root.forest.nodeScheduler) { 
 					if (multithreading && (root.forest.nodeScheduler.getThreadsAvailable() > 0)) {
-						//System.out.println("Starting node thread at depth " + depth + " (node threads available: " + root.forest.nodeScheduler.getThreadsAvailable() + ")");
 						// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 						// watched with the isGrown method of the original RandomTree instance.
 						RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
-						//if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.scheduler.getThreadsActive() + ", values: " + count);
-						//root.forest.scheduler.incThreadsActive();
 						root.forest.nodeScheduler.startThread(t);
-						//t.start();
 						return;
 					}
 				}
@@ -506,8 +485,6 @@ public abstract class RandomTree extends ScheduledThread {
 					if (max >= numWork) max = numWork-1;
 					//System.out.println(min + " to " + max);
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-					//root.forest.scheduler.incThreadsActive();
-					//workers[i].start();
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
 			} else {
@@ -525,11 +502,12 @@ public abstract class RandomTree extends ScheduledThread {
 				System.out.println("[Wait interrupted by VM, continuing...]");
 			}
 			boolean ret = true;
-			int cnt = 0;
+			//int cnt = 0;
 			for(int i=0; i<workers.length; i++) {
 				if (!workers[i].threadIsFinished()) {
 					ret = false;
-					cnt++;
+					break;
+					//cnt++;
 				}
 			}
 			if (params.debugThreadPolling) {
@@ -538,7 +516,7 @@ public abstract class RandomTree extends ScheduledThread {
 				int nt = root.forest.nodeScheduler.getThreadsActive();
 				int et = root.forest.evalScheduler.getThreadsActive();
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " (" + cnt + ") + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " (" + workers.length + ") + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
@@ -638,36 +616,6 @@ public abstract class RandomTree extends ScheduledThread {
 		//System.out.println("Finished node thread id " + getThreadId() + " at depth " + newThreadDepth);
 	}
 	
-	/**
-	 * Returns the amount of active threads for this tree.
-	 * 
-	 * @return
-	 * @throws Exception 
-	 *
-	public synchronized int getThreadsActive() throws Exception {
-		return nodeThreadsActive;
-	}
-	
-	/**
-	 * Decreases the thread counter for this tree.
-	 * 
-	 * @throws Exception
-	 *
-	public synchronized void incThreadsActive() throws Exception {
-		nodeThreadsActive++;
-		if (nodeThreadsActive > params.maxNumOfNodeThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfNodeThreads + ": " + nodeThreadsActive);
-	}
-
-	/**
-	 * Increases the thread counter for this tree.
-	 * 
-	 * @throws Exception
-	 *
-	public synchronized void decThreadsActive() throws Exception {
-		nodeThreadsActive--;
-		if (nodeThreadsActive < 0) throw new Exception("Thread amount below zero: " + nodeThreadsActive);
-	}
-
 	/**
 	 * Returns the info gain statistic instance.
 	 * 

@@ -43,13 +43,11 @@ public class RandomTreeWorker extends ScheduledThread {
 	public void run() {
 		try {
 			parent.evaluateFeatures(sampler, minIndex, maxIndex, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			//parent.forest.scheduler.decThreadsActive();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 		setThreadFinished();
-		//System.out.println("Finished evaluation thread id " + getThreadId());
 	}
 	
 }
