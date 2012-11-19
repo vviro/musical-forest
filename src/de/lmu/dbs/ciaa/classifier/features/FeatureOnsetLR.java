@@ -80,7 +80,6 @@ public class FeatureOnsetLR extends Feature2d {
 			ret.add(n);
 		}
 		return ret;
-		
 	}
 	
 	/**
