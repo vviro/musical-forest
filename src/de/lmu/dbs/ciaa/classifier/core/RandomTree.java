@@ -468,6 +468,11 @@ public abstract class RandomTree extends Thread {
 			return;
 		}
 		
+		if (params.boostOnSmallNodes && newThreadRoot != null) {
+			// A node thread shall never go here
+			throw new Exception("ERROR: Node threaded workers are not allowed when boosting is enabled!");
+		}
+		
 		// Create worker threads for groups of frequency bands and start them
 		RandomTreeWorker[] workers = new RandomTreeWorker[params.numOfWorkerThreadsPerNode];
 		int ipw = numWork / workers.length;

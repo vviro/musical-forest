@@ -186,13 +186,16 @@ public class RandomTree2d extends RandomTree {
 	 * @throws Exception
 	 */
 	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
-		List<Feature2d> paramSetC = new ArrayList<Feature2d>();
+		/*List<Feature2d> paramSetC = new ArrayList<Feature2d>();
 		for(int i=0; i<paramSet.size(); i++) {
 			paramSetC.add((Feature2d)paramSet.get(i));
-		}
+		}*/
+		Feature2d[] features = (Feature2d[])paramSet.toArray();
 		int numOfFeatures = paramSet.size();
 		int poolSize = sampler.getPoolSize();
 		float[][] thresholdsC = (float[][])thresholds;
+		int tcpf = params.thresholdCandidatesPerFeature;
+		
 		for(int poolIndex=0; poolIndex<poolSize; poolIndex++) {
 			// Each dataset...load data and reference
 			TreeDataset dataset = (TreeDataset)sampler.get(poolIndex);
@@ -207,8 +210,9 @@ public class RandomTree2d extends RandomTree {
 					if (mode == cla[x][y]) { // Is that point in the training set for this node?
 						for(int k=0; k<numOfFeatures; k++) {
 							// Each featureset candidate...
-							float ev = paramSetC.get(k).evaluate(data, x, y);
-							for(int g=0; g<params.thresholdCandidatesPerFeature; g++) {
+							//float ev = paramSetC.get(k).evaluate(data, x, y);
+							float ev = features[k].evaluate(data, x, y);
+							for(int g=0; g<tcpf; g++) {
 								if (ev >= thresholdsC[k][g]) {
 									// Left
 									countClassesLeft[k][g][ref[x][y]]++;
