@@ -98,7 +98,8 @@ public class ForestTest {
 			// Create result folder
 			File resultDir = new File(params.workingFolder);
 			if (!params.loadForest) {
-				FileUtils.deleteDirectory(new File(params.workingFolder));
+				File wf = new File(params.workingFolder);
+				if (wf.exists()) FileUtils.deleteDirectory(wf);
 				resultDir.mkdirs();
 				FileUtils.copyFile(new File(settingsFile), new File(params.workingFolder + File.separator + settingsFile)); // TMP
 				m.measure("Created working folder");
