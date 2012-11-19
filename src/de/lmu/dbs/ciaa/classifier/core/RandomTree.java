@@ -460,7 +460,7 @@ public abstract class RandomTree extends Thread {
 			return;
 		}
 		
-		if (count < params.minEvalThreadCount) {
+		if (count < params.minEvalThreadCount && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
 			// Not enough values -> no eval multithreading (there might happen some node 
 			// threading from this point on, see option "boostOnSmallNodes"...)
 			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");

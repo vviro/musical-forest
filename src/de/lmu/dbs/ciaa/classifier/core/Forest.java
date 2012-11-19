@@ -83,6 +83,7 @@ public class Forest {
 		if (params.maxNumOfNodeThreads > 0) {
 			// Multithreading is active, so wait for the results 
 			// TODO: Busy waiting, can be done more effectively, but not critical for this application
+			System.out.println("Finished main growing method, waiting for running node threads...");
 			while(true) {
 				try {
 					Thread.sleep(params.threadWaitTime);
@@ -106,6 +107,7 @@ public class Forest {
 				}
 				if (ret) break;
 			}
+			System.out.println("Finished growing forest.");
 		}
 	}
 	
