@@ -502,8 +502,9 @@ public abstract class RandomTree extends Thread {
 			}
 			if (params.debugThreadPolling) {
 				// Debug output
+				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + count + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
