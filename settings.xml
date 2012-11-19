@@ -30,10 +30,10 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="8"
+		maxDepth="10"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="300"
-		thresholdCandidatesPerFeature="15"
+		thresholdCandidatesPerFeature="20"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
 		
@@ -45,7 +45,7 @@
 		
 		threadWaitTime="4000"
 		
-		maxNumOfNodeThreads="8"
+		maxNumOfNodeThreads="22"
 		boostOnSmallNodes="true"
 		enableEvaluationThreads="true"
 		numOfWorkerThreadsPerNode="20"
@@ -70,7 +70,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_mo3"
+		workingFolder="testdataResults/forestremote_mo4"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		

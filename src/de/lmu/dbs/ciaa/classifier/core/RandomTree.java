@@ -297,7 +297,7 @@ public abstract class RandomTree extends Thread {
 		}
 
 		// Node threading
-		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
+/*		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
 			(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
 			
 			synchronized (root.forest) { 
@@ -312,6 +312,22 @@ public abstract class RandomTree extends Thread {
 				}
 			}
 		}
+//*/
+		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
+				(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
+				
+				synchronized (root.forest.scheduler) { 
+					if (multithreading && (root.forest.scheduler.getThreadsAvailable() > 0)) {
+						// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
+						// watched with the isGrown method of the original RandomTree instance.
+						RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
+						if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.scheduler.getThreadsActive() + ", values: " + count);
+						root.forest.scheduler.incThreadsActive();
+						t.start();
+						return;
+					}
+				}
+			}
 		
 		// Get random feature parameter sets
 		List<Object> paramSet = params.featureFactory.getRandomFeatureSet(params);
@@ -460,7 +476,7 @@ public abstract class RandomTree extends Thread {
 			return;
 		}
 		
-		if (count < params.minEvalThreadCount && (root.forest.getThreadsActive() < params.maxNumOfNodeThreads)) {
+		if (count < params.minEvalThreadCount) {
 			// Not enough values -> no eval multithreading (there might happen some node 
 			// threading from this point on, see option "boostOnSmallNodes"...)
 			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
@@ -474,15 +490,27 @@ public abstract class RandomTree extends Thread {
 		}*/
 		
 		// Create worker threads for groups of frequency bands and start them
-		RandomTreeWorker[] workers = new RandomTreeWorker[params.numOfWorkerThreadsPerNode];
-		int ipw = numWork / workers.length;
-		for(int i=0; i<workers.length; i++) {
-			int min = i*ipw;
-			int max = min + ipw - 1;
-			if (max >= numWork) max = numWork-1;
-			//System.out.println(min + " to " + max);
-			workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
-			workers[i].start();
+		RandomTreeWorker[] workers = null;
+		synchronized (root.forest.scheduler) {
+			int threadNum = root.forest.scheduler.getThreadsAvailable();
+			if (threadNum > 1) {
+				System.out.println("Starting evaluation with " + threadNum  + " threads");
+				workers = new RandomTreeWorker[threadNum];
+				int ipw = numWork / workers.length;
+				for(int i=0; i<workers.length; i++) {
+					int min = i*ipw;
+					int max = min + ipw - 1;
+					if (max >= numWork) max = numWork-1;
+					//System.out.println(min + " to " + max);
+					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+					root.forest.scheduler.incThreadsActive();
+					workers[i].start();
+				}
+			} else {
+				System.out.println("No available threads (amt: " + root.forest.scheduler.getThreadsActive() + "), evaluating normally");
+				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
+				return;
+			}
 		}
 		
 		// Wait for the worker threads
@@ -504,7 +532,7 @@ public abstract class RandomTree extends Thread {
 				// Debug output
 				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (+" + root.forest.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (all: " + root.forest.scheduler.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
@@ -594,8 +622,8 @@ public abstract class RandomTree extends Thread {
 	public void run() {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			newThreadRoot.decThreadsActive();
-			if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.getThreadsActive() + ", values: " + newThreadCount);
+			newThreadRoot.forest.scheduler.decThreadsActive();
+			if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.scheduler.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -607,7 +635,7 @@ public abstract class RandomTree extends Thread {
 	 * 
 	 * @return
 	 * @throws Exception 
-	 */
+	 *
 	public synchronized int getThreadsActive() throws Exception {
 		return nodeThreadsActive;
 	}
@@ -616,7 +644,7 @@ public abstract class RandomTree extends Thread {
 	 * Decreases the thread counter for this tree.
 	 * 
 	 * @throws Exception
-	 */
+	 *
 	public synchronized void incThreadsActive() throws Exception {
 		nodeThreadsActive++;
 		if (nodeThreadsActive > params.maxNumOfNodeThreads) throw new Exception("Thread amount above maximum of " + params.maxNumOfNodeThreads + ": " + nodeThreadsActive);
@@ -626,7 +654,7 @@ public abstract class RandomTree extends Thread {
 	 * Increases the thread counter for this tree.
 	 * 
 	 * @throws Exception
-	 */
+	 *
 	public synchronized void decThreadsActive() throws Exception {
 		nodeThreadsActive--;
 		if (nodeThreadsActive < 0) throw new Exception("Thread amount below zero: " + nodeThreadsActive);

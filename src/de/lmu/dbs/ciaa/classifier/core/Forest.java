@@ -7,6 +7,7 @@ import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.core2d.RandomTree2d;
 import de.lmu.dbs.ciaa.util.Logfile;
+import de.lmu.dbs.ciaa.util.ThreadScheduler;
 
 /**
  * Random forest implementation for all dimensions (1d, 2d...). 
@@ -31,6 +32,8 @@ public class Forest {
 	 */
 	private Logfile log = null;
 	
+	public ThreadScheduler scheduler;
+	
 	/**
 	 * Creates a forest with some trees.
 	 * 
@@ -38,13 +41,13 @@ public class Forest {
 	 * @throws Exception 
 	 */
 	public Forest(List<RandomTree> trees, final ForestParameters params, Logfile log) throws Exception {
-		this.params = params;
+		this(params);
 		this.trees = trees;
 		this.log = log;
+		this.scheduler = new ThreadScheduler(params.maxNumOfNodeThreads);
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).setForest(this);
 		}
-		check();
 	}
 	
 	/**
@@ -248,7 +251,7 @@ public class Forest {
 	 * 
 	 * @return
 	 * @throws Exception 
-	 */
+	 *
 	public synchronized int getThreadsActive() throws Exception {
 		int ret = 0;
 		for(int i=0; i<trees.size(); i++) {
