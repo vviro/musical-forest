@@ -79,7 +79,6 @@ public class Settings {
 		r.saveGainThresholdDiagrams = Integer.parseInt(general.getAttributeValue("saveGainThresholdDiagrams"));
 		r.saveNodeClassifications = Integer.parseInt(general.getAttributeValue("saveNodeClassifications"));
 		r.debugThreadPolling = Boolean.parseBoolean(general.getAttributeValue("debugThreadPolling"));
-		r.debugNodeThreads = Boolean.parseBoolean(general.getAttributeValue("debugNodeThreads"));
 		
 		// Forest
 		r.forestSize = Integer.parseInt(forest.getAttributeValue("forestSize"));

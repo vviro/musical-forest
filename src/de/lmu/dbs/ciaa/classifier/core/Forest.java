@@ -91,7 +91,7 @@ public class Forest {
 			
 			nodeScheduler.setMaxThreads(params.numOfWorkerThreadsPerNode);
 			
-			System.out.println("Finished main growing method, waiting for running node threads...");
+			System.out.println("Finished main growing procedure, waiting for running node threads...");
 			while(true) {
 				try {
 					Thread.sleep(params.threadWaitTime);

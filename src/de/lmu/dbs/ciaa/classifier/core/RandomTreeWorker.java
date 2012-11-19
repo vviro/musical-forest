@@ -49,7 +49,7 @@ public class RandomTreeWorker extends ScheduledThread {
 			System.exit(0);
 		}
 		setThreadFinished();
-		System.out.println("Finished evaluation thread id " + getThreadId());
+		//System.out.println("Finished evaluation thread id " + getThreadId());
 	}
 	
 }
