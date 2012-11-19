@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="6"
+		maxDepth="8"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="300"
 		thresholdCandidatesPerFeature="30"
@@ -45,7 +45,7 @@
 		
 		threadWaitTime="4000"
 		
-		maxNumOfNodeThreads="8"
+		maxNumOfNodeThreads="4"
 		boostOnSmallNodes="true"
 		enableEvaluationThreads="true"
 		numOfWorkerThreadsPerNode="8"
