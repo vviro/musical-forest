@@ -535,8 +535,10 @@ public abstract class RandomTree extends ScheduledThread {
 			if (params.debugThreadPolling) {
 				// Debug output
 				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
+				int nt = root.forest.nodeScheduler.getThreadsActive();
+				int et = root.forest.evalScheduler.getThreadsActive();
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + root.forest.nodeScheduler.getThreadsActive() + " + " + root.forest.evalScheduler.getThreadsActive() + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " (" + cnt + ") + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}

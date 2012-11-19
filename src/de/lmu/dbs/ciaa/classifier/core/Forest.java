@@ -107,7 +107,7 @@ public class Forest {
 				}
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(timeStampFormatter.format(new Date()) + ": Waiting for node threads: " + nodeScheduler.getThreadsActive());
+					System.out.print(timeStampFormatter.format(new Date()) + ": Waiting for " + nodeScheduler.getThreadsActive() + " node threads");
 					/*for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive() + " ");
 					}*/
