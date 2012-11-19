@@ -32,7 +32,7 @@
 		forestSize="1"
 		maxDepth="8"
 		percentageOfRandomValuesPerFrame="0.25"
-		numOfRandomFeatures="300"
+		numOfRandomFeatures="3"
 		thresholdCandidatesPerFeature="15"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
