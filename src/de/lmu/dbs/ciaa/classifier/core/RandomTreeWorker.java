@@ -44,6 +44,7 @@ public class RandomTreeWorker extends Thread {
 		try {
 			parent.evaluateFeatures(sampler, minIndex, maxIndex, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			parent.forest.scheduler.decThreadsActive();
+			System.out.println("Finished evaluation thread");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);

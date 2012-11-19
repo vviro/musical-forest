@@ -1,5 +1,11 @@
 package de.lmu.dbs.ciaa.util;
 
+/**
+ * Schedules the thread distribution of an application.
+ * 
+ * @author Thomas Weber
+ *
+ */
 public class ThreadScheduler {
 
 	private int maxThreads;

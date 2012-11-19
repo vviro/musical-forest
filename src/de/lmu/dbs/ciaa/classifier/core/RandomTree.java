@@ -318,10 +318,11 @@ public abstract class RandomTree extends Thread {
 				
 				synchronized (root.forest.scheduler) { 
 					if (multithreading && (root.forest.scheduler.getThreadsAvailable() > 0)) {
+						System.out.println("Starting node thread at depth " + depth + " (available: " + root.forest.scheduler.getThreadsAvailable() + ")");
 						// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 						// watched with the isGrown method of the original RandomTree instance.
 						RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
-						if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.scheduler.getThreadsActive() + ", values: " + count);
+						//if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.scheduler.getThreadsActive() + ", values: " + count);
 						root.forest.scheduler.incThreadsActive();
 						t.start();
 						return;
@@ -623,7 +624,8 @@ public abstract class RandomTree extends Thread {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
 			newThreadRoot.forest.scheduler.decThreadsActive();
-			if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.scheduler.getThreadsActive() + ", values: " + newThreadCount);
+			System.out.println("Finished node thread at depth " + newThreadDepth);
+			//if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.scheduler.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
