@@ -30,10 +30,10 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="8"
-		percentageOfRandomValuesPerFrame="0.25"
+		maxDepth="1"
+		percentageOfRandomValuesPerFrame="0.0025"
 		numOfRandomFeatures="3"
-		thresholdCandidatesPerFeature="15"
+		thresholdCandidatesPerFeature="1"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
 		
