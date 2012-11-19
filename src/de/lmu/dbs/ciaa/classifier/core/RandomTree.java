@@ -317,15 +317,15 @@ public abstract class RandomTree extends ScheduledThread {
 		if ((!params.boostOnSmallNodes && params.maxNumOfNodeThreads > 0) ||
 				(params.boostOnSmallNodes && count < params.minEvalThreadCount && params.maxNumOfNodeThreads > 0)) {
 				
-				synchronized (root.forest.scheduler) { 
-					if (multithreading && (root.forest.scheduler.getThreadsAvailable() > 0)) {
-						System.out.println("Starting node thread at depth " + depth + " (available: " + root.forest.scheduler.getThreadsAvailable() + ")");
+				synchronized (root.forest.nodeScheduler) { 
+					if (multithreading && (root.forest.nodeScheduler.getThreadsAvailable() > 0)) {
+						System.out.println("Starting node thread at depth " + depth + " (node threads available: " + root.forest.nodeScheduler.getThreadsAvailable() + ")");
 						// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
 						// watched with the isGrown method of the original RandomTree instance.
 						RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
 						//if(params.debugNodeThreads) System.out.println("  T" + num + ": Node thread, depth: " + depth + ", active: " + root.forest.scheduler.getThreadsActive() + ", values: " + count);
 						//root.forest.scheduler.incThreadsActive();
-						root.forest.scheduler.startThread(t);
+						root.forest.nodeScheduler.startThread(t);
 						//t.start();
 						return;
 					}
@@ -479,9 +479,9 @@ public abstract class RandomTree extends ScheduledThread {
 			return;
 		}
 		
-		if (count < params.minEvalThreadCount) {
-			// Not enough values -> no eval multithreading (there might happen some node 
-			// threading from this point on, see option "boostOnSmallNodes"...)
+		//if (count < params.minEvalThreadCount) {
+		if (params.boostOnSmallNodes && newThreadRoot != null) {
+			// Never go into evaluation threading on a threaded node in boosting mode
 			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
@@ -494,8 +494,8 @@ public abstract class RandomTree extends ScheduledThread {
 		
 		// Create worker threads for groups of frequency bands and start them
 		RandomTreeWorker[] workers = null;
-		synchronized (root.forest.scheduler) {
-			int threadNum = root.forest.scheduler.getThreadsAvailable();
+		synchronized (root.forest.evalScheduler) {
+			int threadNum = root.forest.evalScheduler.getThreadsAvailable();
 			if (threadNum > 1) {
 				System.out.println("Starting evaluation with " + threadNum  + " threads");
 				workers = new RandomTreeWorker[threadNum];
@@ -508,10 +508,10 @@ public abstract class RandomTree extends ScheduledThread {
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					//root.forest.scheduler.incThreadsActive();
 					//workers[i].start();
-					root.forest.scheduler.startThread(workers[i]);
+					root.forest.evalScheduler.startThread(workers[i]);
 				}
 			} else {
-				System.out.println("No available threads (amt: " + root.forest.scheduler.getThreadsActive() + "), evaluating normally");
+				System.out.println("No available threads (amt: " + root.forest.evalScheduler.getThreadsActive() + "), evaluating normally");
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
 			}
@@ -536,7 +536,7 @@ public abstract class RandomTree extends ScheduledThread {
 				// Debug output
 				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (all: " + root.forest.scheduler.getThreadsActive() + "), Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + cnt + " (all: " + (root.forest.nodeScheduler.getThreadsActive() + root.forest.evalScheduler.getThreadsActive()) + "), Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}

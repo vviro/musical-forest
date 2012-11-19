@@ -13,8 +13,6 @@ public class ThreadScheduler {
 
 	private int maxThreads;
 	
-	//private int active = 0;
-	
 	private List<ScheduledThread> threads = new ArrayList<ScheduledThread>();
 	
 	public ThreadScheduler(int maxThreads) {
@@ -38,16 +36,5 @@ public class ThreadScheduler {
 		}
 		if (ret > maxThreads) throw new Exception("Too much threads active: " + ret);
 		return ret;
-		//return active; //ManagementFactory.getThreadMXBean().getThreadCount();
 	}
-/*	
-	public synchronized void incThreadsActive() {
-		active++;
-	}
-	public synchronized void decThreadsActive() throws Exception {
-		active--;
-		if (active < 0) throw new Exception("Num of node threads below zero: " + active);
-	}
- */
-	
 }

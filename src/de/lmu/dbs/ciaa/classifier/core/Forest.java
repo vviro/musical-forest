@@ -32,7 +32,8 @@ public class Forest {
 	 */
 	private Logfile log = null;
 	
-	public ThreadScheduler scheduler;
+	public ThreadScheduler nodeScheduler;
+	public ThreadScheduler evalScheduler;
 	
 	/**
 	 * Creates a forest with some trees.
@@ -44,7 +45,8 @@ public class Forest {
 		this(params);
 		this.trees = trees;
 		this.log = log;
-		this.scheduler = new ThreadScheduler(params.maxNumOfNodeThreads);
+		this.nodeScheduler = new ThreadScheduler(params.maxNumOfNodeThreads);
+		this.evalScheduler = new ThreadScheduler(params.numOfWorkerThreadsPerNode);
 		for(int i=0; i<trees.size(); i++) {
 			trees.get(i).setForest(this);
 		}
@@ -102,7 +104,7 @@ public class Forest {
 				}
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(timeStampFormatter.format(new Date()) + ": Waiting for node threads: " + scheduler.getThreadsActive());
+					System.out.print(timeStampFormatter.format(new Date()) + ": Waiting for node threads: " + nodeScheduler.getThreadsActive());
 					/*for(int i=0; i<trees.size(); i++) {
 						System.out.print(trees.get(i).getThreadsActive() + " ");
 					}*/
