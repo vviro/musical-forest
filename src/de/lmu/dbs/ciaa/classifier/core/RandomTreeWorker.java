@@ -48,6 +48,7 @@ public class RandomTreeWorker extends ScheduledThread {
 			System.exit(0);
 		}
 		setThreadFinished();
+		parent.notify();
 	}
 	
 }
