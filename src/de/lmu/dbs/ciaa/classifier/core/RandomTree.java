@@ -487,10 +487,26 @@ public abstract class RandomTree extends ScheduledThread {
 		}
 		
 		// Wait for the worker threads
-		boolean o = true;
+		long lastTime = 0;
 		while(true) {
-			if (o && params.debugThreadPolling) {
-				o = false;
+			synchronized(this) {
+				try {
+					wait(params.threadWaitTime);
+				} catch (InterruptedException e) {
+					System.out.println("[Wait interrupted by VM, continuing...]");
+				}
+			}
+			
+			boolean ret = true;
+			for(int i=0; i<workers.length; i++) {
+				if (!workers[i].threadIsFinished()) {
+					ret = false;
+					break;
+				}
+			}
+			
+			if (params.debugThreadPolling && (System.currentTimeMillis() - lastTime > params.threadWaitTime)) {
+				lastTime = System.currentTimeMillis();
 				// General stats
 				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
 				int nt = root.forest.nodeScheduler.getThreadsActive();
@@ -500,26 +516,8 @@ public abstract class RandomTree extends ScheduledThread {
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
-
-			synchronized(this) {
-				try {
-					wait(); //params.threadWaitTime);
-				} catch (InterruptedException e) {
-					System.out.println("[Wait interrupted by VM, continuing...]");
-				}
-			}
-			System.out.print(".");
-			
-			boolean ret = true;
-			for(int i=0; i<workers.length; i++) {
-				if (!workers[i].threadIsFinished()) {
-					ret = false;
-					break;
-				}
-			}
 			if (ret) break;
 		}
-		System.out.println("done");
 	}
 	
 	/**
