@@ -168,16 +168,18 @@ public class RandomTree2d extends RandomTree {
 			Classification2d claNextL = new Classification2d(l);
 			Classification2d claNextR = new Classification2d(r);
 			
-			int index = 0;
+			int indexL = 0;
+			int indexR = 0;
 			for(int c=0; c<cla.getSize(); c++) {
 				if (feature.evaluate(data, cla.xIndex[c], cla.yIndex[c]) >= feature.threshold) {
-					claNextL.xIndex[index] = cla.xIndex[c];
-					claNextL.yIndex[index] = cla.yIndex[c];
+					claNextL.xIndex[indexL] = cla.xIndex[c];
+					claNextL.yIndex[indexL] = cla.yIndex[c];
+					indexL++;
 				} else {
-					claNextR.xIndex[index] = cla.xIndex[c];
-					claNextR.yIndex[index] = cla.yIndex[c];
+					claNextR.xIndex[indexR] = cla.xIndex[c];
+					claNextR.yIndex[indexR] = cla.yIndex[c];
+					indexR++;
 				}
-				index++;
 			}
 			classificationLeft.add(claNextL);
 			classificationRight.add(claNextR);
