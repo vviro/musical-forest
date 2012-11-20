@@ -20,8 +20,6 @@ public class ForestParameters {
 	
 	public int maxNumOfEvalThreads;
 	
-	public boolean boostOnSmallNodes;
-	
 	public long nodeThreadingThreshold;
 	
 	/**

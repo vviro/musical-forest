@@ -50,7 +50,6 @@
 		evalThreadingThreshold="8000"
 
 		maxNumOfNodeThreads="8"
-		boostOnSmallNodes="true"
 		nodeThreadingThreshold="80000"
 		
 	></Forest>
