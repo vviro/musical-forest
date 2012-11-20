@@ -476,7 +476,7 @@ public abstract class RandomTree extends ScheduledThread {
 		synchronized (root.forest.evalScheduler) {
 			int threadNum = root.forest.evalScheduler.getThreadsAvailable();
 			if (threadNum > 1) {
-				//System.out.println("Starting evaluation with " + threadNum  + " threads");
+				System.out.println("Starting evaluation with " + threadNum  + " threads");
 				workers = new RandomTreeWorker[threadNum];
 				int ipw = numWork / workers.length;
 				for(int i=0; i<workers.length; i++) {
@@ -488,7 +488,7 @@ public abstract class RandomTree extends ScheduledThread {
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
 			} else {
-				//System.out.println("No available threads (amt: " + root.forest.evalScheduler.getThreadsActive() + "), evaluating normally");
+				System.out.println("No available threads (amt: " + root.forest.evalScheduler.getThreadsActive() + "), evaluating normally");
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
 			}
@@ -516,7 +516,7 @@ public abstract class RandomTree extends ScheduledThread {
 				int nt = root.forest.nodeScheduler.getThreadsActive();
 				int et = root.forest.evalScheduler.getThreadsActive();
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " (" + workers.length + ") + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + "/" + workers.length + " + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
