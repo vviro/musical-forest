@@ -459,8 +459,7 @@ public abstract class RandomTree extends ScheduledThread {
 		}
 		
 		//if (count < params.minEvalThreadCount) {
-		if (params.boostOnSmallNodes && newThreadRoot != null) {
-			// Never go into evaluation threading on a threaded node in boosting mode
+		if (params.boostOnSmallNodes && count < params.evalThreadingThreshold) {
 			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;

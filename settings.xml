@@ -47,6 +47,7 @@
 		
 		maxNumOfEvalThreads="22"
 		enableEvaluationThreads="true"
+		evalThreadingThreshold="8000"
 
 		maxNumOfNodeThreads="8"
 		boostOnSmallNodes="true"
