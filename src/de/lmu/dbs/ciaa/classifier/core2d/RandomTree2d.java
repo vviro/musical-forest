@@ -235,11 +235,12 @@ public class RandomTree2d extends RandomTree {
 			byte[][] ref = (byte[][])dataset.getReference();
 			Classification2d cla = (Classification2d)classification.get(poolIndex);
 			int claSize = cla.getSize();
-			System.out.println(claSize);
+
 			// get feature results 
 			for(int c=0; c<claSize; c++) {
 				int x = cla.xIndex[c];
 				int y = cla.yIndex[c];
+				System.out.println(x + " " + y);
 				for(int k=minIndex; k<=maxIndex; k++) {
 					float ev = features[k].evaluate(data, x, y);
 					for(int g=0; g<tcpf; g++) {
