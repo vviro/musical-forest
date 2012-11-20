@@ -498,10 +498,12 @@ public abstract class RandomTree extends ScheduledThread {
 		
 		// Wait for the worker threads
 		while(true) {
-			try {
-				wait(params.threadWaitTime);
-			} catch (InterruptedException e) {
-				System.out.println("[Wait interrupted by VM, continuing...]");
+			synchronized(this) {
+				try {
+					wait(params.threadWaitTime);
+				} catch (InterruptedException e) {
+					System.out.println("[Wait interrupted by VM, continuing...]");
+				}
 			}
 			boolean ret = true;
 			//int cnt = 0;
