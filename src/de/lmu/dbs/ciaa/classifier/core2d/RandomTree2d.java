@@ -13,7 +13,6 @@ import de.lmu.dbs.ciaa.classifier.core.Sampler;
 import de.lmu.dbs.ciaa.classifier.core.RandomTree;
 import de.lmu.dbs.ciaa.classifier.core.TreeDataset;
 import de.lmu.dbs.ciaa.util.ArrayToImage;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.Statistic;
 

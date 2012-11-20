@@ -1,8 +1,5 @@
 package de.lmu.dbs.ciaa.classifier.features;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
