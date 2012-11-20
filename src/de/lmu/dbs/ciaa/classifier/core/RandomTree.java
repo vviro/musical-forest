@@ -262,7 +262,18 @@ public abstract class RandomTree extends ScheduledThread {
 		// Preclassify and grow
 		List<Object> classification = getPreClassification(sampler);
 		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
-		growRec(this, sampler, classification, Long.MAX_VALUE, tree, 0, 0, maxDepth, true);
+
+		long count = 0;
+		for(int i=0; i<classification.size(); i++) {
+			byte[][] cla = (byte[][])classification.get(i);
+			for(int x=0; x<cla.length; x++) {
+				for(int y=0; y<cla[0].length; y++) {
+					if (cla[x][y] != -1) count++;
+				}
+			}
+		}
+		
+		growRec(this, sampler, classification, count, tree, 0, 0, maxDepth, true);
 	}
 
 	/**

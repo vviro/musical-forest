@@ -107,7 +107,7 @@ public class Forest {
 				}*/
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(
+					System.out.println(
 							timeStampFormatter.format(new Date()) + ": Waiting for " + nodeScheduler.getThreadsActive() + " node threads; " + 
 							"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 					);
