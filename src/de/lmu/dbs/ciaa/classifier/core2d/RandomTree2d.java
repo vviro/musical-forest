@@ -198,7 +198,6 @@ public class RandomTree2d extends RandomTree {
 	 */
 	@Override
 	public int getNumOfWork(Sampler<Dataset> sampler, List<Object> paramSet, List<Classification> classification) {
-		System.out.println(paramSet.size());
 		return paramSet.size();
 	}
 
