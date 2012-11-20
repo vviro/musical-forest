@@ -98,22 +98,21 @@ public class Forest {
 				} catch (InterruptedException e) {
 					System.out.println("[Wait interrupted by VM, continuing...]");
 				}
-				boolean ret = true;
+				/*boolean ret = true;
 				for(int i=0; i<trees.size(); i++) {
 					if (!trees.get(i).isGrown()) {
 						ret = false;
 						if (!params.debugThreadPolling) break;
 					}
-				}
+				}*/
 				if (params.debugThreadPolling) {
 					// Debug output
-					System.out.print(timeStampFormatter.format(new Date()) + ": Waiting for " + nodeScheduler.getThreadsActive() + " node threads");
-					/*for(int i=0; i<trees.size(); i++) {
-						System.out.print(trees.get(i).getThreadsActive() + " ");
-					}*/
-					System.out.println("Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
+					System.out.print(
+							timeStampFormatter.format(new Date()) + ": Waiting for " + nodeScheduler.getThreadsActive() + " node threads; " + 
+							"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
+					);
 				}
-				if (ret) break;
+				if (nodeScheduler.getThreadsActive() == 0 && evalScheduler.getThreadsActive() == 0) break;
 			}
 			System.out.println("Finished growing forest.");
 		}

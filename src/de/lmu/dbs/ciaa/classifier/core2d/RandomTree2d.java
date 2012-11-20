@@ -5,6 +5,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.SparseDoubleMatrix2D;
+
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 import de.lmu.dbs.ciaa.classifier.core.Node;

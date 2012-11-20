@@ -67,16 +67,6 @@ public abstract class RandomTree extends ScheduledThread {
 	public static final double LOG2 = Math.log(2);
 	
 	/**
-	 * Number of active node threads in this tree, excluding the calling thread.
-	 */
-	protected int nodeThreadsActive = 0;
-	
-	/**
-	 * Number of active evaluation worker threads in this tree, excluding the calling thread.
-	 */
-	protected int evaluationThreadsActive = 0;
-	
-	/**
 	 * Date formatter for debug output.
 	 */
 	protected SimpleDateFormat timeStampFormatter = new SimpleDateFormat("hh:mm:ss");
@@ -478,7 +468,7 @@ public abstract class RandomTree extends ScheduledThread {
 		synchronized (root.forest.evalScheduler) {
 			int threadNum = root.forest.evalScheduler.getThreadsAvailable();
 			if (threadNum > 1) {
-				System.out.println("Starting evaluation with " + threadNum  + " threads, values: " + count);
+				//System.out.println("Starting evaluation with " + threadNum  + " threads, values: " + count);
 				workers = new RandomTreeWorker[threadNum];
 				int ipw = numWork / workers.length;
 				for(int i=0; i<workers.length; i++) {
@@ -490,42 +480,46 @@ public abstract class RandomTree extends ScheduledThread {
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
 			} else {
-				System.out.println("No available threads (amt: " + root.forest.evalScheduler.getThreadsActive() + "), evaluating normally");
+				//System.out.println("No available threads (amt: " + root.forest.evalScheduler.getThreadsActive() + "), evaluating normally");
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
 			}
 		}
 		
 		// Wait for the worker threads
+		boolean o = true;
 		while(true) {
-			synchronized(this) {
-				try {
-					wait(params.threadWaitTime);
-				} catch (InterruptedException e) {
-					System.out.println("[Wait interrupted by VM, continuing...]");
-				}
-			}
-			boolean ret = true;
-			//int cnt = 0;
-			for(int i=0; i<workers.length; i++) {
-				if (!workers[i].threadIsFinished()) {
-					ret = false;
-					break;
-					//cnt++;
-				}
-			}
-			if (params.debugThreadPolling) {
-				// Debug output
+			if (o && params.debugThreadPolling) {
+				o = false;
+				// General stats
 				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
 				int nt = root.forest.nodeScheduler.getThreadsActive();
 				int et = root.forest.evalScheduler.getThreadsActive();
-				System.out.println(
+				System.out.print(
 						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
+
+			synchronized(this) {
+				try {
+					wait(); //params.threadWaitTime);
+				} catch (InterruptedException e) {
+					System.out.println("[Wait interrupted by VM, continuing...]");
+				}
+			}
+			System.out.print(".");
+			
+			boolean ret = true;
+			for(int i=0; i<workers.length; i++) {
+				if (!workers[i].threadIsFinished()) {
+					ret = false;
+					break;
+				}
+			}
 			if (ret) break;
 		}
+		System.out.println("done");
 	}
 	
 	/**
@@ -680,7 +674,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * Returns if the tree is grown.
 	 * 
 	 * @return
-	 */
+	 *
 	public boolean isGrown() {
 		return (nodeThreadsActive == 0) && (evaluationThreadsActive == 0);
 	}
