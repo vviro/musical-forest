@@ -483,7 +483,7 @@ public abstract class RandomTree extends ScheduledThread {
 					System.out.println("[Wait interrupted by VM, continuing...]");
 				}
 			}
-			System.out.println(System.currentTimeMillis() + " - " + lastTime);
+			
 			if (params.debugThreadPolling && (System.currentTimeMillis() - lastTime > params.threadWaitTime)) {
 				lastTime = System.currentTimeMillis();
 				// General stats
