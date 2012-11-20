@@ -95,10 +95,9 @@ public class OnsetMusicalTreeDataset extends TreeDataset2d {
 		
 		ArrayUtils.filterFirst((byte[][])reference);
 		ArrayUtils.blur((byte[][])reference, 0);
-		//reference = ArrayUtils.flatten((byte[][])ref2d);
-		//ArrayUtils.blur((byte[][])reference, 0);
 
-		// TMP
+		// TMP 
+		/*
 		ArrayToImage img = new ArrayToImage(dataC.length, dataC[0].length, 1);
 		img.add(dataC, Color.WHITE, null);
 		img.add((byte[][])reference, Color.RED, null, 0);
