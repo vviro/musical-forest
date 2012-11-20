@@ -212,7 +212,7 @@ public class ForestTest {
 				}
 			}
 			m.measure("Finished testing forest");
-			
+
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
 				MusicalRandomTree t = (MusicalRandomTree)forest.getTrees().get(i);
