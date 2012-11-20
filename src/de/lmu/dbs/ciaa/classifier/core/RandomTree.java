@@ -469,10 +469,13 @@ public abstract class RandomTree extends ScheduledThread {
 			return;
 		}
 		
-		//if (count < params.minEvalThreadCount) {
 		if (newThreadRoot != null) { // || count < params.evalThreadingThreshold) {
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
+		}
+		
+		if (count < params.nodeThreadingThreshold) {
+			System.out.println("--> WARNING: Eval threads below node threading threshold: " + count);
 		}
 		
 		// Create worker threads for groups of frequency bands and start them
@@ -485,9 +488,8 @@ public abstract class RandomTree extends ScheduledThread {
 				for(int i=0; i<workers.length; i++) {
 					int min = (int)(i*ipw);
 					int max = (int)((i+1)*ipw - 1);
-					if (max >= numWork) max = numWork-1;
-					if (i == workers.length-1) max = numWork-1;
-					System.out.println(min + " to " + max);
+					if (i == workers.length-1 || max >= numWork) max = numWork-1;
+					//System.out.println(min + " to " + max);
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
