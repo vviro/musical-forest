@@ -493,9 +493,8 @@ public abstract class RandomTree extends ScheduledThread {
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
-				System.out.println("Started " + workers.length + " eval threads for " + count + " values");
+				//System.out.println("Started " + workers.length + " eval threads for " + count + " values");
 			} else {
-				System.out.println("Evaluate " + count + " values linear");
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
 			}
