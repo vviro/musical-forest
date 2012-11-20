@@ -76,7 +76,7 @@ public abstract class TreeDataset extends Dataset {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract Object getInitialClassification() throws Exception;
+	public abstract Classification getInitialClassification() throws Exception;
 
 	/**
 	 * Returns the initial classification array for this dataset.
@@ -88,7 +88,7 @@ public abstract class TreeDataset extends Dataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public abstract Object getInitialClassification(final int valuesPerFrame) throws Exception;
+	public abstract Classification getInitialClassification(final int valuesPerFrame) throws Exception;
 
 	/**
 	 * Determines if the dataset has been loaded.

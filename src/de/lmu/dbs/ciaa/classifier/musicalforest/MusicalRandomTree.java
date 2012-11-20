@@ -32,7 +32,7 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception 
 	 * 
 	 */
-	public MusicalRandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+	public MusicalRandomTree(ForestParameters params, RandomTree root, Sampler<Dataset> sampler, List<Classification> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
 		super(root, sampler, classification, count, node, mode, depth, maxDepth);
 	}
 

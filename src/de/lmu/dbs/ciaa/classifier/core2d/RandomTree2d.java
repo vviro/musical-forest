@@ -5,9 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.SparseDoubleMatrix2D;
-
+import de.lmu.dbs.ciaa.classifier.core.Classification;
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
 import de.lmu.dbs.ciaa.classifier.core.Node;
@@ -15,6 +13,7 @@ import de.lmu.dbs.ciaa.classifier.core.Sampler;
 import de.lmu.dbs.ciaa.classifier.core.RandomTree;
 import de.lmu.dbs.ciaa.classifier.core.TreeDataset;
 import de.lmu.dbs.ciaa.util.ArrayToImage;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.Logfile;
 import de.lmu.dbs.ciaa.util.Statistic;
 
@@ -55,7 +54,7 @@ public class RandomTree2d extends RandomTree {
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree2d(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+	public RandomTree2d(RandomTree root, Sampler<Dataset> sampler, List<Classification> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
 		this(root.params, root.numOfClasses, root.num, root.log);
 		this.newThreadRoot = root;
 		this.newThreadSampler = sampler;
@@ -107,18 +106,17 @@ public class RandomTree2d extends RandomTree {
 	}
 	
 	/**
-	 * Build first classification array (from bootstrapping samples and random values per sampled frame)
+	 * Returns the initial classification array for this dataset.
 	 * 
-	 * @param sampler
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	protected List<Object> getPreClassification(Sampler<Dataset> sampler) throws Exception {
-		List<Object> classification = new ArrayList<Object>(); // Classification arrays for each dataset in the sampler, same index as in sampler
+	public List<Classification> getPreClassification(Sampler<Dataset> sampler) throws Exception {
+		List<Classification> classification = new ArrayList<Classification>(); // Classification arrays for each dataset in the sampler, same index as in sampler
 		int vpf = (int)(params.percentageOfRandomValuesPerFrame * params.frequencies.length); // values per frame
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			TreeDataset d = (TreeDataset)sampler.get(i);
-			byte[][] cl = (byte[][])d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
+			Classification cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
 			classification.add(cl);
 		}
 		
@@ -127,7 +125,10 @@ public class RandomTree2d extends RandomTree {
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			System.out.println("Visualize " + i);
 			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
-			ArrayUtils.toImage(fname, ArrayUtils.positivize(classification.get(i)), Color.YELLOW);
+			Classification2d cl = (Classification2d)classification.get(i);
+			TreeDataset2d d = (TreeDataset2d)sampler.get(i);
+			byte[][] cc = cl.toByteArray(d.getLength(), d.getHeight());
+			ArrayUtils.toImage(fname, cc, Color.YELLOW);
 		}
 		System.exit(0);
 		//*/
@@ -144,31 +145,43 @@ public class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Object> splitValues(Sampler<Dataset> sampler, List<Object> classification, int mode, Node node, long[] counts) throws Exception {
+	public void splitValues(Sampler<Dataset> sampler, List<Classification> classification, List<Classification> classificationLeft, List<Classification> classificationRight, int mode, Node node, long[] counts) throws Exception {
 		Feature2d feature = (Feature2d)node.feature;
-		List<Object> classificationNext = new ArrayList<Object>(sampler.getPoolSize());
 		int poolSize = sampler.getPoolSize();
 		for(int i=0; i<poolSize; i++) {
+			Classification2d cla = (Classification2d)classification.get(i);
 			TreeDataset dataset = (TreeDataset)sampler.get(i);
 			byte[][] data = (byte[][])dataset.getData();
-			byte[][] cla = (byte[][])classification.get(i);
-			byte[][] claNext = new byte[data.length][params.frequencies.length];
-			for(int x=0; x<data.length; x++) {
-				for(int y=0; y<params.frequencies.length; y++) {
-					if (mode == cla[x][y]) {
-						if (feature.evaluate(data, x, y) >= feature.threshold) {
-							claNext[x][y] = 1; // Left
-							counts[0]++;
-						} else {
-							claNext[x][y] = 2; // Right
-							counts[1]++;
-						}
-					}
+
+			int l = 0;
+			int r = 0;
+			for(int c=0; c<cla.getSize(); c++) {
+				if (feature.evaluate(data, cla.xIndex[c], cla.yIndex[c]) >= feature.threshold) {
+					counts[0]++;
+					l++;
+				} else {
+					counts[1]++;
+					r++;
 				}
 			}
-			classificationNext.add(claNext);
+			
+			Classification2d claNextL = new Classification2d(l);
+			Classification2d claNextR = new Classification2d(r);
+			
+			int index = 0;
+			for(int c=0; c<cla.getSize(); c++) {
+				if (feature.evaluate(data, cla.xIndex[c], cla.yIndex[c]) >= feature.threshold) {
+					claNextL.xIndex[index] = cla.xIndex[c];
+					claNextL.yIndex[index] = cla.yIndex[c];
+				} else {
+					claNextR.xIndex[index] = cla.xIndex[c];
+					claNextR.yIndex[index] = cla.yIndex[c];
+				}
+				index++;
+			}
+			classificationLeft.add(claNextL);
+			classificationRight.add(claNextR);
 		}
-		return classificationNext;
 	}
 	
 	/**
@@ -188,7 +201,7 @@ public class RandomTree2d extends RandomTree {
 	 * @param depth
 	 * @throws Exception
 	 */
-	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
+	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Classification> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
 		int numOfFeatures = paramSet.size();
 		Feature2d[] features = new Feature2d[numOfFeatures];
 		for(int i=0; i<paramSet.size(); i++) {
@@ -203,23 +216,22 @@ public class RandomTree2d extends RandomTree {
 			TreeDataset dataset = (TreeDataset)sampler.get(poolIndex);
 			byte[][] data = (byte[][])dataset.getData();
 			byte[][] ref = (byte[][])dataset.getReference();
-			byte[][] cla = (byte[][])classification.get(poolIndex);
+			Classification2d cla = (Classification2d)classification.get(poolIndex);
+			int claSize = cla.getSize();
 			
 			// get feature results 
-			for(int x=0; x<data.length; x++) {
-				for(int y=minIndex; y<=maxIndex; y++) {
-					for(int k=0; k<numOfFeatures; k++) {
-						if (mode == cla[x][y]) { // Is that point in the training set for this node?
-							float ev = features[k].evaluate(data, x, y);
-							for(int g=0; g<tcpf; g++) {
-								if (ev >= thresholdsArray[k][g]) {
-									// Left
-									countClassesLeft[k][g][ref[x][y]]++;
-								} else {
-									// Right
-									countClassesRight[k][g][ref[x][y]]++;
-								}
-							}
+			for(int c=0; c<claSize; c++) {
+				for(int k=0; k<numOfFeatures; k++) {
+					int x = cla.xIndex[c];
+					int y = cla.yIndex[c];
+					float ev = features[k].evaluate(data, x, y);
+					for(int g=0; g<tcpf; g++) {
+						if (ev >= thresholdsArray[k][g]) {
+							// Left
+							countClassesLeft[k][g][ref[x][y]]++;
+						} else {
+							// Right
+							countClassesRight[k][g][ref[x][y]]++;
 						}
 					}
 				}
@@ -236,7 +248,7 @@ public class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception {
+	protected float[] calculateLeaf(final Sampler<Dataset> sampler, List<Classification> classification, final int mode, final int depth) throws Exception {
 		//int numOfClasses = this.getNumOfClasses();
 		float[] l = new float[numOfClasses];
 		long all = 0;
@@ -244,16 +256,13 @@ public class RandomTree2d extends RandomTree {
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			TreeDataset dataset = (TreeDataset)sampler.get(i);
 			byte[][] ref = (byte[][])dataset.getReference();
-			byte[][] cla = (byte[][])classification.get(i);
+			Classification2d cla = (Classification2d)classification.get(i);
+			int claSize = cla.getSize();
 			
-			for(int x=0; x<ref.length; x++) {
-				for(int y=0; y<ref[0].length; y++) {
-					if (mode == cla[x][y]) {
-						l[ref[x][y]]++;
-						all++;
-					}
-				}
+			for(int c=0; c<claSize; c++) {
+				l[ref[cla.xIndex[c]][cla.yIndex[c]]]++;
 			}
+			all+= claSize;
 		}
 		for(int c=0; c<numOfClasses; c++) {
 			l[c] /= (float)all;
@@ -335,7 +344,7 @@ public class RandomTree2d extends RandomTree {
 	 * @throws Exception 
 	 */
 	@Override
-	public RandomTree2d getInstance(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
+	public RandomTree2d getInstance(RandomTree root, Sampler<Dataset> sampler, List<Classification> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception {
 		return new RandomTree2d(root, sampler, classification, count, node, mode, depth, maxDepth);
 	}
 

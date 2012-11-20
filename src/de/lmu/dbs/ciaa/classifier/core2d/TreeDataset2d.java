@@ -2,6 +2,7 @@ package de.lmu.dbs.ciaa.classifier.core2d;
 
 import java.io.File;
 import cern.jet.random.sampling.RandomSampler;
+import de.lmu.dbs.ciaa.classifier.core.Classification;
 import de.lmu.dbs.ciaa.classifier.core.TreeDataset;
 
 /**
@@ -17,7 +18,7 @@ public abstract class TreeDataset2d extends TreeDataset {
 	}
 
 	/**
-	 * Returns the number of samples in the dataset.
+	 * Returns the number of samples in the dataset (Width of 2d data matrix).
 	 * 
 	 * @return
 	 * @throws Exception 
@@ -28,19 +29,39 @@ public abstract class TreeDataset2d extends TreeDataset {
 	}
 	
 	/**
+	 * Returns the height of the 2d data matrix.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public int getHeight() throws Exception {
+		if (!isLoaded()) load();
+		return ((byte[][])data)[0].length;
+	}
+	
+	/**
 	 * Returns the initial classification array for this dataset.
 	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public synchronized Object getInitialClassification() throws Exception {
-		if (!isLoaded()) load();
-		byte[][] dataC = (byte[][])data;
-		byte[][] ret = new byte[dataC.length][dataC[0].length];
-		for(int f=0; f<ret.length; f++) {
-			if (!isSampled(f)) {
-				for(int g=0; g<ret[0].length; g++) {
-					ret[f][g] = -1; // Throw all out of bag
+	public synchronized Classification getInitialClassification() throws Exception {
+		int len = getLength();
+		int hei = getHeight();
+		int cnt = 0;
+		for(int f=0; f<len; f++) {
+			if (isSampled(f)) {
+				cnt+=hei;
+			}
+		}
+		Classification2d ret = new Classification2d(cnt);
+		int index = 0;
+		for(int f=0; f<len; f++) {
+			if (isSampled(f)) {
+				for(int g=0; g<hei; g++) {
+					ret.xIndex[index] = f;
+					ret.yIndex[index] = g;
+					index++;
 				}
 			}
 		}
@@ -57,18 +78,12 @@ public abstract class TreeDataset2d extends TreeDataset {
 	 * @return
 	 * @throws Exception 
 	 */
-	public synchronized Object getInitialClassification(final int valuesPerFrame) throws Exception {
+	public synchronized Classification getInitialClassification(int valuesPerFrame) throws Exception {
 		if (!isLoaded()) load();
 		byte[][] dataC = (byte[][])data;
 		if (valuesPerFrame >= dataC[0].length) {
 			// All sampled frames should be in completely
 			return getInitialClassification(); 
-		}
-		byte[][] ret = new byte[dataC.length][dataC[0].length];
-		for(int i=0; i<dataC.length; i++) {
-			for(int j=0; j<dataC[0].length; j++) {
-				ret[i][j] = -1; // Throw all out of bag 
-			}
 		}
 		// Get sample without replacement
 		long[] array = new long[valuesPerFrame*dataC.length];
@@ -80,11 +95,13 @@ public abstract class TreeDataset2d extends TreeDataset {
 				array, 
 				0, 
 				null);
+		Classification2d ret = new Classification2d(array.length);
+		int index = 0;
 		for(int i=0; i<array.length; i++) {
-			int y = (int)Math.floor(array[i] / dataC.length);
-			if (!isSampled(y)) continue;
-			int x = (int)array[i] % dataC.length;
-			ret[x][y] = 0; 
+			ret.xIndex[index] = (int)array[i] % dataC.length;
+			if (!isSampled(ret.xIndex[index])) continue;
+			ret.yIndex[index] = (int)Math.floor(array[i] / dataC.length);
+			index++;
 		}
 		return ret;
 	}

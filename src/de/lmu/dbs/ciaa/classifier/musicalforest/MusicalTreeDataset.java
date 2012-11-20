@@ -84,9 +84,10 @@ public class MusicalTreeDataset extends TreeDataset2d {
 		if (isLoaded()) return;
 		// Spectrum
 		data = dataIo.load(dataFile.getAbsolutePath()); 
+		byte[][] dataC = (byte[][])data;
+		if (dataC.length*dataC[0].length > Integer.MAX_VALUE-8) throw new Exception("Sample is too large, max is " + Integer.MAX_VALUE + " frames: " + dataC.length);
 		// MIDI
 		MIDIAdapter ma = new MIDIAdapter(referenceFile);
-		byte[][] dataC = (byte[][])data;
 		long duration = (long)((double)((dataC.length+1) * step * 1000.0) / 44100); // TODO festwerte
 		reference = ma.toDataArray(dataC.length, duration, frequencies);
 		//ArrayUtils.blur((byte[][])reference, 0);

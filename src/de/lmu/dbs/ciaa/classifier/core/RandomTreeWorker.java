@@ -19,14 +19,14 @@ public class RandomTreeWorker extends ScheduledThread {
 
 	private Sampler<Dataset> sampler;
 	private List<Object> paramSet;
-	private List<Object> classification;
+	private List<Classification> classification;
 	private int mode;
 	private Object thresholds;
 	private long[][][] countClassesLeft;
 	private long[][][] countClassesRight;
 	private RandomTree parent;
 	
-	public RandomTreeWorker(RandomTree parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Object> paramSet, List<Object> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
+	public RandomTreeWorker(RandomTree parent, int minIndex, int maxIndex, Sampler<Dataset> sampler, List<Object> paramSet, List<Classification> classification, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) {
 		this.parent = parent;
 		
 		this.minIndex = minIndex;

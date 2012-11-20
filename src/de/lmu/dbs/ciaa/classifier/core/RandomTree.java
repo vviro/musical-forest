@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -86,7 +87,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * The attributes with prefix "newThread" are used to transport parameters
 	 * to new Threads (see growRec source code)
 	 */
-	protected List<Object> newThreadClassification;
+	protected List<Classification> newThreadClassification;
 
 	/**
 	 * The attributes with prefix "newThread" are used to transport parameters
@@ -159,7 +160,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @return
 	 * @throws Exception
 	 */
-	protected abstract float[] calculateLeaf(final Sampler<Dataset> sampler, List<Object> classification, final int mode, final int depth) throws Exception;
+	protected abstract float[] calculateLeaf(final Sampler<Dataset> sampler, List<Classification> classification, final int mode, final int depth) throws Exception;
 
 	/**
 	 * Splits the training data set of a node.
@@ -171,7 +172,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract List<Object> splitValues(Sampler<Dataset> sampler, List<Object> classification, int mode, Node node, long[] counts) throws Exception;
+	public abstract void splitValues(Sampler<Dataset> sampler, List<Classification> classification, List<Classification> classificationLeft, List<Classification> classificationRight, int mode, Node node, long[] counts) throws Exception;
 
 	/**
 	 * Returns a new instance of the tree.
@@ -190,7 +191,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @return
 	 * @throws Exception 
 	 */
-	public abstract RandomTree getInstance(RandomTree root, Sampler<Dataset> sampler, List<Object> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception;
+	public abstract RandomTree getInstance(RandomTree root, Sampler<Dataset> sampler, List<Classification> classification, long count, Node node, int mode, int depth, int maxDepth) throws Exception;
 	
 	/**
 	 * Returns a new instance of the tree.
@@ -221,7 +222,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected abstract List<Object> getPreClassification(Sampler<Dataset> sampler) throws Exception;
+	protected abstract List<Classification> getPreClassification(Sampler<Dataset> sampler) throws Exception;
 
 	/**
 	 * This does the actual evaluation work.
@@ -240,7 +241,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @param depth
 	 * @throws Exception
 	 */
-	public abstract void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Object> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception;
+	public abstract void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Classification> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception;
 
 	/**
 	 * Grows the tree. 
@@ -260,17 +261,12 @@ public abstract class RandomTree extends ScheduledThread {
 		logMeta(sampler);
 		
 		// Preclassify and grow
-		List<Object> classification = getPreClassification(sampler);
+		List<Classification> classification = getPreClassification(sampler);
 		System.out.println("Finished pre-classification for tree " + num + ", start growing...");
 
 		long count = 0;
 		for(int i=0; i<classification.size(); i++) {
-			byte[][] cla = (byte[][])classification.get(i);
-			for(int x=0; x<cla.length; x++) {
-				for(int y=0; y<cla[0].length; y++) {
-					if (cla[x][y] != -1) count++;
-				}
-			}
+			count+= classification.get(i).getSize();
 		}
 		
 		growRec(this, sampler, classification, count, tree, 0, 0, maxDepth, true);
@@ -285,7 +281,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 *        Otherwise, an infinite loop would happen with multithreading.
 	 * @throws Exception 
 	 */
-	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Object> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
+	protected void growRec(RandomTree root, final Sampler<Dataset> sampler, List<Classification> classification, final long count, final Node node, final int mode, final int depth, final int maxDepth, boolean multithreading) throws Exception {
 		// TMP
 		String pre = "T" + root.num + ":  ";
 		for(int i=0; i<depth; i++) pre+="-  ";
@@ -414,7 +410,9 @@ public abstract class RandomTree extends ScheduledThread {
 		
 		// Split values by winner feature for deeper branches
 		long[] counts = new long[2];
-		List<Object> classificationNext = splitValues(sampler, classification, mode, node, counts);
+		List<Classification> classificationNextL = new ArrayList<Classification>();
+		List<Classification> classificationNextR = new ArrayList<Classification>();
+		splitValues(sampler, classification, classificationNextL, classificationNextR, mode, node, counts);
 		
 		// If one side has 0 values to classify, make this node a leaf and return
 		if (counts[0] == 0 || counts[1] == 0) {
@@ -426,12 +424,19 @@ public abstract class RandomTree extends ScheduledThread {
 		
 		// Flush log file changes to disk to preserve them if crashes happen
 		log.flush();
+
+		// Shred classifications for garbage collector before recursion
+		for(int c=0; c<classification.size(); c++) {
+			classification.get(c).clear();
+		}
+		classification.clear(); 
+		classification = null;
 		
 		// Recursion to left and right
 		node.left = new Node();
-		growRec(root, sampler, classificationNext, counts[0], node.left, 1, depth+1, maxDepth, true);
+		growRec(root, sampler, classificationNextL, counts[0], node.left, 1, depth+1, maxDepth, true);
 		node.right = new Node();
-		growRec(root, sampler, classificationNext, counts[1], node.right, 2, depth+1, maxDepth, true);
+		growRec(root, sampler, classificationNextR, counts[1], node.right, 2, depth+1, maxDepth, true);
 	}
 
 	/**
@@ -448,7 +453,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @param countClassesRight
 	 * @throws Exception
 	 */
-	protected void evaluateFeaturesThreads(RandomTree root, Sampler<Dataset> sampler, List<Object> paramSet, List<Object> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
+	protected void evaluateFeaturesThreads(RandomTree root, Sampler<Dataset> sampler, List<Object> paramSet, List<Classification> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
 		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
 		
 		if (!params.enableEvaluationThreads) {
@@ -478,7 +483,9 @@ public abstract class RandomTree extends ScheduledThread {
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
+				System.out.println("Started " + workers.length + " eval threads for " + count + " values");
 			} else {
+				System.out.println("Evaluate " + count + " values linear");
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
 			}
