@@ -442,33 +442,21 @@ public abstract class RandomTree extends ScheduledThread {
 		
 		if (!params.enableEvaluationThreads) {
 			// Eval threads are disabled -> simply calculate it
-			//System.out.println("T" + num + ", Id " + node.id + ", Depth " + depth + ": Calculate evaluations (not multithreaded)");
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
 		
 		//if (count < params.minEvalThreadCount) {
 		if (newThreadRoot != null) { // || count < params.evalThreadingThreshold) {
-			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
-			if (newThreadRoot == null) {
-				System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + " evaluating, Node " + node.id + ", Depth " + depth + ", Values: " + count + "; " + 
-						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
-			}
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
-		
-		/*if (params.boostOnSmallNodes && newThreadRoot != null) {
-			// A node thread shall never go here
-			throw new Exception("ERROR: Node threaded workers are not allowed when boosting is enabled!");
-		}*/
 		
 		// Create worker threads for groups of frequency bands and start them
 		RandomTreeWorker[] workers = null;
 		synchronized (root.forest.evalScheduler) {
 			int threadNum = root.forest.evalScheduler.getThreadsAvailable();
 			if (threadNum > 1) {
-				//System.out.println("Starting evaluation with " + threadNum  + " threads, values: " + count);
 				workers = new RandomTreeWorker[threadNum];
 				int ipw = numWork / workers.length;
 				for(int i=0; i<workers.length; i++) {
@@ -480,7 +468,6 @@ public abstract class RandomTree extends ScheduledThread {
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
 			} else {
-				//System.out.println("No available threads (amt: " + root.forest.evalScheduler.getThreadsActive() + "), evaluating normally");
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
 			}
@@ -496,6 +483,18 @@ public abstract class RandomTree extends ScheduledThread {
 					System.out.println("[Wait interrupted by VM, continuing...]");
 				}
 			}
+			System.out.println(System.currentTimeMillis() + " - " + lastTime);
+			if (params.debugThreadPolling && (System.currentTimeMillis() - lastTime > params.threadWaitTime)) {
+				lastTime = System.currentTimeMillis();
+				// General stats
+				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
+				int nt = root.forest.nodeScheduler.getThreadsActive();
+				int et = root.forest.evalScheduler.getThreadsActive();
+				System.out.println(
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
+				);
+			}
 			
 			boolean ret = true;
 			for(int i=0; i<workers.length; i++) {
@@ -503,18 +502,6 @@ public abstract class RandomTree extends ScheduledThread {
 					ret = false;
 					break;
 				}
-			}
-			
-			if (params.debugThreadPolling && (System.currentTimeMillis() - lastTime > params.threadWaitTime)) {
-				lastTime = System.currentTimeMillis();
-				// General stats
-				String countS = (count == Long.MAX_VALUE) ? "all" : count+"";
-				int nt = root.forest.nodeScheduler.getThreadsActive();
-				int et = root.forest.evalScheduler.getThreadsActive();
-				System.out.print(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
-						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
-				);
 			}
 			if (ret) break;
 		}
