@@ -71,7 +71,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_di9"
+		workingFolder="testdataResults/forestremote_di10"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
