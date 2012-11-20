@@ -235,7 +235,7 @@ public class RandomTree2d extends RandomTree {
 			byte[][] ref = (byte[][])dataset.getReference();
 			Classification2d cla = (Classification2d)classification.get(poolIndex);
 			int claSize = cla.getSize();
-			
+			System.out.println(claSize);
 			// get feature results 
 			for(int c=0; c<claSize; c++) {
 				int x = cla.xIndex[c];

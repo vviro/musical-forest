@@ -48,8 +48,8 @@
 		maxNumOfEvalThreads="22"
 		enableEvaluationThreads="true"
 
-		maxNumOfNodeThreads="10"
-		nodeThreadingThreshold="80000"
+		maxNumOfNodeThreads="8"
+		nodeThreadingThreshold="200000"
 		
 	></Forest>
 

@@ -13,6 +13,8 @@ public class ThreadScheduler {
 
 	private int maxThreads;
 	
+	private int max = 0;
+	
 	private List<ScheduledThread> threads = new ArrayList<ScheduledThread>();
 	
 	public ThreadScheduler(int maxThreads) {
@@ -39,6 +41,11 @@ public class ThreadScheduler {
 			ret+= threads.get(i).threadIsFinished() ? 0 : 1;
 		}
 		if (ret > maxThreads) throw new Exception("Too much threads active: " + ret);
+		if (ret > max) max = ret;
 		return ret;
+	}
+	
+	public int getMax() {
+		return max;
 	}
 }

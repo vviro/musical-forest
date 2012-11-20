@@ -486,7 +486,7 @@ public abstract class RandomTree extends ScheduledThread {
 					int min = i*ipw;
 					int max = min + ipw - 1;
 					if (max >= numWork) max = numWork-1;
-					//System.out.println(min + " to " + max);
+					System.out.println(min + " to " + max);
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
@@ -516,7 +516,7 @@ public abstract class RandomTree extends ScheduledThread {
 				int nt = root.forest.nodeScheduler.getThreadsActive();
 				int et = root.forest.evalScheduler.getThreadsActive();
 				System.out.println(
-						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " + " + nt + " = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
+						timeStampFormatter.format(new Date()) + ": T" + num + ", Thrds: " + et + " + " + nt + " (" + root.forest.nodeScheduler.getMax() + ") = " + (nt+et) + ", Node " + node.id + ", Depth " + depth + ", Values: " + countS + "; " + 
 						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 				);
 			}
