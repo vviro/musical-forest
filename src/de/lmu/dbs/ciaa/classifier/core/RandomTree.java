@@ -486,7 +486,7 @@ public abstract class RandomTree extends ScheduledThread {
 					int min = i*ipw;
 					int max = min + ipw - 1;
 					if (max >= numWork) max = numWork-1;
-					//System.out.println(min + " to " + max);
+					System.out.println(min + " to " + max);
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
