@@ -237,11 +237,9 @@ public class RandomTree2d extends RandomTree {
 			int claSize = cla.getSize();
 
 			// get feature results
-			int maxY = 0;
 			for(int c=0; c<claSize; c++) {
 				int x = cla.xIndex[c];
 				int y = cla.yIndex[c];
-				if (y > maxY) maxY = y;
 				for(int k=minIndex; k<=maxIndex; k++) {
 					float ev = features[k].evaluate(data, x, y);
 					for(int g=0; g<tcpf; g++) {
@@ -255,7 +253,6 @@ public class RandomTree2d extends RandomTree {
 					}
 				}
 			}
-			System.out.println("max: " + maxY);
 		}
 	}
 	

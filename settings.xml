@@ -30,7 +30,7 @@
 	-->
 	<Forest
 		forestSize="1"
-		maxDepth="8"
+		maxDepth="2"
 		percentageOfRandomValuesPerFrame="0.25"
 		numOfRandomFeatures="300"
 		thresholdCandidatesPerFeature="15"
@@ -77,8 +77,8 @@
 		
 		logProgress="true"
 		logNodeInfo="true"
-		logWinnerThresholdCandidates="false"
-		logFeatureCandidates="false"
+		logWinnerThresholdCandidates="true"
+		logFeatureCandidates="true"
 		
 		saveGainThresholdDiagrams="0"
 		saveNodeClassifications="3"
