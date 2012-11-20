@@ -458,7 +458,7 @@ public abstract class RandomTree extends ScheduledThread {
 		}
 		
 		//if (count < params.minEvalThreadCount) {
-		if (newThreadRoot != null || count < params.evalThreadingThreshold) {
+		if (newThreadRoot != null) { // || count < params.evalThreadingThreshold) {
 			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
 			if (newThreadRoot == null) {
 				System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + " evaluating, Node " + node.id + ", Depth " + depth + ", Values: " + count + "; " + 
