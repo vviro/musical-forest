@@ -31,8 +31,8 @@
 	<Forest
 		forestSize="1"
 		maxDepth="8"
-		percentageOfRandomValuesPerFrame="0.5"
-		numOfRandomFeatures="300"
+		percentageOfRandomValuesPerFrame="0.7"
+		numOfRandomFeatures="400"
 		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR_2"
 		entropyThreshold="0"
