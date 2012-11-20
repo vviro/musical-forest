@@ -478,7 +478,7 @@ public abstract class RandomTree extends ScheduledThread {
 		synchronized (root.forest.evalScheduler) {
 			int threadNum = root.forest.evalScheduler.getThreadsAvailable();
 			if (threadNum > 1) {
-				System.out.println("Starting evaluation with " + threadNum  + " threads");
+				System.out.println("Starting evaluation with " + threadNum  + " threads, values: " + count);
 				workers = new RandomTreeWorker[threadNum];
 				int ipw = numWork / workers.length;
 				for(int i=0; i<workers.length; i++) {
@@ -499,7 +499,7 @@ public abstract class RandomTree extends ScheduledThread {
 		// Wait for the worker threads
 		while(true) {
 			try {
-				Thread.sleep(params.threadWaitTime);
+				wait(params.threadWaitTime);
 			} catch (InterruptedException e) {
 				System.out.println("[Wait interrupted by VM, continuing...]");
 			}
