@@ -183,6 +183,11 @@ public class RandomTree2d extends RandomTree {
 			}
 			classificationLeft.add(claNextL);
 			classificationRight.add(claNextR);
+			
+			// Checks
+			if (l+r != cla.getSize()) throw new Exception("ERROR: Code 1");
+			if (indexL != l) throw new Exception("ERROR: Code 2");
+			if (indexR != r) throw new Exception("ERROR: Code 3");
 		}
 	}
 	
@@ -233,9 +238,9 @@ public class RandomTree2d extends RandomTree {
 			
 			// get feature results 
 			for(int c=0; c<claSize; c++) {
+				int x = cla.xIndex[c];
+				int y = cla.yIndex[c];
 				for(int k=minIndex; k<=maxIndex; k++) {
-					int x = cla.xIndex[c];
-					int y = cla.yIndex[c];
 					float ev = features[k].evaluate(data, x, y);
 					for(int g=0; g<tcpf; g++) {
 						if (ev >= thresholdsArray[k][g]) {
