@@ -83,7 +83,7 @@ public class Forest {
 		
 		for(int i=0; i<trees.size(); i++) {
 			System.out.println("Growing tree " + i + " to depth " + params.maxDepth);
-			trees.get(i).grow((trees.size() == 0) ? sampler : sampler.getSample(), params.maxDepth);
+			trees.get(i).grow((trees.size() == 1) ? sampler : sampler.getSample(), params.maxDepth);
 		}
 		if (params.maxNumOfNodeThreads > 0) {
 			// Multithreading is active, so wait for the results 
