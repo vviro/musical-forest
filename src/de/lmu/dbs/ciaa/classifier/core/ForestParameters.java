@@ -10,8 +10,6 @@ package de.lmu.dbs.ciaa.classifier.core;
  */
 public class ForestParameters {
 
-	public long evalThreadingThreshold; 
-	
 	public boolean logWinnerThresholdCandidates;
 	
 	public boolean logFeatureCandidates;
