@@ -185,6 +185,16 @@ public class RandomTree2d extends RandomTree {
 	}
 	
 	/**
+	 * Returns the amount of jobs to split between the evaluation threads.
+	 * 
+	 * @return
+	 */
+	@Override
+	public int getNumOfWork(Sampler<Dataset> sampler, List<Object> paramSet, List<Classification> classification) {
+		return paramSet.size();
+	}
+
+	/**
 	 * This does the actual evaluation work.
 	 * 
 	 * @param sampler
@@ -204,7 +214,7 @@ public class RandomTree2d extends RandomTree {
 	public void evaluateFeatures(Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Classification> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception {
 		int numOfFeatures = paramSet.size();
 		Feature2d[] features = new Feature2d[numOfFeatures];
-		for(int i=0; i<paramSet.size(); i++) {
+		for(int i=minIndex; i<=maxIndex; i++) {
 			features[i] = (Feature2d)paramSet.get(i);
 		}
 		float[][] thresholdsArray = (float[][])thresholds;
@@ -221,7 +231,7 @@ public class RandomTree2d extends RandomTree {
 			
 			// get feature results 
 			for(int c=0; c<claSize; c++) {
-				for(int k=0; k<numOfFeatures; k++) {
+				for(int k=minIndex; k<=maxIndex; k++) {
 					int x = cla.xIndex[c];
 					int y = cla.yIndex[c];
 					float ev = features[k].evaluate(data, x, y);

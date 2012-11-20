@@ -150,6 +150,13 @@ public abstract class RandomTree extends ScheduledThread {
 		this.log = log;
 		this.numOfClasses = numOfClasses;
 	}
+
+	/**
+	 * Returns the amount of jobs to split between the evaluation threads.
+	 * 
+	 * @return
+	 */
+	public abstract int getNumOfWork(Sampler<Dataset> sampler, List<Object> paramSet, List<Classification> classification);
 	
 	/**
 	 * Calculates leaf probability.
@@ -454,7 +461,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @throws Exception
 	 */
 	protected void evaluateFeaturesThreads(RandomTree root, Sampler<Dataset> sampler, List<Object> paramSet, List<Classification> classification, long count, int mode, float[][] thresholds, long[][][] countClassesLeft, long[][][] countClassesRight, Node node, int depth) throws Exception {
-		int numWork = params.frequencies.length; //paramSet.size(); //sampler.getPoolSize();
+		int numWork = getNumOfWork(sampler, paramSet, classification); //paramSet.size(); //sampler.getPoolSize();
 		
 		if (!params.enableEvaluationThreads) {
 			// Eval threads are disabled -> simply calculate it
