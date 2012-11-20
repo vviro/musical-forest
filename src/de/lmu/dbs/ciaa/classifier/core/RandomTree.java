@@ -460,8 +460,10 @@ public abstract class RandomTree extends ScheduledThread {
 		//if (count < params.minEvalThreadCount) {
 		if (newThreadRoot != null || count < params.evalThreadingThreshold) {
 			//System.out.println("  [T" + num + ", Id " + node.id + ", Depth " + depth + ": Just " + count + " values]");
-			System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + " evaluating, Node " + node.id + ", Depth " + depth + ", Values: " + count + "; " + 
-					"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
+			if (newThreadRoot == null) {
+				System.out.println(timeStampFormatter.format(new Date()) + ": T" + num + " evaluating, Node " + node.id + ", Depth " + depth + ", Values: " + count + "; " + 
+						"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB");
+			}
 			evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 			return;
 		}
