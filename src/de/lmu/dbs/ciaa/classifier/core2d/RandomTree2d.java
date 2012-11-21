@@ -315,7 +315,7 @@ public class RandomTree2d extends RandomTree {
 	 * @throws Exception
 	 */
 	private void saveDebugTreeRec(Node node, int depth, int mode) throws Exception {
-		if (params.saveNodeClassifications <= depth-1) return;
+		if (params.saveNodeClassifications < depth-1) return;
 		if (node.isLeaf())  return;
 		
 		String nf = params.workingFolder + File.separator + "T" + num + "_Classification_Depth" + depth + "_mode_" + mode + "_id_" + node.id + ".png";

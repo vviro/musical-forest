@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import de.lmu.dbs.ciaa.classifier.core.*;
 import de.lmu.dbs.ciaa.classifier.core2d.*;
 import de.lmu.dbs.ciaa.classifier.musicalforest.*;
+import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
 import de.lmu.dbs.ciaa.util.*;
@@ -81,7 +82,8 @@ public class ForestTest {
 		String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		//String treeImgFile = "featuresOverviewY.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
-		double imgThreshold = 0.5; // Threshold to filter the normalized forest results in the PNG test output
+		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
+		double imgThreshold = 0.1; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
 			System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
@@ -211,7 +213,60 @@ public class ForestTest {
 					dataForest[x][y] = dataForestCl[x][y][1];
 				}
 			}
-			m.measure("Finished testing forest");
+			m.measure("Finished running forest");
+			
+			// Load MIDI
+			MIDIAdapter ma = new MIDIAdapter(new File(testReferenceFile));
+			long duration = (long)((double)((dataOob.length+1) * params.step * 1000.0) / 44100); // TODO festwerte
+			byte[][] reference = ma.toDataArray(dataOob.length, duration, params.frequencies);
+			ArrayUtils.filterFirst(reference);
+			ArrayUtils.blur(reference, 0);
+			m.measure("Loaded MIDI reference file: " + testReferenceFile);
+			
+			// Error rates
+			int levels = 10;
+			long[] right1 = new long[levels];
+			long[] right2 = new long[levels];
+			long[] wrong1 = new long[levels];
+			long[] wrong2 = new long[levels];
+			long amtR = 0;
+			for(int i=0; i<dataOob.length; i++) {
+				for(int j=0; j<dataOob[0].length; j++) {
+					for (int k=1; k<=levels; k++) {
+						if (reference[i][j] > 0) {
+							if (k==1) amtR++;
+							if (dataForest[i][j] > (float)k/levels) {
+								right1[k-1]++;
+							} else {
+								wrong1[k-1]++;
+							}
+						} else {
+							if (dataForest[i][j] > (float)k/levels) {
+								wrong2[k-1]++;
+							} else {
+								right2[k-1]++;
+							}
+						}
+					}
+				}
+			}
+			String sfile = params.workingFolder + File.separator + "run_statistics.txt";
+			Logfile l = new Logfile(sfile);
+			long amt = dataOob.length*dataOob[0].length;
+			l.write("Amount of tested values: " + amt);
+			l.write("Amount of notes (reference): " + amtR);
+			for (int k=0; k<levels; k++) {
+				double rda = (double)(right1[k]+right2[k]) / amt;
+				double wda = (double)(wrong1[k]+wrong2[k]) / amt;
+				double rdaN = (double)right1[k]/amtR;
+				double rdaS = (double)right2[k]/(amt - amtR);
+				l.write("Thr. " + (float)k/levels + ": Classified correct: " + (right1[k] + right2[k]) + ", not detected: " + wrong1[k] + ", falsely detected: " + wrong2[k]);
+				l.write("     Percentages general: right/all: " + rda + ", wrong/all: " + wda);
+				l.write("                   notes: right/all: " + rdaN);
+				l.write("                 silence: right/all: " + rdaS);
+			}
+			l.close();
+			m.measure("Finished evaluation run to file " + sfile + ": ");
 
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
@@ -225,6 +280,7 @@ public class ForestTest {
 			ArrayToImage img = new ArrayToImage(dataForest.length, dataForest[0].length);
 			out("-> Max data: " +  + img.add(dataOobDouble, Color.WHITE, null));
 			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
+			out("-> Max MIDI: " + img.add(reference, Color.BLUE, null, 0));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
 			

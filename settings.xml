@@ -32,7 +32,7 @@
 		forestSize="1"
 		maxDepth="14"
 		percentageOfRandomValuesPerFrame="1.0"
-		numOfRandomFeatures="500"
+		numOfRandomFeatures="300"
 		thresholdCandidatesPerFeature="30"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
@@ -68,10 +68,14 @@
 		                           given depth. 
 		debugThreadForking:        Show a message every time a new thread is created.
 		debugThreadPolling:        Show thread polling and status information in regular intervals.
+		
+		
+		testdataResults/forestremote_di22
+		testforests/forest1_LR_dep14
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_di22"
+		workingFolder="testdataResults/forestremote_di23"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		

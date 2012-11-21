@@ -29,6 +29,14 @@ public abstract class Feature implements Serializable {
 	 * @return
 	 */
 	public abstract Feature getInstance(ForestParameters params);
+
+	/**
+	 * Override this to initialize static parts of the feature, optionally, 
+	 * for loading from file.
+	 * 
+	 */
+	public void initStatic() {
+	}
 	
 	/**
 	 * Returns num feature parameter instances, each randomly generated.

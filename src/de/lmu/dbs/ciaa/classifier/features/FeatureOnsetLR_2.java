@@ -41,7 +41,7 @@ public class FeatureOnsetLR_2 extends Feature2d {
 	 * 
 	 */
 	public FeatureOnsetLR_2(final ForestParameters params) {
-		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
+		initStatic();
 		uX = RandomUtils.randomInt(1, 10);
 		vX = RandomUtils.randomInt(1, 10);
 		harmonicFactors = new float[numOfOvertones];
@@ -67,9 +67,13 @@ public class FeatureOnsetLR_2 extends Feature2d {
 	 * 
 	 */
 	public FeatureOnsetLR_2() {
-		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
+		initStatic();
 	}
 
+	public void initStatic() {
+		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
+	}
+	
 	/**
 	 * Returns num feature parameter instances, each randomly generated.
 	 * 

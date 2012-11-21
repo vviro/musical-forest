@@ -689,6 +689,7 @@ public abstract class RandomTree extends ScheduledThread {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = new ObjectInputStream(fin);
 		tree = (Node)ois.readObject();
+		tree.feature.initStatic();
 		ois.close();
 	}
 

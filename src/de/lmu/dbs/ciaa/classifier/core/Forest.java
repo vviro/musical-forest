@@ -1,5 +1,6 @@
 package de.lmu.dbs.ciaa.classifier.core;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -227,11 +228,15 @@ public class Forest {
 	 */
 	public static Forest load(final ForestParameters params, final String filename, final int numOfClasses, RandomTree factory) throws Exception {
 		Forest f = new Forest(params);
-		for(int i=0; i<params.forestSize; i++) {
+		int i=0;
+		while(true) {
+			String fn = filename + "_tree" + i;
+			if (!(new File(fn)).exists()) break;
 			RandomTree tr = factory.getInstance(params, numOfClasses, i);
-			tr.load(filename + "_tree" + i);
+			tr.load(fn);
 			f.trees.add(tr);
 			System.out.println("Loaded tree " + i);
+			i++;
 		}
 		f.check();
 		return f;
