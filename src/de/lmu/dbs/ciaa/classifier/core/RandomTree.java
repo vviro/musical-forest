@@ -126,18 +126,29 @@ public abstract class RandomTree extends ScheduledThread {
 	protected long newThreadCount;
 	
 	/**
+	 * Create a tree (as factory).
+	 * 
+	 * @param num
+	 * @param log
+	 * @throws Exception 
+	 */
+	public RandomTree() {
+	}
+
+	/**
 	 * Create a tree (for loading).
 	 * 
 	 * @param num
 	 * @param log
 	 * @throws Exception 
 	 */
-	public RandomTree(ForestParameters params, int num) throws Exception {
+	public RandomTree(ForestParameters params, int numOfClasses, int num) throws Exception {
 		params.check();
 		this.params = params;
 		this.num = num;
+		this.numOfClasses = numOfClasses;
 	}
-	
+
 	/**
 	 * Create a tree.
 	 * 
@@ -146,9 +157,8 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @throws Exception 
 	 */
 	public RandomTree(ForestParameters params, int numOfClasses, int num, Logfile log) throws Exception {
-		this(params, num);
+		this(params, numOfClasses, num);
 		this.log = log;
-		this.numOfClasses = numOfClasses;
 	}
 
 	/**
@@ -209,7 +219,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract RandomTree getInstance(ForestParameters params, int num) throws Exception;
+	public abstract RandomTree getInstance(ForestParameters params, int numOfClasses, int num) throws Exception;
 
 	/**
 	 * Returns the classification of the tree at a given value in data: data[x][y]

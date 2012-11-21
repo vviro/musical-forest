@@ -67,6 +67,7 @@ public class FeatureOnsetLR_2 extends Feature2d {
 	 * 
 	 */
 	public FeatureOnsetLR_2() {
+		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
 	}
 
 	/**
@@ -136,7 +137,6 @@ public class FeatureOnsetLR_2 extends Feature2d {
 	 * @param data the array to store results (additive)
 	 */
 	public void visualize(Object data2) {
-		/*
 		int[][] data = (int[][])data2;
 		int x = data.length/2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
@@ -145,7 +145,6 @@ public class FeatureOnsetLR_2 extends Feature2d {
 			if (ny > data[0].length) break;
 			data[x][ny]+= harmonicFactors[j]; 
 		}
-		*/
 	}
 
 	/**

@@ -26,17 +26,26 @@ import de.lmu.dbs.ciaa.util.Statistic;
 public class RandomTree2d extends RandomTree {
 
 	/**
-	 * Creates a tree (main constructor).
+	 * Creates a blank tree, used as a factory.
+	 * 
+	 * @throws Exception
+	 */
+	public RandomTree2d() throws Exception {
+		super();
+	}
+ 
+	/**
+	 * Creates a tree.
 	 * 
 	 * @throws Exception 
 	 * 
 	 */
-	public RandomTree2d(ForestParameters params, int num) throws Exception {
-		super(params, num);
+	public RandomTree2d(ForestParameters params, int numOfClasses, int num) throws Exception {
+		super(params, numOfClasses, num);
 	}
 	
 	/**
-	 * Creates a tree (main constructor).
+	 * Creates a tree.
 	 * 
 	 * @throws Exception 
 	 * 
@@ -369,8 +378,8 @@ public class RandomTree2d extends RandomTree {
 	 * 
 	 */
 	@Override
-	public RandomTree2d getInstance(ForestParameters params, int num) throws Exception {
-		return new RandomTree2d(params, num);
+	public RandomTree2d getInstance(ForestParameters params, int numOfClasses, int num) throws Exception {
+		return new RandomTree2d(params, numOfClasses, num);
 	}
 
 }

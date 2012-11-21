@@ -42,7 +42,7 @@ public class MusicalRandomTree extends RandomTree2d {
 	 * @throws Exception
 	 */
 	public MusicalRandomTree() throws Exception {
-		super(null, 2, -1, null);
+		super();
 	}
 
 	/**

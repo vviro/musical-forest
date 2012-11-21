@@ -34,7 +34,7 @@
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="500"
 		thresholdCandidatesPerFeature="30"
-		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR_2"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR"
 		entropyThreshold="0"
 		
 		xMin="0"
@@ -71,7 +71,7 @@
 	-->
 	<General
 		loadForest="false" 
-		workingFolder="testdataResults/forestremote_di11"
+		workingFolder="testdataResults/forestremote_di22"
 		nodedataFilePrefix="nodedata"
 		frequencyTableFile = "testdata/frequencies"
 		
@@ -81,7 +81,7 @@
 		logFeatureCandidates="false"
 		
 		saveGainThresholdDiagrams="0"
-		saveNodeClassifications="3"
+		saveNodeClassifications="0"
 
 		debugThreadPolling="true"
 	></General>

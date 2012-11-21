@@ -225,12 +225,13 @@ public class Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Forest load(final ForestParameters params, final String filename, final int numTrees, RandomTree factory) throws Exception {
+	public static Forest load(final ForestParameters params, final String filename, final int numOfClasses, RandomTree factory) throws Exception {
 		Forest f = new Forest(params);
-		for(int i=0; i<numTrees; i++) {
-			RandomTree tr = factory.getInstance(params, i);
+		for(int i=0; i<params.forestSize; i++) {
+			RandomTree tr = factory.getInstance(params, numOfClasses, i);
 			tr.load(filename + "_tree" + i);
-			f.trees.add(tr); 
+			f.trees.add(tr);
+			System.out.println("Loaded tree " + i);
 		}
 		f.check();
 		return f;

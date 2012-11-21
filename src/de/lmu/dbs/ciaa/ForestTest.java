@@ -168,7 +168,7 @@ public class ForestTest {
 			} else {
 				// Load
 				RandomTree2d treeFactory = new MusicalRandomTree(); 
-				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, params.forestSize, treeFactory);
+				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, 2, treeFactory);
 				m.measure("Finished loading forest from folder: " + params.workingFolder);
 			}
 			//System.exit(0);
@@ -215,10 +215,10 @@ public class ForestTest {
 
 			// Save node images
 			for(int i=0; i<forest.getTrees().size(); i++) {
-				MusicalRandomTree t = (MusicalRandomTree)forest.getTrees().get(i);
+				RandomTree2d t = (RandomTree2d)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
-			m.measure("Saved node visualization images");
+			m.measure("Saved node classification images");
 			
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
@@ -229,6 +229,7 @@ public class ForestTest {
 			m.measure("Saved image to " + forestImgFile);
 			
 			// Visualize features
+			/*
 			int[][] featuresVisualization = forest.visualize(params);
 			int[][] featuresVisualizationGrid = new int[featuresVisualization.length][featuresVisualization[0].length];
 			int x0 = -params.xMin;
@@ -241,7 +242,7 @@ public class ForestTest {
 			out("-> Maximum feature point overlay: " + imgF.add(featuresVisualization, Color.WHITE, null, 0));
 			imgF.save(new File(featuresFile));
 			m.measure("Saved feature visualization to " + featuresFile);
-
+*/
 			// Debug: copy generated working folder to a location where it can be easier accessed by scripts
 			FileUtils.copyDirectory(new File(params.workingFolder), new File(copyToDir));
 			m.measure("Copied results to " + copyToDir);
