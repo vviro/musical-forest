@@ -74,7 +74,7 @@ public class FeatureOnsetLR_3 extends Feature2d {
 
 	public void initStatic() {
 		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
-		if (xDeviation == null) generateXDeviation(321); // TODO festwert
+		if (xDeviation == null) generateXDeviation(335); // TODO festwert
 	}
 	
 	private void generateXDeviation(int height) {
@@ -109,8 +109,6 @@ public class FeatureOnsetLR_3 extends Feature2d {
 	 * @throws Exception 
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
-		System.out.println(data[x].length);
-		System.exit(0);
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		int xOffset = xDeviation[y]; 
 		if (x-xOffset < 0) return -Float.MAX_VALUE;
