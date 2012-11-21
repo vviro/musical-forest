@@ -95,18 +95,8 @@ public class Forest {
 			
 			System.out.println("Finished main growing procedure, waiting for running node threads...");
 			while(true) {
-				try {
-					Thread.sleep(params.threadWaitTime);
-				} catch (InterruptedException e) {
-					System.out.println("[Wait interrupted by VM, continuing...]");
-				}
-				/*boolean ret = true;
-				for(int i=0; i<trees.size(); i++) {
-					if (!trees.get(i).isGrown()) {
-						ret = false;
-						if (!params.debugThreadPolling) break;
-					}
-				}*/
+				if (nodeScheduler.getThreadsActive() == 0 && evalScheduler.getThreadsActive() == 0) break;
+
 				if (params.debugThreadPolling) {
 					// Debug output
 					System.out.println(
@@ -114,7 +104,12 @@ public class Forest {
 							"Heap: " + Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0)) + " MB"
 					);
 				}
-				if (nodeScheduler.getThreadsActive() == 0 && evalScheduler.getThreadsActive() == 0) break;
+
+				try {
+					Thread.sleep(params.threadWaitTime);
+				} catch (InterruptedException e) {
+					System.out.println("[Wait interrupted by VM, continuing...]");
+				}
 			}
 			System.out.println("Finished growing forest.");
 		}

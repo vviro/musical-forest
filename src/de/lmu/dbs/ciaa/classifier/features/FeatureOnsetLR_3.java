@@ -26,15 +26,15 @@ public class FeatureOnsetLR_3 extends Feature2d {
 	public int numOfOvertones = 5; // TODO -> params
 	public float harmonicAmplification = 1; // TODO -> params
 	
-	public float yPerspective = 8.0f;
-	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
 	 * Generated with the method generateHarmonicFactors().
 	 */
 	//private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
 	private static int[] harmonics = null;
-	
+
+	private static int[] xDeviation = null;
+
 	public int uX;
 	public int vX;
 	
@@ -74,6 +74,14 @@ public class FeatureOnsetLR_3 extends Feature2d {
 
 	public void initStatic() {
 		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
+		if (xDeviation == null) generateXDeviation(319); // TODO festwert
+	}
+	
+	private void generateXDeviation(int height) {
+		xDeviation = new int[height];
+		for(int y=0; y<height; y++) {
+			xDeviation[y] = (int)(Math.pow(1.4, (float)(height - y) / 48.0) / 1.0) - 1;
+		}
 	}
 	
 	/**
@@ -102,11 +110,11 @@ public class FeatureOnsetLR_3 extends Feature2d {
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
-		int xOffset = 0; //(int)(((float)(data[0].length - y) / data[0].length) * yPerspective);
+		int xOffset = xDeviation[y]; 
 		if (x-xOffset < 0) return -Float.MAX_VALUE;
 		float d2 = data[x-xOffset][y]; //*data[x][y];
-		if (x-xOffset-uX < 0) return 0;
-		if (x-xOffset+vX >= data.length) return 0;
+		if (x-xOffset-uX < 0) return -Float.MAX_VALUE;
+		if (x-xOffset+vX >= data.length) return -Float.MAX_VALUE;
 		float ret = 0;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];

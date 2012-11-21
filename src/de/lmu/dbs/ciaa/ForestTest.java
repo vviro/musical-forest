@@ -79,7 +79,7 @@ public class ForestTest {
 		
 		// Debug params (all others are loaded from settings.xml)
 		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
-		String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
+		//String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		//String treeImgFile = "featuresOverviewY.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
