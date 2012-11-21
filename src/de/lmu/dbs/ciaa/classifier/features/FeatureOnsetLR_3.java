@@ -74,7 +74,7 @@ public class FeatureOnsetLR_3 extends Feature2d {
 
 	public void initStatic() {
 		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
-		if (xDeviation == null) generateXDeviation(319); // TODO festwert
+		if (xDeviation == null) generateXDeviation(320); // TODO festwert
 	}
 	
 	private void generateXDeviation(int height) {
