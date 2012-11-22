@@ -16,7 +16,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureOnsetLR_4 extends Feature2d {
+public class FeatureOnsetLR_5 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -33,7 +33,7 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	//private static final double[] harmonics = {1.0, 2.0 ,2.584962500721156, 3.0, 3.3219280948873626, 3.5849625007211565, 3.8073549220576037, 4.0, 4.169925001442312, 4.321928094887363, 4.459431618637297, 4.584962500721157, 4.700439718141093, 4.807354922057604, 4.906890595608519, 5.0, 5.08746284125034, 5.169925001442312, 5.247927513443585}; // 20
 	private static int[] harmonics = null;
 
-	//private static int[] xDeviation = null;
+	private static int[] xDeviation = null;
 
 	public int uX;
 	public int uX2;
@@ -43,7 +43,7 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureOnsetLR_4(final ForestParameters params) {
+	public FeatureOnsetLR_5(final ForestParameters params) {
 		initStatic();
 		uX = RandomUtils.randomInt(1, 10);
 		uX2 = RandomUtils.randomInt(uX+1, 12);
@@ -70,19 +70,15 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	/**
 	 * 
 	 */
-	public FeatureOnsetLR_4() {
+	public FeatureOnsetLR_5() {
 		initStatic();
 	}
 
 	public void initStatic() {
 		if (harmonics == null) generateHarmonics(10, 48.0); // TODO festwert
-		//if (xDeviation == null) generateXDeviation(335); // TODO festwert
+		if (xDeviation == null) generateXDeviation(335); // TODO festwert
 	}
 	
-	/**
-	 * 
-	 * @param height
-	 *
 	private void generateXDeviation(int height) {
 		xDeviation = new int[height];
 		for(int y=0; y<height; y++) {
@@ -99,7 +95,7 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	public List<Object> getRandomFeatureSet(ForestParameters params) {
 		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureOnsetLR_4 n = new FeatureOnsetLR_4(params);
+			FeatureOnsetLR_5 n = new FeatureOnsetLR_5(params);
 			ret.add(n);
 		}
 		return ret;
@@ -116,17 +112,16 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
-		//int xOffset = xDeviation[y]; 
-		//if (x-xOffset < 0) return -Float.MAX_VALUE;
-		float d2 = data[x][y]; //*data[x][y];
-		if (x-uX < 0) return -Float.MAX_VALUE;
-		if (x-uX2 < 0) return -Float.MAX_VALUE;
+		int xOffset = xDeviation[y]; 
+		if (x-xOffset-uX < 0) return -Float.MAX_VALUE;
+		if (x-xOffset-uX2 < 0) return -Float.MAX_VALUE;
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
+		float d2 = data[x][y]; //*data[x][y];
 		float ret = 0;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) return ret;
-			ret+= (data[x-uX][ny] - data[x-uX2][ny]) * d2 * data[x+vX][ny] * harmonicFactors[j];
+			ret+= (data[x-xOffset-uX][ny] - data[x-xOffset-uX2][ny]) * d2 * data[x+vX][ny] * harmonicFactors[j];
 		}
 		return ret;
 	}
@@ -207,6 +202,6 @@ public class FeatureOnsetLR_4 extends Feature2d {
 
 	@Override
 	public Feature2d getInstance(ForestParameters params) {
-		return new FeatureOnsetLR_4(params);
+		return new FeatureOnsetLR_5(params);
 	}
 }
