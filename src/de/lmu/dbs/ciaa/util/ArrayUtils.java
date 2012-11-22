@@ -14,6 +14,22 @@ import java.nio.ByteBuffer;
 public class ArrayUtils {
 	
 	/**
+	 * Shifts the values in the array to the reight by num places.
+	 * 
+	 * @param reference
+	 * @param num
+	 */
+	public static void shiftRight(byte[][] data, int num) {
+		for(int x=data.length-1; x>=0; x--) {
+			if (x-num >= 0) {
+				data[x] = data[x-num];
+			} else {
+				data[x] = new byte[data[0].length];
+			}
+		}
+	}
+
+	/**
 	 * Flatten a 2d array to 1d (sum)
 	 * 
 	 * @param data
@@ -691,4 +707,5 @@ public class ArrayUtils {
 		}
 		return ret;
 	}
+
 }
