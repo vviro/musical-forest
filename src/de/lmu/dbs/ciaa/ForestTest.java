@@ -17,17 +17,12 @@ import de.lmu.dbs.ciaa.util.*;
 /**
  * TODO *************************************************************************************
  *
- * Vladimir:
  * 		- mp3 testen (cqt)
- * 		- onset/offset
  * 		- Ableitung
  * 		- Github -> eigenes Repo
  *
  * - Wälder bauen
  * - !!! Features komplett serialisierbar?
- *
- * - Threading: Node treads sollen warten bis eval threads was übrig haben
- * 		-> Counter für eval threads einführen
  *
  * - Saubere Tests nach Breiman
  *
@@ -37,32 +32,12 @@ import de.lmu.dbs.ciaa.util.*;
  * 
  * - Kapitel 3.4 in Kinect paper!
  * 
- * 	- auch feature 3b testen!!!!!!
- * 
- * Forest:
- * 		Feature:
- * 			- notenlänge verteilung
- * 		Allgemein:
- * 			- Mehrere verschiedene feaure-typen?
- * 				- f0-feature
- * 				- noteOn-feature (basiert auf fuzzy attacks)
- * 				- ...?
- * 			- oder alternieren zw. daten und peaks (bei Featuregenerierung)?
- * 			- oder mehrere Wälder per problem?
- * 
  * Testdaten:
  * 		- Performances von Vladimir
  * 
  * Code:
- * 		- gain distribution diagrams: ins feature versetzen, weil abh. von verteilung
  * 		- protocol buffer (google code) für dateiformat, statt serialization
- * 		- automate test to get values instead of images only (s. Breiman)		
- * 
- * 
- * Optimierung:
- * 		- Make the application distributable
- * 
- * 
+ * 			-> erst wenn parameter fix sind
  * 
  * @author Thomas Weber
  *

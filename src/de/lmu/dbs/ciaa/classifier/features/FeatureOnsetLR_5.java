@@ -114,6 +114,7 @@ public class FeatureOnsetLR_5 extends Feature2d {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		int xOffset = xDeviation[y]; 
 		if (x-xOffset-uX < 0 || x-xOffset-uX >= data.length) return -Float.MAX_VALUE;
+		if (x-xOffset-uX+1 < 0 || x-xOffset-uX+1 >= data.length) return -Float.MAX_VALUE;
 		//if (x-xOffset-uX2 < 0) return -Float.MAX_VALUE;
 		if (x+vX < 0 || x+vX >= data.length) return -Float.MAX_VALUE;
 		float d2 = data[x][y]; //*data[x][y];
