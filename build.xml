@@ -13,7 +13,7 @@
 	<property name="classes-directory" value="bin" />
 	<property name="build-directory" value="build" />
 	<property name="javadoc-directory" value="doc" />
-	<property name="jar-file" value="${project-name}_mi4.jar" />
+	<property name="jar-file" value="${project-name}_mi5.jar" />
 	
 	<property name="lib-directory" location="lib" />
 	
