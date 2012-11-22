@@ -111,7 +111,7 @@ public class FeatureOnsetLR_3 extends Feature2d {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		int xOffset = xDeviation[y]; 
-		if (x-xOffset >= data.length) return -Float.MAX_VALUE;
+		if (x-xOffset < 0) return -Float.MAX_VALUE;
 		float d2 = data[x-xOffset][y]; //*data[x][y];
 		if (x-xOffset-uX < 0) return -Float.MAX_VALUE;
 		if (x-xOffset+vX >= data.length) return -Float.MAX_VALUE;
