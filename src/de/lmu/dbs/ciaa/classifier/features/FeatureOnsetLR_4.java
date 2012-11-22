@@ -45,8 +45,8 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	 */
 	public FeatureOnsetLR_4(final ForestParameters params) {
 		initStatic();
-		uX = RandomUtils.randomInt(1, 10);
-		uX2 = RandomUtils.randomInt(uX+1, 20);
+		uX = RandomUtils.randomInt(1, 50);
+		uX2 = RandomUtils.randomInt(uX+1, 60);
 		vX = RandomUtils.randomInt(1, 10);
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
