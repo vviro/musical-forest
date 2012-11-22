@@ -45,9 +45,9 @@ public class FeatureOnsetLR_5 extends Feature2d {
 	 */
 	public FeatureOnsetLR_5(final ForestParameters params) {
 		initStatic();
-		uX = RandomUtils.randomInt(1, 20);
+		uX = RandomUtils.randomInt(-20, 20);
 		//uX2 = RandomUtils.randomInt(uX+1, 12);
-		vX = RandomUtils.randomInt(1, 10);
+		vX = RandomUtils.randomInt(-20, 20);
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
@@ -113,9 +113,9 @@ public class FeatureOnsetLR_5 extends Feature2d {
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		int xOffset = xDeviation[y]; 
-		if (x-xOffset-uX < 0) return -Float.MAX_VALUE;
+		if (x-xOffset-uX < 0 || x-xOffset-uX >= data.length) return -Float.MAX_VALUE;
 		//if (x-xOffset-uX2 < 0) return -Float.MAX_VALUE;
-		if (x+vX >= data.length) return -Float.MAX_VALUE;
+		if (x+vX < 0 || x+vX >= data.length) return -Float.MAX_VALUE;
 		float d2 = data[x][y]; //*data[x][y];
 		float ret = 0;
 		for(int j=0; j<chosenHarmonics.length; j++) {
