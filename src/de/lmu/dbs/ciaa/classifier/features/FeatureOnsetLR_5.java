@@ -114,14 +114,14 @@ public class FeatureOnsetLR_5 extends Feature2d {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		int xOffset = xDeviation[y]; 
 		if (x-xOffset-uX < 0) return -Float.MAX_VALUE;
-		if (x-xOffset-uX2 < 0) return -Float.MAX_VALUE;
+		//if (x-xOffset-uX2 < 0) return -Float.MAX_VALUE;
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
 		float d2 = data[x][y]; //*data[x][y];
 		float ret = 0;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) return ret;
-			ret+= (data[x-xOffset-uX][ny] - data[x-xOffset-uX2][ny]) * d2 * data[x+vX][ny] * harmonicFactors[j];
+			ret+= (data[x-xOffset-uX][ny] - data[x-xOffset-uX+1][ny]) * d2 * data[x+vX][ny] * harmonicFactors[j];
 		}
 		return ret;
 	}
