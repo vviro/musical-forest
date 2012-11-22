@@ -97,11 +97,11 @@ public class OnsetMusicalTreeDataset extends TreeDataset2d {
 		ArrayUtils.blur((byte[][])reference, 0);
 
 		// TMP 
-		/*
+		
 		ArrayToImage img = new ArrayToImage(dataC.length, dataC[0].length, 1);
 		img.add(dataC, Color.WHITE, null);
 		img.add((byte[][])reference, Color.RED, null, 0);
-		img.save(new File("testdataResults/forestremote_di5/" + dataFile.getName() + ".png"));
+		img.save(new File("testdataResults/forestremote_mi7/" + dataFile.getName() + ".png"));
 		System.exit(0);
 		// /TMP */
 		loaded = true;

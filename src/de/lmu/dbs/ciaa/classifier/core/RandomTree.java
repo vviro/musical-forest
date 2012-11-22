@@ -484,9 +484,9 @@ public abstract class RandomTree extends ScheduledThread {
 			return;
 		}
 		
-		if (count < params.nodeThreadingThreshold) {
+		/*if (count < params.nodeThreadingThreshold) {
 			System.out.println("--> WARNING: Eval threads below node threading threshold: " + count);
-		}
+		}*/
 		
 		// Create worker threads for groups of frequency bands and start them
 		RandomTreeWorker[] workers = null;
