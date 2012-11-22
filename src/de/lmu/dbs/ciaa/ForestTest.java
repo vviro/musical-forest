@@ -279,7 +279,7 @@ public class ForestTest {
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
 			ArrayToImage img = new ArrayToImage(dataForest.length, dataForest[0].length);
 			out("-> Max data: " +  + img.add(dataOobDouble, Color.WHITE, null));
-			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
+			//out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
 			out("-> Max MIDI: " + img.add(reference, Color.BLUE, null, 0));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
