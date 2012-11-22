@@ -174,7 +174,7 @@ public class FeatureOnsetLR_4 extends Feature2d {
 	 * 
 	 */
 	public String toString() {
-		return "LR: uX: " + uX + ", vX: " + vX;
+		return "LR: uX: " + uX + ", uX2: " + uX2 + ", vX: " + vX;
 	}
 
 	/**
