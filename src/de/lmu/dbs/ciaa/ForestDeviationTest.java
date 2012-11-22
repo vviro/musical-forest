@@ -83,7 +83,7 @@ public class ForestDeviationTest {
 			
 			int[] xDeviation = new int[data[0].length];
 			for(int y=0; y<data[0].length; y++) {
-				xDeviation[y] = (int)(Math.pow(1.4, (float)(data[0].length - y) / 48.0) / 1.0) - 1;
+				xDeviation[y] = (int)(Math.pow(1.5, (float)(data[0].length - y) / 48.0) / 1.0) - 1;
 			}
 			System.out.println(data[0].length);
 			//int x = 342;
