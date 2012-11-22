@@ -36,7 +36,7 @@ public class FeatureOnsetLR_5 extends Feature2d {
 	private static int[] xDeviation = null;
 
 	public int uX;
-	public int uX2;
+	//public int uX2;
 	public int vX;
 	
 	/**
@@ -45,8 +45,8 @@ public class FeatureOnsetLR_5 extends Feature2d {
 	 */
 	public FeatureOnsetLR_5(final ForestParameters params) {
 		initStatic();
-		uX = RandomUtils.randomInt(1, 10);
-		uX2 = RandomUtils.randomInt(uX+1, 12);
+		uX = RandomUtils.randomInt(1, 20);
+		//uX2 = RandomUtils.randomInt(uX+1, 12);
 		vX = RandomUtils.randomInt(1, 10);
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
@@ -169,7 +169,7 @@ public class FeatureOnsetLR_5 extends Feature2d {
 	 * 
 	 */
 	public String toString() {
-		return "LR: uX: " + uX + ", uX2: " + uX2 + ", vX: " + vX;
+		return "LR: uX: " + uX + ", vX: " + vX;
 	}
 
 	/**
