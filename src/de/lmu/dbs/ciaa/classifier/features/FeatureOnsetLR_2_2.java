@@ -99,10 +99,10 @@ public class FeatureOnsetLR_2_2 extends Feature2d {
 	 * @throws Exception 
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
-		if (data[x][y] == 0) return 0;
+		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		float d2 = data[x][y]; //*data[x][y];
-		if (x-uX < 0) return 0;
-		if (x+vX >= data.length) return 0;
+		if (x-uX < 0) return -Float.MAX_VALUE;
+		if (x+vX >= data.length) return -Float.MAX_VALUE;
 		float ret = 0;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
