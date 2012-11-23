@@ -48,7 +48,7 @@ public class ForestTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		
 		// XML file for program configuration
 		String settingsFile = "settings.xml";
 		
@@ -70,6 +70,10 @@ public class ForestTest {
 			// Load settings
 			Settings settings = new Settings(settingsFile);
 			ForestParameters params = settings.getForestParameters();
+			if (args.length > 0) {
+				params.workingFolder = args[0];
+				System.out.println("Overriding working folder: " + params.workingFolder);
+			}
 			m.measure("Loaded settings from XML file");
 			
 			// Create result folder
