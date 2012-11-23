@@ -23,7 +23,7 @@ public class FeatureOnsetLR_2_3 extends Feature2d {
 	public float[] harmonicFactors = null;
 	public int[] chosenHarmonics = null;
 	
-	public int numOfOvertones = 10; // TODO -> params
+	public int numOfOvertones = 16; // TODO -> params
 	public float harmonicAmplification = 1.0f; // TODO -> params
 	
 	/**
@@ -108,7 +108,7 @@ public class FeatureOnsetLR_2_3 extends Feature2d {
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) return ret;
-			ret+= d2 * (data[x][ny] - 128/8) * harmonicFactors[j];
+			ret+= d2 * data[x][ny] * harmonicFactors[j];
 		}
 		return ret;
 	}
