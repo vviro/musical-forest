@@ -24,7 +24,7 @@ public class FeatureOnsetLR_2_2 extends Feature2d {
 	public int[] chosenHarmonics = null;
 	
 	public int numOfOvertones = 10; // TODO -> params
-	public float harmonicAmplification = 0.6f; // TODO -> params
+	public float harmonicAmplification = 1.0f; // TODO -> params
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
@@ -58,7 +58,7 @@ public class FeatureOnsetLR_2_2 extends Feature2d {
 		//ArrayUtils.out(harms);
 		for(int i=0; i<harms.length; i++) {
 			chosenHarmonics[i] = (int)harms[i];
-			harmonicFactors[i] = (float)(Math.random()*harmonicAmplification); // * ((float)(harmonics.length-i)/harmonics.length));
+			harmonicFactors[i] = (float)(Math.random()*harmonicAmplification) * ((float)(harmonics.length-i)/harmonics.length);
 		}
 		//this.threshold = Math.random() * getMaxValue();
 	}
@@ -100,7 +100,7 @@ public class FeatureOnsetLR_2_2 extends Feature2d {
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
-		float d2 = data[x][y]; //*data[x][y];
+		float d2 = data[x][y]*data[x][y];
 		if (x-uX < 0) return -Float.MAX_VALUE;
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
 		float ret = 0;
@@ -155,7 +155,11 @@ public class FeatureOnsetLR_2_2 extends Feature2d {
 	 * 
 	 */
 	public String toString() {
-		return "LR: uX: " + uX + ", vX: " + vX;
+		String ret = "LR: uX: " + uX + ", vX: " + vX + ", Harmonics: {";
+		for(int i=0; i<harmonicFactors.length; i++) {
+			ret+= chosenHarmonics[i] + ": " + harmonicFactors[i] + ", ";
+		}
+		return ret + "}";
 	}
 
 	/**
