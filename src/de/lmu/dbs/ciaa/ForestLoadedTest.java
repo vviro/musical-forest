@@ -137,11 +137,13 @@ public class ForestLoadedTest {
 			m.measure("Finished evaluation run to file " + sfile + ": ");
 
 			// Save node images
+			/*
 			for(int i=0; i<forest.getTrees().size(); i++) {
 				RandomTree2d t = (RandomTree2d)forest.getTrees().get(i);
 				t.saveDebugTree();
 			}
 			m.measure("Saved node classification images");
+			//*/
 			
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
