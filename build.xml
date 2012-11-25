@@ -13,11 +13,11 @@
 	<property name="classes-directory" value="bin" />
 	<property name="build-directory" value="build" />
 	<property name="javadoc-directory" value="doc" />
-	<property name="jar-file" value="${project-name}_so3.jar" />
+	<property name="jar-file" value="${project-name}_so4.jar" />
 	
 	<property name="lib-directory" location="lib" />
 	
-	<property name="main-class" value="${project-name}.ForestLoadedTest" />
+	<property name="main-class" value="${project-name}.ForestTest" />
 	
     <path id="classpath_default">
     	<pathelement path="${lib-directory}/RasmusDSP/rasmusdsp.jar"/>
@@ -114,7 +114,7 @@
 
 	<target name="run" description="run the project">    
 		<java jar="${build-directory}/${jar-file}" fork="true">
-			<jvmarg value="-Xmx1g" />
+			<jvmarg value="-Xmx40g" />
 			<!--
 			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 			-->
