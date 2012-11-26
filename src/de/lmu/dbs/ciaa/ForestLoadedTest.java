@@ -3,6 +3,7 @@ package de.lmu.dbs.ciaa;
 import java.awt.Color;
 import java.io.File;
 
+import de.lmu.dbs.ciaa.classifier.ModeProposal;
 import de.lmu.dbs.ciaa.classifier.core.*;
 import de.lmu.dbs.ciaa.classifier.core2d.*;
 import de.lmu.dbs.ciaa.classifier.musicalforest.*;
@@ -29,6 +30,8 @@ public class ForestLoadedTest {
 		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
 		double imgThreshold = 0.2; // Threshold to filter the normalized forest results in the PNG test output
+		
+		String forestBufferFile = "forestdata";
 		
 		try {
 			System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");
@@ -82,6 +85,13 @@ public class ForestLoadedTest {
 				}
 			}
 			m.measure("Finished running forest");
+
+			FileIO<float[][]> floatio = new FileIO<float[][]>();
+			floatio.save(params.workingFolder + File.separator + forestBufferFile, dataForest);
+			
+			ModeProposal jp = new ModeProposal();
+			float[][] dataProposal = jp.propose(dataForest);
+			m.measure("Finished note proposal");
 			
 			// Load MIDI
 			MIDIAdapter ma = new MIDIAdapter(new File(testReferenceFile));
@@ -150,6 +160,7 @@ public class ForestLoadedTest {
 			ArrayToImage img = new ArrayToImage(dataForest.length, dataForest[0].length);
 			out("-> Max data: " +  + img.add(data, Color.WHITE, null));
 			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
+			out("-> Max proposal: " + img.add(dataProposal, Color.GREEN, null, 0));
 			//out("-> Max MIDI: " + img.add(reference, Color.BLUE, null, 0));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);

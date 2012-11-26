@@ -2,13 +2,6 @@ package de.lmu.dbs.ciaa;
 
 import java.awt.Color;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.io.FileUtils;
-
-import de.lmu.dbs.ciaa.classifier.core.*;
-import de.lmu.dbs.ciaa.classifier.core2d.*;
-import de.lmu.dbs.ciaa.classifier.musicalforest.*;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
 import de.lmu.dbs.ciaa.spectrum.Transform;
@@ -28,7 +21,6 @@ public class ForestDeviationTest {
 
 		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
-		double imgThreshold = 0.1; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
 			System.out.println("Java Heap size (maximum): " + ((double)Runtime.getRuntime().maxMemory() / (1024*1024)) + " MB");

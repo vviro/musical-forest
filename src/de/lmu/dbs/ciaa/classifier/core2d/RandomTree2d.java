@@ -101,13 +101,13 @@ public class RandomTree2d extends RandomTree {
 		if (node.isLeaf()) {
 			return node.probabilities;
 		} else {
-			if (params.saveNodeClassifications > depth-1 && node.debugObject == null) node.debugObject = new int[data.length][data[0].length]; // TMP
+			//if (params.saveNodeClassifications > depth-1 && node.debugObject == null) node.debugObject = new int[data.length][data[0].length]; // TMP
 			
 			if (((Feature2d)node.feature).evaluate(data, x, y) >= node.feature.threshold) {
-				if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 1;
+				//if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 1;
 				return classifyRec(data, node.left, 1, depth+1, x, y);
 			} else {
-				if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 2;
+				//if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 2;
 				return classifyRec(data, node.right, 2, depth+1, x, y);
 			}
 		}

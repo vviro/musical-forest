@@ -134,6 +134,47 @@ public class ArrayToImage {
 	}
 
 	/**
+	 * 
+	 * @param data classified data. Each value represents one class. zero is unclassified.
+	 * @return
+	 * @throws Exception
+	 */
+	public float addClassified(final int[][] data) throws Exception {
+	    // Get maximum
+		int max = Integer.MIN_VALUE;
+	    for(int i=0; i<data.length; i++) {
+		    for(int j=0; j<data[i].length; j++) {
+		    	if (data[i][j] > max) max = data[i][j];
+		    	if (data[i][j] < 0) throw new Exception("Negative value detected: data[" + i + "][" + j + "] = " + data[i][j]);
+		    }
+		}
+	    // Draw image
+	    Color[] cls = getRandomColors(max);
+	    for(int i=0; i<width; i++) {
+	    	for(int j=0; j<height; j++) {
+	    		if (data[i][j] > 0) {
+	    			g2d.setColor(cls[data[i][j]-1]);
+	    			g2d.drawLine(i,height*yspread-j*yspread,i,height*yspread-j*yspread-yspread+1);
+	    		}
+	    	}
+	    }
+	    return max;
+	}
+	
+	/**
+	 * 
+	 * @param num
+	 * @return
+	 */
+	private Color[] getRandomColors(int num) {
+		Color[] ret = new Color[num];
+		for(int i=0; i<num; i++) {
+			ret[i] = new Color(RandomUtils.randomInt(100, 255), RandomUtils.randomInt(100, 255), RandomUtils.randomInt(100, 255));
+		}
+		return ret;
+	}
+
+	/**
 	 * Adds a data array to PNG to visualize it. Values in data have to be positive, and are 
 	 * drawn normalized, meaning that the highest value always gets the highest color representation.
 	 * 
