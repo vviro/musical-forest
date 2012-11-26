@@ -15,7 +15,7 @@ public class MeanShiftTest {
 	 */
 	public static void main(String[] args) {
 		
-		String forestFile = "testforests/forest4_LR_2_3_dep14_10tone/forestdata";
+		String forestFile = "testforests/forest6_LR_2_3_dep18_16tone/forestdata";
 		
 		try {
 			//BufferedImage img = ImageIO.read(new File(imageIn));
@@ -24,10 +24,10 @@ public class MeanShiftTest {
 			FileIO<float[][]> fio = new FileIO<float[][]>();
 			float[][] fdata = fio.load(forestFile);
 			
-		    MeanShift ms = new MeanShift(20);
+		    MeanShift ms = new MeanShift(15);
 		    //float[][] fdata2 = MeanShift.gaussianBlur(fdata, 0.01f, 0.2f);
 		    
-		    ms.process(fdata, 0.2f);
+		    ms.process(fdata, 0.1f);
 		    ArrayUtils.blur(ms.modeWeights, 0);
 		    ArrayUtils.blur(ms.modeWeights, 0);
 		    ArrayUtils.blur(ms.modeWeights, 0);

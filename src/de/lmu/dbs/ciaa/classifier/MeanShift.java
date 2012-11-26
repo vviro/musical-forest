@@ -64,7 +64,7 @@ public class MeanShift {
 							modes[x][y] = nextModeId;
 							nextModeId++;
 						}
-						modeWeights[x][y]+= data[dx][dy] * data[dx][dy];
+						modeWeights[x][y]+= data[x][y] * data[x][y];
 						segmentation[dx][dy] = modes[x][y];
 					}
 				}
