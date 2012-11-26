@@ -47,7 +47,7 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 		initStatic();
 		uX = RandomUtils.randomInt(1, 20);
 		vX = RandomUtils.randomInt(1, 20);
-		harmonicThreshold = (float)Math.random();
+		harmonicThreshold = (float)Math.random() / 2 + 0.5f;
 		numOfOvertones = RandomUtils.randomInt(1, maxNumOfOvertones);
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
