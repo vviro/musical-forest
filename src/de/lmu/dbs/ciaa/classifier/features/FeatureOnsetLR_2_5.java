@@ -26,6 +26,8 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 	public int numOfOvertones = 16; // TODO -> params
 	public float harmonicAmplification = 1.0f; // TODO -> params
 	
+	public float harmonicThreshold;
+	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
 	 * Generated with the method generateHarmonicFactors().
@@ -44,6 +46,7 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 		initStatic();
 		uX = RandomUtils.randomInt(1, 20);
 		vX = RandomUtils.randomInt(1, 20);
+		harmonicThreshold = (float)Math.random();
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
@@ -107,7 +110,7 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) return ret;
-			if (data[x][ny] <= data[x][y]) {
+			if (data[x][ny] <= data[x][y] && data[x][ny] > data[x][y]*harmonicThreshold) {
 				ret+= d2 * data[x][ny] * harmonicFactors[j];
 			}
 		}
