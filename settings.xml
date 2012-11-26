@@ -85,7 +85,7 @@
 		logFeatureCandidates="false"
 		
 		saveGainThresholdDiagrams="0"
-		saveNodeClassifications="0"
+		saveNodeClassifications="3"
 
 		debugThreadPolling="true"
 	></General>
