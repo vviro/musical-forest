@@ -23,7 +23,8 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 	public float[] harmonicFactors = null;
 	public int[] chosenHarmonics = null;
 	
-	public int numOfOvertones = 16; // TODO -> params
+	public int numOfOvertones; 
+	public int maxNumOfOvertones = 16; // TODO -> params
 	public float harmonicAmplification = 1.0f; // TODO -> params
 	
 	public float harmonicThreshold;
@@ -47,6 +48,7 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 		uX = RandomUtils.randomInt(1, 20);
 		vX = RandomUtils.randomInt(1, 20);
 		harmonicThreshold = (float)Math.random();
+		numOfOvertones = RandomUtils.randomInt(1, maxNumOfOvertones);
 		harmonicFactors = new float[numOfOvertones];
 		chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
@@ -106,11 +108,11 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 		if (x-uX < 0) return -Float.MAX_VALUE;
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
 		float d2 = (float)(data[x][y] * (data[x][y] - data[x-uX][y]) * data[x+vX][y]); //data[x][y]; //*data[x][y];
-		float ret = d2;
+		float ret = 0; //d2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) return ret;
-			if (data[x][ny] <= data[x][y] && data[x][ny] > data[x][y]*harmonicThreshold) {
+			if (data[x][ny] < data[x][y] && data[x][ny] > data[x][y]*harmonicThreshold) {
 				ret+= d2 * data[x][ny] * harmonicFactors[j];
 			}
 		}
@@ -160,7 +162,7 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 	 * 
 	 */
 	public String toString() {
-		String ret = "LR: uX: " + uX + ", vX: " + vX + ", harmonicThreshold: " + harmonicThreshold + ", Harmonics: {";
+		String ret = "LR: uX: " + uX + ", vX: " + vX + ", harmonicThreshold: " + harmonicThreshold + ", Harmonics (num: " + numOfOvertones + "): {";
 		for(int i=0; i<harmonicFactors.length; i++) {
 			ret+= chosenHarmonics[i] + ": " + harmonicFactors[i] + ", ";
 		}
