@@ -7,7 +7,7 @@ import de.lmu.dbs.ciaa.midi.MIDIAdapter;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
- * Batch creation of images for cqt/peak/midi combinations of test data.
+ * Just generates PNGs if forgotten while executing CQTGenerator
  * 
  * @author Thomas Weber
  *
