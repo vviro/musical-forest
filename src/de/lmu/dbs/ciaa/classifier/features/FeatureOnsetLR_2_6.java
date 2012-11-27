@@ -116,7 +116,8 @@ public class FeatureOnsetLR_2_6 extends Feature2d {
 			int ny =  y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) break; //return ret;
 			//if (data[x][ny] < data[x][y] && data[x][ny] > data[x][y]*harmonicThreshold) {
-			ret+= d2 * (float)(data[x][ny] - data[x-uX][ny]) * data[x][ny] * harmonicFactors[j];
+			//ret+= d2 * (float)(data[x][ny] - data[x-uX][ny]) * data[x][ny] * harmonicFactors[j];
+			ret+= d2 * (float)data[x][ny] * harmonicFactors[j];
 			//}
 		}
 		for(int j=0; j<5; j++) {
