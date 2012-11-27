@@ -113,24 +113,19 @@ public class FeatureOnsetLR_2_6 extends Feature2d {
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
 		float diff = (data[x][y] - data[x-uX][y]);
 		if (diff <= 0) return -Float.MAX_VALUE;
-		float d2 = (float)diff * data[x][y] * data[x+vX][y]; //data[x][y]; //*data[x][y];
+		float d2 = (float)diff * data[x][y] * data[x+vX][y];
 		float ret = 0; //d2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
-			if (ny >= data[0].length) break; //return ret;
-			//if (data[x][ny] < data[x][y] && data[x][ny] > data[x][y]*harmonicThreshold) {
-			ret+= d2 * (float)(data[x][ny]); // - data[x-uX][ny]) * data[x][ny] * data[x+vX][y] * harmonicFactors[j];
-			//ret+= d2 * (float)data[x][ny] * harmonicFactors[j];
-			//}
+			if (ny >= data[0].length) break; 
+			ret+= d2 * (float)(data[x][ny]); 
 		}
 		for(int j=0; j<16; j++) {
 			int ny = y - harmonics[j];
-			if (ny < 0) break; //return ret;
-			ret-= d2 * (float)(data[x][ny]); // - data[x-uX][ny]) * data[x][ny] * data[x+vX][y]; //(float)data[x][ny];
+			if (ny < 0) break; 
+			ret-= d2 * (float)(data[x][ny]); 
 		}
-		//float f = (y / data[0].length); // * weighting;
-		//float f2 = ((data[0].length - y) / data[0].length); // * weighting;
-		return ret; // * f;
+		return ret; 
 	}
 	
 	/**
