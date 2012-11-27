@@ -53,7 +53,7 @@ public class ForestTest {
 		String copyToDir = "testdataResults/lastrun"; // used to pick up the results of a test run by scripts. The contents of the working folder are being copied there. 
 		//String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		//String treeImgFile = "featuresOverviewY.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
-		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
+		String testFile = "testdata2/random_grouped0.cqt"; //WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
 		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
 		double imgThreshold = 0.1; // Threshold to filter the normalized forest results in the PNG test output
 		
@@ -153,6 +153,7 @@ public class ForestTest {
 			
 			// TMP Test with oob data
 			// Load sample
+			/*
 			Sample src = new WaveSample(new File(testFile));
 			m.measure("Loaded sample");
 
@@ -167,17 +168,20 @@ public class ForestTest {
 
 			// Calculate transformation
 			double[][] dataOobDouble = transformation.calculate(mono, params.step, new HammingWindow(transformation.getWindowSize()));
+			//*/
+			FileIO<byte[][]> bio = new FileIO<byte[][]>();
+			double[][] dataOobDouble = ArrayUtils.toDoubleArray(bio.load(testFile));
 			double[][] dataPeak = dataOobDouble; /*new double[dataOobDouble.length][];
 
 			DifferentialAnalyzer p = new DifferentialAnalyzer();
 			for(int i=0; i<dataOobDouble.length; i++) {
 				dataPeak[i] = p.getPeaks(dataOobDouble[i]);
 			}
-			//*/
 			Scale scale = new LogScale(10);
 			ArrayUtils.normalize(dataPeak); // Normalize to [0,1]
 			ArrayUtils.scale(dataPeak, scale); // Log scale
 			ArrayUtils.normalize(dataPeak, (double)Byte.MAX_VALUE-1); // Normalize back to [0,MAX_VALUE] 
+			//*/
 			byte[][] dataOob = ArrayUtils.toByteArray(dataPeak); // To byte array to use with forest
 			m.measure("Finished transformation and scaling");
 			

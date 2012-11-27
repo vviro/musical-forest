@@ -463,6 +463,22 @@ public class ArrayUtils {
 	}
 
 	/**
+	 * Converts a two-dimensional byte array to double[][]
+	 * 
+	 * @param in
+	 * @return the double[][] array
+	 */
+	public static double[][] toDoubleArray(final byte[][] in) {
+		double[][] ret = new double[in.length][in[0].length];
+	    for(int i=0; i<in.length; i++) {
+		    for(int j=0; j<in[i].length; j++) {
+		    	ret[i][j] = (double)in[i][j];
+		    }
+	    }
+	    return ret;
+	}
+
+	/**
 	 * Print array to System.out.
 	 * 
 	 * @param in
