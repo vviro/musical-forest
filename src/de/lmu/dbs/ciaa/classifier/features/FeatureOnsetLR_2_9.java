@@ -179,8 +179,9 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];
+		long max = 4000000; //(Byte.MAX_VALUE * Byte.MAX_VALUE * Byte.MAX_VALUE) * harmonics.length * 2;
 		for(int i=0; i<num; i++) {
-			ret[i] = (float)(Math.random() - 0.5) * Float.MAX_VALUE;
+			ret[i] = (float)(Math.random() - 0.5) * max ;
 		}
 		return ret;
 		/*
