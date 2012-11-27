@@ -14,7 +14,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureOnsetLR_2_9 extends Feature2d {
+public class FeatureOnsetLR_2_10 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -30,26 +30,26 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	public int vX;
 	
 	//public float ownHarmonicsWeight; // [0..1]
-	public float foreignHarmonicsWeight; // [0..1]
+	//public float foreignHarmonicsWeight; // [0..1]
 	
 	/**
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureOnsetLR_2_9(final ForestParameters params) {
+	public FeatureOnsetLR_2_10(final ForestParameters params) {
 		initStatic();
 		
 		uX = RandomUtils.randomInt(1, 20);
 		vX = RandomUtils.randomInt(1, 20);
 		
 		//ownHarmonicsWeight = 1.0f; //(float)Math.random();
-		foreignHarmonicsWeight = (float)Math.random();
+		//foreignHarmonicsWeight = (float)Math.random();
 	}
 	
 	/**
 	 * 
 	 */
-	public FeatureOnsetLR_2_9() {
+	public FeatureOnsetLR_2_10() {
 		initStatic();
 	}
 
@@ -66,7 +66,7 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	public List<Object> getRandomFeatureSet(ForestParameters params) {
 		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureOnsetLR_2_9 n = new FeatureOnsetLR_2_9(params);
+			FeatureOnsetLR_2_10 n = new FeatureOnsetLR_2_10(params);
 			ret.add(n);
 		}
 		return ret;
@@ -102,11 +102,13 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 		
 		float harmForeign = 0;
 		for(int j=0; j<harmonics.length; j++) {
-			int ny = y - harmonics[j];
-			if (ny < 0) break; 
-			harmForeign+= (float)(data[x][ny]); 
+			for(int j2=j+1; j2<harmonics.length; j2++) {
+				int ny = y + harmonics[j2];
+				if (ny < 0) break; 
+				harmForeign+= (float)(data[x][ny]); 
+			}
 		}
-		harmForeign *= d2 * foreignHarmonicsWeight;
+		harmForeign *= d2; // * foreignHarmonicsWeight;
 		
 		return harmOwn - harmForeign; 
 	}
@@ -157,7 +159,7 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	public String toString() {
 		String ret = "LR: uX: " + uX + ", vX: " + vX;
 		//ret+= "; ownHarmonicsWeight: " + ownHarmonicsWeight; 
-		ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsWeight;
+		//ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsWeight;
 		return ret;
 	}
 
@@ -198,6 +200,6 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 
 	@Override
 	public Feature2d getInstance(ForestParameters params) {
-		return new FeatureOnsetLR_2_9(params);
+		return new FeatureOnsetLR_2_10(params);
 	}
 }

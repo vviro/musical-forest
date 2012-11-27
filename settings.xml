@@ -34,7 +34,7 @@
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="50"
 		thresholdCandidatesPerFeature="40"
-		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR_2_9"
+		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR_2_10"
 		entropyThreshold="0"
 		
 		xMin="0"
