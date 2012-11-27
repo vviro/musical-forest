@@ -5,7 +5,6 @@ import java.util.List;
 
 import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.classifier.core2d.FeatureComposite2d;
-import de.lmu.dbs.ciaa.classifier.features.*;
 
 public class OnsetCompositeFeature extends FeatureComposite2d {
 
