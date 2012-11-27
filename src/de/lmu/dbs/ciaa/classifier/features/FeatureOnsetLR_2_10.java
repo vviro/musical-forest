@@ -104,7 +104,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		for(int j=0; j<harmonics.length; j++) {
 			for(int j2=j+1; j2<harmonics.length; j2++) {
 				int ny = y + harmonics[j2];
-				if (ny < 0) break; 
+				if (ny >= data[0].length) break; 
 				harmForeign+= (float)(data[x][ny]); 
 			}
 		}
