@@ -30,7 +30,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	public int vX;
 	
 	//public float ownHarmonicsWeight; // [0..1]
-	//public float foreignHarmonicsWeight; // [0..1]
+	public float foreignHarmonicsWeight; // [0..1]
 	
 	/**
 	 * Create feature with random feature parameters.
@@ -43,7 +43,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		vX = RandomUtils.randomInt(1, 20);
 		
 		//ownHarmonicsWeight = 1.0f; //(float)Math.random();
-		//foreignHarmonicsWeight = (float)Math.random();
+		foreignHarmonicsWeight = (float)Math.random();
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 				harmForeign+= (float)(data[x][ny]); 
 			}
 		}
-		harmForeign *= d2; // * foreignHarmonicsWeight;
+		harmForeign *= d2 * foreignHarmonicsWeight;
 		
 		return harmOwn - harmForeign; 
 	}
@@ -159,7 +159,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	public String toString() {
 		String ret = "LR: uX: " + uX + ", vX: " + vX;
 		//ret+= "; ownHarmonicsWeight: " + ownHarmonicsWeight; 
-		//ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsWeight;
+		ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsWeight;
 		return ret;
 	}
 
