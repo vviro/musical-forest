@@ -120,7 +120,7 @@ public class FeatureOnsetLR_2_6 extends Feature2d {
 			//ret+= d2 * (float)data[x][ny] * harmonicFactors[j];
 			//}
 		}
-		for(int j=0; j<5; j++) {
+		for(int j=0; j<16; j++) {
 			int ny = y - harmonics[j];
 			if (ny < 0) break; //return ret;
 			ret-= d2 * (float)(data[x][ny]); // - data[x-uX][ny]) * data[x][ny] * data[x+vX][y]; //(float)data[x][ny];
