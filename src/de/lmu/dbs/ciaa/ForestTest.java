@@ -54,7 +54,7 @@ public class ForestTest {
 		//String featureImgFile = "featuresOverview.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		//String treeImgFile = "featuresOverviewY.png"; // This file is saved along the tree node data files. It contains a visualization of the created tree´s nodes features.
 		String testFile = "testdata2/random_grouped0.cqt"; //WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
-		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
+		String testReferenceFile = "testdata2/random_grouped0.mid"; //WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
 		double imgThreshold = 0.1; // Threshold to filter the normalized forest results in the PNG test output
 		
 		try {
