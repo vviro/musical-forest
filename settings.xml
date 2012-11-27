@@ -33,7 +33,7 @@
 		maxDepth="4"
 		percentageOfRandomValuesPerFrame="1.0"
 		numOfRandomFeatures="100"
-		thresholdCandidatesPerFeature="10"
+		thresholdCandidatesPerFeature="40"
 		featureFactoryClass="de.lmu.dbs.ciaa.classifier.features.FeatureOnsetLR_2_9"
 		entropyThreshold="0"
 		

@@ -65,7 +65,7 @@ public abstract class Feature implements Serializable {
 	 * 
 	 * @return
 	 * @throws Exception 
-	 */
+	 *
 	public abstract float getMaxValue() throws Exception;
 	
 	/**
@@ -77,9 +77,16 @@ public abstract class Feature implements Serializable {
 	public float[] getRandomThresholds(int num) throws Exception {
 		float[] ret = new float[num];
 		for(int i=0; i<num; i++) {
+			ret[i] = (float)(Math.random() - 0.5) * Float.MAX_VALUE;
+		}
+		return ret;
+		/*
+		float[] ret = new float[num];
+		for(int i=0; i<num; i++) {
 			ret[i] = (float)(Math.random() * getMaxValue());
 		}
 		return ret;
+		*/
 	}
 
 	/**

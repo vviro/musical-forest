@@ -113,8 +113,7 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	
 	/**
 	 * TODO Festwert
-	 */
-	@Override
+	 *
 	public float getMaxValue() {
 		return 400000; 
 	}
@@ -164,12 +163,12 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 
 	/**
 	 * Divide border for threshold resolution
-	 */
+	 *
 	public float border = 3.0f;
 	
 	/**
 	 * Percentage of thresholds taken from below border
-	 */
+	 *
 	public float borderDiv = 0.2f;
 	
 	/**
@@ -180,6 +179,12 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	@Override
 	public float[] getRandomThresholds(int num) {
 		float[] ret = new float[num];
+		for(int i=0; i<num; i++) {
+			ret[i] = (float)(Math.random() - 0.5) * Float.MAX_VALUE;
+		}
+		return ret;
+		/*
+		float[] ret = new float[num];
 		for(int i=0; i<(int)(num*borderDiv); i++) {
 			ret[i] = (float)(Math.random() * border);
 		}
@@ -187,6 +192,7 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 			ret[i] = (float)(border + Math.random() * getMaxValue());
 		}
 		return ret;
+		*/
 	}
 
 	@Override
