@@ -39,8 +39,8 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 	public FeatureOnsetLR_2_9(final ForestParameters params) {
 		initStatic();
 		
-		uX = RandomUtils.randomInt(1, 20);
-		vX = RandomUtils.randomInt(1, 20);
+		uX = 3; //RandomUtils.randomInt(1, 20);
+		vX = 14; //RandomUtils.randomInt(1, 20);
 		
 		//ownHarmonicsWeight = 1.0f; //(float)Math.random();
 		foreignHarmonicsWeight = (float)Math.random();
