@@ -85,7 +85,6 @@ public class FeatureHarmonic5_FixedThr extends Feature2d {
 	/**
 	 * TODO Festwert
 	 */
-	@Override
 	public float getMaxValue() {
 		return 4000000; 
 	}

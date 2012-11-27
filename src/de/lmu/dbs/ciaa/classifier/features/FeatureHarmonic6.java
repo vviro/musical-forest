@@ -177,7 +177,6 @@ public class FeatureHarmonic6 extends Feature2d {
 	/**
 	 * TODO Festwert
 	 */
-	@Override
 	public float getMaxValue() {
 		return 4000000; //(float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1));
 		//return (float)((Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1)*(Byte.MAX_VALUE-1) * (harmonics.length + 1) * 10);

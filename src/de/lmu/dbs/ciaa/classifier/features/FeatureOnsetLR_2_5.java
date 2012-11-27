@@ -122,7 +122,6 @@ public class FeatureOnsetLR_2_5 extends Feature2d {
 	/**
 	 * TODO Festwert
 	 */
-	@Override
 	public float getMaxValue() {
 		return 400000; 
 	}
