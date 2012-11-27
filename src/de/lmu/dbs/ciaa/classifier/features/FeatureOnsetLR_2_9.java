@@ -43,7 +43,7 @@ public class FeatureOnsetLR_2_9 extends Feature2d {
 		vX = 14; //RandomUtils.randomInt(1, 20);
 		
 		//ownHarmonicsWeight = 1.0f; //(float)Math.random();
-		foreignHarmonicsWeight = (float)Math.random();
+		foreignHarmonicsWeight = 1.0f; //(float)Math.random();
 	}
 	
 	/**
