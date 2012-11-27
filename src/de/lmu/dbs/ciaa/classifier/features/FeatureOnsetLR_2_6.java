@@ -148,8 +148,8 @@ public class FeatureOnsetLR_2_6 extends Feature2d {
 	 */
 	private void generateHarmonics(final int amount, final double binsPerOctave) {
 		int[] ret = new int[amount];
-		for(int i=2; i<amount+1; i++) {
-			ret[i-1] = (int)(binsPerOctave * (Math.log(i*2) / Math.log(2)));
+		for(int i=0; i<amount; i++) {
+			ret[i] = (int)(binsPerOctave * (Math.log((i)*2) / Math.log(2)));
 		}
 		ArrayUtils.out(ret);
 		harmonics = ret;
