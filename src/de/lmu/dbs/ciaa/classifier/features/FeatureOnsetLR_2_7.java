@@ -21,11 +21,11 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 	private static final long serialVersionUID = 1L;
 	
 	//public float[] harmonicFactors = null;
-	public int[] chosenHarmonics = null;
-	public int[] chosenHarmonicsRev = null;
+	//public int[] chosenHarmonics = null;
+	//public int[] chosenHarmonicsRev = null;
 	
-	public int numOfOvertones = 16; // TODO -> params
-	public int numOfOvertonesRev = 16; // TODO -> params
+	//public int numOfOvertones = 16; // TODO -> params
+	//public int numOfOvertonesRev = 16; // TODO -> params
 	//public int maxNumOfOvertones = 16; // TODO -> params
 	//public float harmonicAmplification = 1.0f; // TODO -> params
 	
@@ -56,7 +56,7 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 		//harmonicThreshold = (float)Math.random() / 2 + 0.5f;
 		//numOfOvertones = maxNumOfOvertones; //RandomUtils.randomInt(1, maxNumOfOvertones);
 		//harmonicFactors = new float[numOfOvertones];
-		chosenHarmonics = new int[numOfOvertones];
+		/*chosenHarmonics = new int[numOfOvertones];
 		long[] harms = new long[numOfOvertones];
 		RandomSampler.sample(
 				numOfOvertones, // n 
@@ -84,7 +84,7 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 		for(int i=0; i<harms.length; i++) {
 			chosenHarmonicsRev[i] = (int)harms[i];
 			//harmonicFactors[i] = (float)(Math.random()*harmonicAmplification); // * ((float)(harmonics.length-i)/harmonics.length);
-		}
+		}*/
 	}
 	
 	/**
@@ -130,6 +130,17 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 		if (diff <= 0) return -Float.MAX_VALUE;
 		float d2 = (float)diff * data[x][y] * data[x+vX][y];
 		float ret = 0; //d2;
+		for(int j=0; j<harmonics.length; j++) {
+			int ny = y + harmonics[j];
+			if (ny >= data[0].length) break; 
+			ret+= d2 * (float)(data[x][ny]); 
+		}
+		for(int j=0; j<harmonics.length; j++) {
+			int ny = y - harmonics[j];
+			if (ny < 0) break; 
+			ret-= d2 * (float)(data[x][ny]); 
+		}
+		/*
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny = y + harmonics[chosenHarmonics[j]];
 			if (ny >= data[0].length) break; 
@@ -140,6 +151,7 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 			if (ny < 0) break; 
 			ret-= d2 * (float)(data[x][ny]); 
 		}
+		*/
 		return ret; 
 	}
 	
@@ -178,23 +190,26 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 	public void visualize(Object data2) {
 		int[][] data = (int[][])data2;
 		int x = data.length/2;
-		for(int j=0; j<chosenHarmonics.length; j++) {
+		/*for(int j=0; j<chosenHarmonics.length; j++) {
 			int i = chosenHarmonics[j];
 			int ny = harmonics[i];
 			if (ny > data[0].length) break;
-			//data[x][ny]+= harmonicFactors[j]; 
+			data[x][ny]+= harmonicFactors[j]; 
 		}
+		*/
 	}
 
 	/**
 	 * 
 	 */
 	public String toString() {
-		String ret = "LR: uX: " + uX + ", vX: " + vX + ", Harmonics (num: " + numOfOvertones + "): {";
+		String ret = "LR: uX: " + uX + ", vX: " + vX; /* + ", Harmonics (num: " + numOfOvertones + "): {";
 		for(int i=0; i<chosenHarmonics.length; i++) {
 			ret+= chosenHarmonics[i] + ", ";
 		}
 		return ret + "}";
+		*/
+		return ret;
 	}
 
 	/**
