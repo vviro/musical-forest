@@ -492,6 +492,7 @@ public abstract class RandomTree extends ScheduledThread {
 		RandomTreeWorker[] workers = null;
 		synchronized (root.forest.evalScheduler) {
 			int threadNum = root.forest.evalScheduler.getThreadsAvailable();
+			if (threadNum > numWork) throw new Exception("Too few work (" + numWork + ") for " + threadNum + " threads, check parameters");
 			if (threadNum > 1) {
 				workers = new RandomTreeWorker[threadNum];
 				double ipw = (double)numWork / workers.length;
