@@ -91,7 +91,7 @@ public class MusicalTreeDataset extends TreeDataset2d {
 		MIDIAdapter ma = new MIDIAdapter(referenceFile);
 		long duration = (long)((double)((dataC.length+1) * step * 1000.0) / 44100); // TODO festwerte
 		reference = ma.toDataArray(dataC.length, duration, frequencies);
-		ArrayUtils.shiftRight((byte[][])reference, 3);
+		
 		//ArrayUtils.blur((byte[][])reference, 0);
 
 		/*

@@ -93,7 +93,7 @@ public class OnsetMusicalTreeDataset extends TreeDataset2d {
 		
 		ArrayUtils.filterFirst((byte[][])reference);
 		ArrayUtils.blur((byte[][])reference, 0);
-		ArrayUtils.shiftRight((byte[][])reference, 3);
+		ArrayUtils.shiftRight((byte[][])reference, 6);
 
 		// TMP 
 		/*
