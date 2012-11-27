@@ -201,6 +201,7 @@ public class ForestTest {
 			byte[][] reference = ma.toDataArray(dataOob.length, duration, params.frequencies);
 			ArrayUtils.filterFirst(reference);
 			ArrayUtils.blur(reference, 0);
+			ArrayUtils.shiftRight(reference, 3);
 			m.measure("Loaded MIDI reference file: " + testReferenceFile);
 			
 			// Error rates
