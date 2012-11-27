@@ -204,7 +204,10 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 	 * 
 	 */
 	public String toString() {
-		String ret = "LR: uX: " + uX + ", vX: " + vX; /* + ", Harmonics (num: " + numOfOvertones + "): {";
+		String ret = "LR: uX: " + uX + ", vX: " + vX;
+		ret+= "; ownHarmonicsWeight: " + ownHarmonicsWeight + ", foreignHarmonicsWeight: " + foreignHarmonicsWeight;
+		
+		/* + ", Harmonics (num: " + numOfOvertones + "): {";
 		for(int i=0; i<chosenHarmonics.length; i++) {
 			ret+= chosenHarmonics[i] + ", ";
 		}
