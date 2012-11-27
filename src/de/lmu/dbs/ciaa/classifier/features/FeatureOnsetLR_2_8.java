@@ -18,16 +18,7 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
-	//public float[] harmonicFactors = null;
-	//public int[] chosenHarmonics = null;
-	//public int[] chosenHarmonicsRev = null;
-	
-	//public int numOfOvertones = 16; // TODO -> params
-	//public int numOfOvertonesRev = 16; // TODO -> params
-	//public int maxNumOfOvertones = 16; // TODO -> params
-	//public float harmonicAmplification = 1.0f; // TODO -> params
-	
-	//public float harmonicThreshold;
+	public static final int numOfOvertones = 20;
 	
 	/**
 	 * Factors for calculation of overtones in log frequency spectra. 
@@ -40,8 +31,6 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 	
 	public float ownHarmonicsWeight; // [0..1]
 	public float foreignHarmonicsWeight; // [0..1]
-	
-	//public float weighting;
 	
 	/**
 	 * Create feature with random feature parameters.
@@ -56,39 +45,6 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 		ownHarmonicsWeight = (float)Math.random();
 		foreignHarmonicsWeight = (float)Math.random();
 		
-		//weighting = (float)Math.random() - 0.5f;
-		//harmonicThreshold = (float)Math.random() / 2 + 0.5f;
-		//numOfOvertones = maxNumOfOvertones; //RandomUtils.randomInt(1, maxNumOfOvertones);
-		//harmonicFactors = new float[numOfOvertones];
-		/*chosenHarmonics = new int[numOfOvertones];
-		long[] harms = new long[numOfOvertones];
-		RandomSampler.sample(
-				numOfOvertones, // n 
-				harmonics.length, // N
-				numOfOvertones, // count 
-				0, // low 
-				harms, 
-				0, 
-				null);
-		for(int i=0; i<harms.length; i++) {
-			chosenHarmonics[i] = (int)harms[i];
-			//harmonicFactors[i] = (float)(Math.random()*harmonicAmplification); // * ((float)(harmonics.length-i)/harmonics.length);
-		}
-		
-		chosenHarmonicsRev = new int[numOfOvertones];
-		harms = new long[numOfOvertones];
-		RandomSampler.sample(
-				numOfOvertones, // n 
-				harmonics.length, // N
-				numOfOvertones, // count 
-				0, // low 
-				harms, 
-				0, 
-				null);
-		for(int i=0; i<harms.length; i++) {
-			chosenHarmonicsRev[i] = (int)harms[i];
-			//harmonicFactors[i] = (float)(Math.random()*harmonicAmplification); // * ((float)(harmonics.length-i)/harmonics.length);
-		}*/
 	}
 	
 	/**
@@ -99,7 +55,7 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 	}
 
 	public void initStatic() {
-		if (harmonics == null) generateHarmonics(20, 48.0); // TODO festwert
+		if (harmonics == null) generateHarmonics(numOfOvertones, 48.0); // TODO festwert
 	}
 	
 	/**
@@ -137,7 +93,7 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 		
 		float d2 = (float)diff * data[x][y] * data[x+vX][y];
 		
-		float harmOwn = 0; //d2;
+		float harmOwn = 0;
 		for(int j=0; j<harmonics.length; j++) {
 			int ny = y + harmonics[j];
 			if (ny >= data[0].length) break; 
@@ -173,13 +129,9 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 	 */
 	private void generateHarmonics(final int amount, final double binsPerOctave) {
 		int[] ret = new int[amount];
-		//float[] r = new float[amount];
 		for(int i=0; i<amount; i++) {
 			ret[i] = (int)(binsPerOctave * (Math.log((i+2)*2) / Math.log(2) - 1));
-			//r[i] = (float)(Math.log((i+2)*2) / Math.log(2)) - 1;
 		}
-		//ArrayUtils.out(ret);
-		//System.exit(0);
 		harmonics = ret;
 	}
 
@@ -189,9 +141,10 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 	 * @param data the array to store results (additive)
 	 */
 	public void visualize(Object data2) {
+		/*
 		int[][] data = (int[][])data2;
 		int x = data.length/2;
-		/*for(int j=0; j<chosenHarmonics.length; j++) {
+		for(int j=0; j<chosenHarmonics.length; j++) {
 			int i = chosenHarmonics[j];
 			int ny = harmonics[i];
 			if (ny > data[0].length) break;
@@ -206,13 +159,6 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 	public String toString() {
 		String ret = "LR: uX: " + uX + ", vX: " + vX;
 		ret+= "; ownHarmonicsWeight: " + ownHarmonicsWeight + ", foreignHarmonicsWeight: " + foreignHarmonicsWeight;
-		
-		/* + ", Harmonics (num: " + numOfOvertones + "): {";
-		for(int i=0; i<chosenHarmonics.length; i++) {
-			ret+= chosenHarmonics[i] + ", ";
-		}
-		return ret + "}";
-		*/
 		return ret;
 	}
 
@@ -242,7 +188,6 @@ public class FeatureOnsetLR_2_8 extends Feature2d {
 		}
 		return ret;
 	}
-	//*/
 
 	@Override
 	public Feature2d getInstance(ForestParameters params) {
