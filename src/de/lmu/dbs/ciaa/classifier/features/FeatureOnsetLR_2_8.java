@@ -14,7 +14,7 @@ import de.lmu.dbs.ciaa.util.RandomUtils;
  * @author Thomas Weber
  *
  */
-public class FeatureOnsetLR_2_7 extends Feature2d {
+public class FeatureOnsetLR_2_8 extends Feature2d {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -38,17 +38,23 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 	public int uX;
 	public int vX;
 	
+	public float ownHarmonicsWeight; // [0..1]
+	public float foreignHarmonicsWeight; // [0..1]
+	
 	//public float weighting;
 	
 	/**
 	 * Create feature with random feature parameters.
 	 * 
 	 */
-	public FeatureOnsetLR_2_7(final ForestParameters params) {
+	public FeatureOnsetLR_2_8(final ForestParameters params) {
 		initStatic();
 		
 		uX = RandomUtils.randomInt(1, 20);
 		vX = RandomUtils.randomInt(1, 20);
+		
+		ownHarmonicsWeight = (float)Math.random();
+		foreignHarmonicsWeight = (float)Math.random();
 		
 		//weighting = (float)Math.random() - 0.5f;
 		//harmonicThreshold = (float)Math.random() / 2 + 0.5f;
@@ -88,7 +94,7 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 	/**
 	 * 
 	 */
-	public FeatureOnsetLR_2_7() {
+	public FeatureOnsetLR_2_8() {
 		initStatic();
 	}
 
@@ -105,7 +111,7 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 	public List<Object> getRandomFeatureSet(ForestParameters params) {
 		List<Object> ret = new ArrayList<Object>();
 		for(int i=0; i<params.numOfRandomFeatures; i++) {
-			FeatureOnsetLR_2_7 n = new FeatureOnsetLR_2_7(params);
+			FeatureOnsetLR_2_8 n = new FeatureOnsetLR_2_8(params);
 			ret.add(n);
 		}
 		return ret;
@@ -122,35 +128,32 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 	 */
 	public float evaluate(final byte[][] data, final int x, final int y) throws Exception {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
+		
 		if (x-uX < 0) return -Float.MAX_VALUE;
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
+		
 		float diff = (data[x][y] - data[x-uX][y]);
 		if (diff <= 0) return -Float.MAX_VALUE;
+		
 		float d2 = (float)diff * data[x][y] * data[x+vX][y];
-		float ret = 0; //d2;
+		
+		float harmOwn = 0; //d2;
 		for(int j=0; j<harmonics.length; j++) {
 			int ny = y + harmonics[j];
 			if (ny >= data[0].length) break; 
-			ret+= d2 * (float)(data[x][ny]); 
+			harmOwn+= (float)(data[x][ny]); 
 		}
+		harmOwn *= d2 * ownHarmonicsWeight;
+		
+		float harmForeign = 0;
 		for(int j=0; j<harmonics.length; j++) {
 			int ny = y - harmonics[j];
 			if (ny < 0) break; 
-			ret-= d2 * (float)(data[x][ny]); 
+			harmForeign+= (float)(data[x][ny]); 
 		}
-		/*
-		for(int j=0; j<chosenHarmonics.length; j++) {
-			int ny = y + harmonics[chosenHarmonics[j]];
-			if (ny >= data[0].length) break; 
-			ret+= d2 * (float)(data[x][ny]); 
-		}
-		for(int j=0; j<chosenHarmonicsRev.length; j++) {
-			int ny = y - harmonics[chosenHarmonicsRev[j]];
-			if (ny < 0) break; 
-			ret-= d2 * (float)(data[x][ny]); 
-		}
-		*/
-		return ret; 
+		harmForeign *= d2 * foreignHarmonicsWeight;
+		
+		return harmOwn - harmForeign; 
 	}
 	
 	/**
@@ -240,6 +243,6 @@ public class FeatureOnsetLR_2_7 extends Feature2d {
 
 	@Override
 	public Feature2d getInstance(ForestParameters params) {
-		return new FeatureOnsetLR_2_7(params);
+		return new FeatureOnsetLR_2_8(params);
 	}
 }
