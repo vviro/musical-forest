@@ -111,7 +111,9 @@ public class FeatureOnsetLR_2_6 extends Feature2d {
 		if (data[x][y] == 0) return -Float.MAX_VALUE;
 		if (x-uX < 0) return -Float.MAX_VALUE;
 		if (x+vX >= data.length) return -Float.MAX_VALUE;
-		float d2 = (float)(data[x][y] - data[x-uX][y]) * data[x][y] * data[x+vX][y]; //data[x][y]; //*data[x][y];
+		float diff = (data[x][y] - data[x-uX][y]);
+		if (diff <= 0) return -Float.MAX_VALUE;
+		float d2 = (float)diff * data[x][y] * data[x+vX][y]; //data[x][y]; //*data[x][y];
 		float ret = 0; //d2;
 		for(int j=0; j<chosenHarmonics.length; j++) {
 			int ny =  y + harmonics[chosenHarmonics[j]];
