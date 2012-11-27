@@ -7,6 +7,7 @@ import cern.jet.random.sampling.RandomSampler;
 
 import de.lmu.dbs.ciaa.classifier.core2d.Feature2d;
 import de.lmu.dbs.ciaa.classifier.core.ForestParameters;
+import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.RandomUtils;
 
 /**
@@ -148,8 +149,9 @@ public class FeatureOnsetLR_2_6 extends Feature2d {
 	private void generateHarmonics(final int amount, final double binsPerOctave) {
 		int[] ret = new int[amount];
 		for(int i=1; i<amount; i++) {
-			ret[i] = (int)(binsPerOctave * (Math.log(i*2) / Math.log(2)));
+			ret[i] = (int)(binsPerOctave * (Math.log((i-1)*2) / Math.log(2)));
 		}
+		ArrayUtils.out(ret);
 		harmonics = ret;
 	}
 
