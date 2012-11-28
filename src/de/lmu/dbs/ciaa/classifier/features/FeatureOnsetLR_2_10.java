@@ -30,7 +30,8 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	public int vX;
 	
 	//public float ownHarmonicsWeight; // [0..1]
-	public float foreignHarmonicsWeight; // [0..1]
+	public float foreignHarmonicsUpWeight; // [0..1]
+	public float foreignHarmonicsDnWeight; // [0..1]
 	
 	/**
 	 * Create feature with random feature parameters.
@@ -43,7 +44,8 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		vX = RandomUtils.randomInt(1, 20);
 		
 		//ownHarmonicsWeight = 1.0f; //(float)Math.random();
-		foreignHarmonicsWeight = (float)Math.random();
+		foreignHarmonicsUpWeight = (float)Math.random();
+		foreignHarmonicsDnWeight = 1.0f - foreignHarmonicsUpWeight; //(float)Math.random();
 	}
 	
 	/**
@@ -100,17 +102,25 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		}
 		harmOwn *= d2; // * ownHarmonicsWeight;
 		
-		float harmForeign = 0;
+		float harmForeignUp = 0;
 		for(int j=0; j<harmonics.length; j++) {
 			for(int j2=j+1; j2<harmonics.length; j2++) {
 				int ny = y + harmonics[j2];
 				if (ny >= data[0].length) break; 
-				harmForeign+= (float)(data[x][ny]); 
+				harmForeignUp+= (float)(data[x][ny]); 
 			}
 		}
-		harmForeign *= d2 * foreignHarmonicsWeight;
+		harmForeignUp *= d2 * foreignHarmonicsUpWeight;
 		
-		return harmOwn - harmForeign; 
+		float harmForeignDn = 0;
+		for(int j=0; j<harmonics.length; j++) {
+			int ny = y - harmonics[j];
+			if (ny < 0) break; 
+			harmForeignDn+= (float)(data[x][ny]); 
+		}
+		harmForeignDn *= d2 * foreignHarmonicsDnWeight;
+		
+		return harmOwn - harmForeignUp - harmForeignDn; 
 	}
 	
 	/**
@@ -159,7 +169,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	public String toString() {
 		String ret = "LR: uX: " + uX + ", vX: " + vX;
 		//ret+= "; ownHarmonicsWeight: " + ownHarmonicsWeight; 
-		ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsWeight;
+		ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsUpWeight;
 		return ret;
 	}
 
