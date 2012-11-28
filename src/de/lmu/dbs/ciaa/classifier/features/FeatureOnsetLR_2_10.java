@@ -29,7 +29,6 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	public int uX;
 	public int vX;
 	
-	//public float ownHarmonicsWeight; // [0..1]
 	public float foreignHarmonicsUpWeight; // [0..1]
 	public float foreignHarmonicsDnWeight; // [0..1]
 	
@@ -43,10 +42,8 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		uX = RandomUtils.randomInt(1, 20);
 		vX = RandomUtils.randomInt(1, 20);
 		
-		//ownHarmonicsWeight = 1.0f; //(float)Math.random();
 		foreignHarmonicsUpWeight = (float)Math.random();
 		foreignHarmonicsDnWeight = 1.0f - foreignHarmonicsUpWeight;
-		//foreignHarmonicsDnWeight = (float)Math.random();
 	}
 	
 	/**
@@ -176,16 +173,6 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	}
 
 	/**
-	 * Divide border for threshold resolution
-	 *
-	public float border = 3.0f;
-	
-	/**
-	 * Percentage of thresholds taken from below border
-	 *
-	public float borderDiv = 0.2f;
-	
-	/**
 	 * Returns a randomly generated threshold candidate for the feature.
 	 * 
 	 * @return
@@ -198,16 +185,6 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 			ret[i] = (float)(Math.random() - 0.5) * max ;
 		}
 		return ret;
-		/*
-		float[] ret = new float[num];
-		for(int i=0; i<(int)(num*borderDiv); i++) {
-			ret[i] = (float)(Math.random() * border);
-		}
-		for(int i=(int)(num*borderDiv); i<num; i++) {
-			ret[i] = (float)(border + Math.random() * getMaxValue());
-		}
-		return ret;
-		*/
 	}
 
 	@Override
