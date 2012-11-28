@@ -118,6 +118,10 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		}
 		harmForeignDn *= d2 * foreignHarmonicsDnWeight;
 		
+		/*
+		 * TODO: - Oktavfehler: HarmsDn gewichten (=> wenn ich 1. oberton=oct bin, mehr strafe)
+		 */
+		
 		return harmOwn - harmForeignUp - harmForeignDn; 
 	}
 	
