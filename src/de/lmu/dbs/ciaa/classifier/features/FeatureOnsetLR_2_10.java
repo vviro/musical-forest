@@ -169,7 +169,8 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 	public String toString() {
 		String ret = "LR: uX: " + uX + ", vX: " + vX;
 		//ret+= "; ownHarmonicsWeight: " + ownHarmonicsWeight; 
-		ret+= "; foreignHarmonicsWeight: " + foreignHarmonicsUpWeight;
+		ret+= "; foreignHarmonicsUpWeight: " + foreignHarmonicsUpWeight;
+		ret+= "; foreignHarmonicsDnWeight: " + foreignHarmonicsDnWeight;
 		return ret;
 	}
 
