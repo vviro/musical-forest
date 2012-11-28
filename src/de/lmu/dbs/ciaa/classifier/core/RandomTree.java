@@ -311,18 +311,17 @@ public abstract class RandomTree extends ScheduledThread {
 			return;
 		}
 
+		// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
+		// watched with the isGrown method of the original RandomTree instance.
 		if (count < params.nodeThreadingThreshold && params.maxNumOfNodeThreads > 0) {
-				
-				synchronized (root.forest.nodeScheduler) { 
-					if (multithreading && (root.forest.nodeScheduler.getThreadsAvailable() > 0)) {
-						// Start an "anonymous" RandomTree instance to calculate this method. Results have to be 
-						// watched with the isGrown method of the original RandomTree instance.
-						RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
-						root.forest.nodeScheduler.startThread(t);
-						return;
-					}
+			synchronized (root.forest.nodeScheduler) { 
+				if (multithreading && (root.forest.nodeScheduler.getThreadsAvailable() > 0)) {
+					RandomTree t = getInstance(root, sampler, classification, count, node, mode, depth, maxDepth);
+					root.forest.nodeScheduler.startThread(t);
+					return;
 				}
 			}
+		}
 		
 		// Get random feature parameter sets
 		List<Object> paramSet = params.featureFactory.getRandomFeatureSet(params);
@@ -484,10 +483,6 @@ public abstract class RandomTree extends ScheduledThread {
 			return;
 		}
 		
-		/*if (count < params.nodeThreadingThreshold) {
-			System.out.println("--> WARNING: Eval threads below node threading threshold: " + count);
-		}*/
-		
 		// Create worker threads for groups of frequency bands and start them
 		RandomTreeWorker[] workers = null;
 		synchronized (root.forest.evalScheduler) {
@@ -504,7 +499,6 @@ public abstract class RandomTree extends ScheduledThread {
 					workers[i] = new RandomTreeWorker(this, min, max, sampler, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 					root.forest.evalScheduler.startThread(workers[i]);
 				}
-				//System.out.println("Started " + workers.length + " eval threads for " + count + " values");
 			} else {
 				evaluateFeatures(sampler, 0, numWork-1, paramSet, classification, mode, thresholds, countClassesLeft, countClassesRight);
 				return;
@@ -586,7 +580,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @param b
 	 * @return
 	 *
-	public static double getEntropy(final long a, final long b) {
+	public static double getBinaryEntropy(final long a, final long b) {
 		long all = a+b;
 		if(all <= 0) return 0;
 		double pa = (double)a/all;
@@ -627,14 +621,11 @@ public abstract class RandomTree extends ScheduledThread {
 	public void run() {
 		try {
 			growRec(newThreadRoot, newThreadSampler, newThreadClassification, newThreadCount, newThreadNode, newThreadMode, newThreadDepth, newThreadMaxDepth, false);
-			//newThreadRoot.forest.scheduler.decThreadsActive();
-			//if (newThreadRoot.params.debugNodeThreads) System.out.println("    T" + num + ": Finished node thread, depth: " + newThreadDepth + ", active: " + newThreadRoot.forest.scheduler.getThreadsActive() + ", values: " + newThreadCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
 		setThreadFinished();
-		//System.out.println("Finished node thread id " + getThreadId() + " at depth " + newThreadDepth);
 	}
 	
 	/**
@@ -695,15 +686,6 @@ public abstract class RandomTree extends ScheduledThread {
 	}
 
 	/**
-	 * Returns if the tree is grown.
-	 * 
-	 * @return
-	 *
-	public boolean isGrown() {
-		return (nodeThreadsActive == 0) && (evaluationThreadsActive == 0);
-	}
-
-	/**
 	 * Sets a forest as parent.
 	 * 
 	 * @param forest
@@ -714,6 +696,7 @@ public abstract class RandomTree extends ScheduledThread {
 	
 	/**
 	 * Write some growing params to the tree log file.
+	 * 
 	 * @throws Exception 
 	 * 
 	 */
