@@ -10,9 +10,9 @@ public class MeanShift {
 	
 	public int[][] segmentation;
 	
-	public int[][] modes;
+	public int[][] modes; // TODO: List?
 	
-	public float[][] modeWeights;
+	public float[][] modeWeights; // TODO: List?
 	
 	public void process(float[][] data, float threshold) {
 	
@@ -21,11 +21,14 @@ public class MeanShift {
 		segmentation = new int[data.length][data[0].length];
 		
 		int nextModeId = 1;
+		// Iterate all pixels
 		for(int dx=0; dx<data.length; dx++) {
 			for(int dy=0; dy<data[0].length; dy++) {
 				if (data[dx][dy] >= threshold) {
 					int x = dx;
 					int y = dy;
+
+					// Segment this pixel
 					int iter = 0;
 					double diff;
 					boolean count = true;
@@ -34,6 +37,7 @@ public class MeanShift {
 						int meanX = -1;
 						int meanY = -1;
 						int ch = 0; 
+						// Search maximum in the current window
 						for(int nx=x-windowSize; nx<x+windowSize; nx++) {
 							if (nx >= 0 && nx < data.length) {
 								for(int ny=y-windowSize; ny<y+windowSize; ny++) {
@@ -51,9 +55,10 @@ public class MeanShift {
 							}
 						}
 						if (ch <= 1) {
+							// All values equal (no maximum) -> just ignore this pixel (see below)
 							count = false;
 						}
-						diff = Math.sqrt((x-meanX)*(x-meanX) + (y-meanY)*(y-meanY));
+						diff = Math.sqrt((x-meanX)*(x-meanX) + (y-meanY)*(y-meanY)); // How far have we gone in this iteration?
 						x = meanX;
 						y = meanY;
 						iter++;
@@ -64,7 +69,7 @@ public class MeanShift {
 							modes[x][y] = nextModeId;
 							nextModeId++;
 						}
-						modeWeights[x][y]+= data[x][y] * data[x][y];
+						modeWeights[x][y]++; //= data[x][y]; // * data[x][y];
 						segmentation[dx][dy] = modes[x][y];
 					}
 				}

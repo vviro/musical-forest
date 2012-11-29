@@ -173,6 +173,7 @@ public class RandomTree2d extends RandomTree {
 				}
 			}
 			
+			// TODO LinkedList probieren
 			Classification2d claNextL = new Classification2d(l);
 			Classification2d claNextR = new Classification2d(r);
 			

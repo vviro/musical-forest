@@ -10,31 +10,38 @@ import de.lmu.dbs.ciaa.classifier.core.*;
 import de.lmu.dbs.ciaa.classifier.core2d.*;
 import de.lmu.dbs.ciaa.classifier.musicalforest.*;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
-import de.lmu.dbs.ciaa.spectrum.ConstantQTransform;
-import de.lmu.dbs.ciaa.spectrum.Transform;
 import de.lmu.dbs.ciaa.util.*;
 
 /**
  * TODO *************************************************************************************
  *
- * 		- mp3 testen (cqt)
- * 		- Ableitung
- * 		- Github -> eigenes Repo
+ * - Note Off
  *
  * - Saubere Tests nach Breiman
+ * 		- MeanShift
+ * 		- Wie bekomme ich einen Accuracy-Wert?
  *
- * - Testdaten: Andere Instrumente? Noisy data?
- *
- * - Features: Klapuri?
- * 
- * - Kapitel 3.4 in Kinect paper!
- * 
- * Testdaten:
+ * - Accuracy Tests durchführen mit neuen Testdaten:
+ * 		- AutoScriptIt
  * 		- Performances von Vladimir
  * 
+ * - imgThreshold-Heuristik
+ *
+ * - Noisy/real data in der Anwendung testen
+ * 
+ * - Refactoring
+ *
+ * - ZooKeeper
+ * 
+ *
  * Code:
  * 		- protocol buffer (google code) für dateiformat, statt serialization
  * 			-> erst wenn parameter fix sind
+ * 
+ * 		- LinkedList für Classification usw. probieren
+ * 
+ * 		- Später: Forest-Option: optimieren für CPU/Heap (Sparse Matrix für MIDI)?? 
+ * 			-> nur bei dünnen referenzdaten sinnvoll
  * 
  * @author Thomas Weber
  *

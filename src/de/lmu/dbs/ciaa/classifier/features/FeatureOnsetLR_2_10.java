@@ -98,7 +98,7 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 			if (ny >= data[0].length) break; 
 			harmOwn+= (float)(data[x][ny]); 
 		}
-		harmOwn *= d2; // * ownHarmonicsWeight;
+		harmOwn *= d2; 
 		
 		float harmForeignUp = 0;
 		for(int j=0; j<harmonics.length; j++) {
@@ -118,10 +118,6 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 		}
 		harmForeignDn *= d2 * foreignHarmonicsDnWeight;
 		
-		/*
-		 * TODO: - Oktavfehler: HarmsDn gewichten (=> wenn ich 1. oberton=oct bin, mehr strafe)
-		 */
-		
 		return harmOwn - harmForeignUp - harmForeignDn; 
 	}
 	
@@ -134,6 +130,8 @@ public class FeatureOnsetLR_2_10 extends Feature2d {
 
 	/**
 	 * Generates relative bin positions for the overtone harmonics.
+	 * 
+	 * TODO: In datei speichern
 	 * 
 	 * @param amount number of overtones to be created
 	 * @param binsPerOctave number of bins per octave in the spectral data

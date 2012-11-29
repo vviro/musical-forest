@@ -3,7 +3,7 @@ package de.lmu.dbs.ciaa;
 import java.awt.Color;
 import java.io.File;
 
-import de.lmu.dbs.ciaa.classifier.ModeProposal;
+import de.lmu.dbs.ciaa.classifier.MeanShift;
 import de.lmu.dbs.ciaa.classifier.core.*;
 import de.lmu.dbs.ciaa.classifier.core2d.*;
 import de.lmu.dbs.ciaa.classifier.musicalforest.*;
@@ -27,9 +27,16 @@ public class ForestLoadedTest {
 		// XML file for program configuration
 		String settingsFile = "settingsLoaded.xml";
 		
-		String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
-		String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
-		double imgThreshold = 0.2; // Threshold to filter the normalized forest results in the PNG test output
+		String testFile = "testdata2_wavpng/random_grouped0.wav"; //WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
+		String testReferenceFile = "testdata2/random_grouped0.mid"; //WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
+		//String testFile = "WaveFiles/Test8_Mix.wav"; // WAV file used to test the forest. Results are stored in a PNG file called <testFile>.png
+		//String testReferenceFile = "WaveFiles/MIDIFiles/Test8melody.mid"; // Test MIDI reference file. Has to be musically equal to testFile 
+		double imgThreshold = 0.15; // Threshold to filter the normalized forest results in the PNG test output
+		//int minModeWeight = 15; // Minimum mode weight
+		
+		/*
+		 * TODO: imgThreshold-Heuristik
+		 */
 		
 		String forestBufferFile = "forestdata";
 		
@@ -51,11 +58,13 @@ public class ForestLoadedTest {
 			m.measure("Loaded frequency table from " + freqFileName);
 
 			// Grow forest with training part of data
-			Forest forest;
-			RandomTree2d treeFactory = new MusicalRandomTree(); 
-			forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, 2, treeFactory);
-			m.measure("Finished loading forest from folder: " + params.workingFolder);
-			
+			Forest forest = null;
+			if (!params.loadForest) {
+				RandomTree2d treeFactory = new MusicalRandomTree(); 
+				forest = Forest.load(params, params.workingFolder + File.separator + params.nodedataFilePrefix, 2, treeFactory);
+				m.measure("Finished loading forest from folder: " + params.workingFolder);
+			}
+				
 			// Load sample
 			Sample src = new WaveSample(new File(testFile));
 			m.measure("Loaded sample");
@@ -75,22 +84,41 @@ public class ForestLoadedTest {
 			ArrayUtils.normalize(data, (double)Byte.MAX_VALUE-1); // Normalize back to [0,MAX_VALUE] 
 			byte[][] byteData = ArrayUtils.toByteArray(data); // To byte array to use with forest
 			m.measure("Finished transformation and scaling");
-			
-			// Test classification
-			float[][][] dataForestCl = forest.classify2d(byteData);
-			float[][] dataForest = new float[dataForestCl.length][dataForestCl[0].length];
-			for (int x=0; x<dataForest.length; x++) {
-				for (int y=0; y<dataForest[0].length; y++) {
-					dataForest[x][y] = dataForestCl[x][y][1];
-				}
-			}
-			m.measure("Finished running forest");
 
+			// Test forest classification
 			FileIO<float[][]> floatio = new FileIO<float[][]>();
-			floatio.save(params.workingFolder + File.separator + forestBufferFile, dataForest);
-			
-			ModeProposal jp = new ModeProposal();
-			float[][] dataProposal = jp.propose(dataForest);
+			float[][] dataForest;
+			if (!params.loadForest) {
+				float[][][] dataForestCl = forest.classify2d(byteData);
+				dataForest = new float[dataForestCl.length][dataForestCl[0].length];
+				for (int x=0; x<dataForest.length; x++) {
+					for (int y=0; y<dataForest[0].length; y++) {
+						dataForest[x][y] = dataForestCl[x][y][1];
+					}
+				}
+				floatio.save(params.workingFolder + File.separator + forestBufferFile, dataForest);
+				m.measure("Finished running forest");
+			} else {
+				dataForest = floatio.load(params.workingFolder + File.separator + forestBufferFile);
+				m.measure("Finished loading forest classification");
+			}
+
+			// Extract MIDI notes from forest output
+		    MeanShift ms = new MeanShift(10);
+		    ms.process(dataForest, (float)imgThreshold);
+		    for(int x=0; x<ms.modeWeights.length; x++) {
+		    	for(int y=0; y<ms.modeWeights[0].length; y++) {
+		    		if (ms.modeWeights[x][y] > 0) {
+		    			ms.modeWeights[x][y] = 1;
+		    		} else {
+		    			ms.modeWeights[x][y] = 0;
+		    		}
+		    	}
+		    }
+		    //*/
+		    ArrayUtils.blur(ms.modeWeights, 0);
+		    ArrayUtils.blur(ms.modeWeights, 0);
+		    ArrayUtils.blur(ms.modeWeights, 0);
 			m.measure("Finished note proposal");
 			
 			// Load MIDI
@@ -99,9 +127,11 @@ public class ForestLoadedTest {
 			byte[][] reference = ma.toDataArray(byteData.length, duration, params.frequencies);
 			ArrayUtils.filterFirst(reference);
 			ArrayUtils.blur(reference, 0);
+			ArrayUtils.shiftRight(reference, 3);
 			m.measure("Loaded MIDI reference file: " + testReferenceFile);
 			
 			// Error rates
+			/*
 			int levels = 10;
 			long[] right1 = new long[levels];
 			long[] right2 = new long[levels];
@@ -157,11 +187,12 @@ public class ForestLoadedTest {
 			
 			// Save image
 			String forestImgFile = params.workingFolder + File.separator + (new File(testFile)).getName() + ".png";
-			ArrayToImage img = new ArrayToImage(dataForest.length, dataForest[0].length);
+			ArrayToImage img = new ArrayToImage(1500, dataForest[0].length); //dataForest.length, dataForest[0].length);
 			out("-> Max data: " +  + img.add(data, Color.WHITE, null));
 			out("-> Max forest: " + img.add(dataForest, Color.RED, null, imgThreshold));
-			out("-> Max proposal: " + img.add(dataProposal, Color.GREEN, null, 0));
-			//out("-> Max MIDI: " + img.add(reference, Color.BLUE, null, 0));
+		    out("-> Max segmentation: " + img.addClassified(ms.segmentation));
+		    out("-> Max modes: " + img.add(ms.modeWeights, Color.RED, null, 0));
+			out("-> Max MIDI: " + img.add(reference, Color.BLUE, null, 0));
 			img.save(new File(forestImgFile));
 			m.measure("Saved image to " + forestImgFile);
 			

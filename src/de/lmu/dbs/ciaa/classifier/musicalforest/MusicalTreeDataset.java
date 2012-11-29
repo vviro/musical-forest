@@ -7,7 +7,6 @@ import java.util.List;
 import de.lmu.dbs.ciaa.classifier.core.Dataset;
 import de.lmu.dbs.ciaa.classifier.core2d.TreeDataset2d;
 import de.lmu.dbs.ciaa.midi.MIDIAdapter;
-import de.lmu.dbs.ciaa.util.ArrayUtils;
 import de.lmu.dbs.ciaa.util.FileIO;
 
 /**
