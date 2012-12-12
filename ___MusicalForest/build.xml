@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+
+<project name="de.lmu.dbs.musicalforest" default="nodoc" basedir=".">
+	
+	<property name="project-name" value="de.lmu.dbs.musicalforest" />
+	
+	<property name="version" value="0.1" />
+
+	<property name="builder" value="${user.name}@${os.name}-${os.version}" />
+	
+<!-- ==================================================================================== -->
+	
+	<property name="source-directory" value="src" />
+	<property name="classes-directory" value="bin" />
+	<property name="build-directory" value="build" />
+	<property name="javadoc-directory" value="doc" />
+	<property name="lib-directory" value="lib" />
+	<property name="jar-file" value="${project-name}_${version}.jar" />
+	
+	<property name="spectral-build-directory" value="../___JSpectrum/build" />
+	<property name="spectral-jarname" value="de.lmu.dbs.jspectrum_0.1.jar" />
+	
+	<property name="forest-build-directory" value="../___JForest/build" />
+	<property name="forest-jarname" value="de.lmu.dbs.jforest_0.1.jar" />
+
+	
+	<property name="main-class" value="${project-name}.MusicalForest" />
+	
+    <path id="classpath_default">
+    	<pathelement path="${lib-directory}/MidiReference1.0.jar"/>
+    	<pathelement path="${lib-directory}/jdom-2.0.2.jar"/>
+    	<pathelement path="${lib-directory}/commons-io-2.2.jar"/>
+    	<pathelement path="${lib-directory}/trove-3.0.3.jar"/>
+    	<pathelement path="${lib-directory}/commons-codec-1.6.jar"/>
+    	
+    	<pathelement path="${spectral-build-directory}/${spectral-jarname}"/>
+    	<pathelement path="${spectral-build-directory}/lib/rasmusdsp.jar"/>
+    	<pathelement path="${spectral-build-directory}/lib/jopt-simple-4.4-beta-2.jar"/>
+    	
+    	<pathelement path="${forest-build-directory}/${forest-jarname}"/>
+    	<pathelement path="${forest-build-directory}/lib/trove-3.0.3.jar"/>
+    	<pathelement path="${forest-build-directory}/lib/colt.jar"/>
+	</path>
+
+	<pathconvert property="jar.classpath" pathsep=" ">
+        <path refid="classpath_default"/>
+        <mapper>
+            <chainedmapper>
+                <flattenmapper/>
+                <globmapper from="*.jar" to="lib/*.jar"/>
+            </chainedmapper>
+        </mapper>
+	</pathconvert>
+
+<!-- ==================================================================================== -->
+
+	<tstamp prefix="build-info">
+		<format property="current-date" pattern="d-MMMM-yyyy" locale="en" />
+		<format property="current-time" pattern="hh:mm:ss a z" locale="en" />
+		<format property="year-month-day" pattern="yyyy-MM-dd" locale="en" />
+	</tstamp>
+
+<!-- ==================================================================================== -->
+
+	<target 
+		name="all" 
+		depends="compile,javadoc,jar,run" 
+		description="Makro: Build and package all." 
+	/>
+	
+	<target 
+		name="nodoc" 
+		depends="compile,jar,run" 
+		description="Makro: Build and package all without docs." 
+	/>
+
+	<target 
+		name="build" 
+		depends="compile,jar" 
+	/>
+
+<!-- ==================================================================================== -->
+
+	<target name="compile" description="compiles the class(es)">
+		<mkdir dir="${classes-directory}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${classes-directory}" includes="**/*"/>
+		</delete>
+		<javac srcdir="${source-directory}" destdir="${classes-directory}" debug="true">
+			<classpath refid="classpath_default" />
+		</javac>
+		<copy todir="${classes-directory}/">
+			<fileset dir="${source-directory}">
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="javadoc" description="create javadoc">
+		<mkdir dir="${javadoc-directory}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${javadoc-directory}" includes="**/*"/>
+		</delete>
+		<javadoc
+			excludepackagenames="nothingtoexclude"
+			destdir="${javadoc-directory}"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="${project-name} Java Documentation"
+			Private="true"
+		>
+			<classpath refid="classpath_default" />
+			<fileset dir="${source-directory}" defaultexcludes="yes">
+				<include name="**/*.java"/>
+			</fileset>
+		</javadoc>
+	</target>
+	
+	<target name="jar" description="Compress classes into jar file, copy all dependencies to lib dir beneath jar file">
+		<mkdir dir="${build-directory}" />
+		<jar destfile="${build-directory}/${jar-file}" basedir="${classes-directory}">
+			<manifest>
+				<attribute name="Built-By" value="${builder}" />
+				<attribute name="Built-On" value="${build-info.current-date}" />
+				<attribute name="Built-At" value="${build-info.current-time}" />
+				<attribute name="Main-Class" value="${main-class}" />
+				<attribute name="Class-Path" value="${jar.classpath}"/>
+			</manifest>
+		</jar>
+		<mkdir dir="${build-directory}/lib"/>
+		<copydir dest="${build-directory}/lib" src="${lib-directory}" flatten="true"></copydir>
+		
+		<copy todir="${build-directory}/lib" file="${spectral-build-directory}/${spectral-jarname}" />
+		<copydir dest="${build-directory}/lib" src="${spectral-build-directory}/lib" flatten="true"></copydir>
+
+		<copy todir="${build-directory}/lib" file="${forest-build-directory}/${forest-jarname}" />
+		<copydir dest="${build-directory}/lib" src="${forest-build-directory}/lib" flatten="true"></copydir>
+	</target>
+
+	<target name="run" description="run the project">    
+		<java jar="${build-directory}/${jar-file}" fork="true">
+			<jvmarg value="-Xmx1g" />
+			
+			<arg line="view -target ../___MusicalForestData/testdata2" />
+			<!--
+			<arg line="generatedata -stripctrl -maxvelocity -scale 10 -settings ../___JSpectrum/transformSettings.xml -sf ../___MusicalForest/midi2mp3/acoustic_piano_imis_1.sf2 -source ../___MusicalForestData/testdata3_source -target ../___MusicalForestData/testdata6_generated_noPedal_Log10_noVelo" />
+			<arg line="train -settings settings.xml -target ../___MusicalForestData/testdataResults/foo1 -data ../___MusicalForestData/testdata2" />
+			<arg line="spectrum -midi ../___MusicalForestData/testdata2/random_grouped0.mid -audio ../___MusicalForestData/testdata2_wavpng/random_grouped0_short.wav -settings ../___MusicalForestData/testdata2/transformSettings.xml" />
+			<arg line="mergeforests -target ../___MusicalForestData/testforests/tmp -data ../___MusicalForestData/testforests/tmp/src" />
+			<arg line="thresholds -target ../___MusicalForestData/testforests/forest8_onoff_200_10_dep30 -data ../___MusicalForestData/testdata2_part" />
+			<arg line="classify -debug ../___MusicalForestData/testdata2/random_grouped0.mid -in ../___MusicalForestData/testdata2_wavpng/random_grouped0_short.wav -target ../___MusicalForestData/testdataResults/remote/dynamic3_dep16" />
+
+			<arg line="classify -debug ../___MusicalForestData/testdata2/random_grouped0.mid -in ../___MusicalForestData/testdata2_wavpng/random_grouped0_short.wav -target ../___MusicalForestData/testforests/forest8_onoff_200_10_dep30" />
+			<arg line="classify -debug ../___MusicalForestData/testdata2/random_grouped0.mid -in ../___MusicalForestData/testdata2_wavpng/random_grouped0_short.wav -target ../___MusicalForestData/testdataResults/remote/off4_dep10" />			
+			<arg line="classify -debug ../___MusicalForestData/testdata2/random_grouped0.mid -in ../___MusicalForestData/testdata2_wavpng/random_grouped0_short.wav -target ../___MusicalForestData/testdataResults/off2" />			
+
+
+
+			<arg line="generatedata -sf ../___MusicalForest/midi2mp3/acoustic_grand_piano_ydp_20080910.sf2 -midi ../___MusicalForestData/testdata3 -data ../___MusicalForestData/testdata3_generated" />
+			
+			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
+			-->
+		</java>
+	</target>
+		
+</project>
+

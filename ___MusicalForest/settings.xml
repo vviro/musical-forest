@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Parameters for Musical Forest. -->
+<MusicalForest
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
+	<!--  
+		### Forest parameters ###
+		forestSize:                       Number of trees
+		maxDepth:                         Maximum depth of the trees
+		percentageOfRandomValuesPerFrame: Percentage of vlaues randomly picked from the test data per frame. Has to be in range [0,1].
+		numOfRandomFeatures:              Number of randomly created feature candidates to be evaluated in each node while growing the forest. 
+		thresholdCandidatesPerFeature:    Number of thresholds for each generated feature candidate.
+		featureFactoryClass:              Class name of the feature to be used.
+		entropyThreshold:                 Threshold for information gain of the winner feature in growing a node. If info gain is below 
+		                                  or equal entropyThreshold, the node will become a leaf. 
+	-->
+	<Forest
+		forestSize="1"
+		maxDepth="1"
+		percentageOfRandomValuesPerFrame="0.01"
+		numOfRandomFeatures="2"
+		thresholdCandidatesPerFeature="1"
+		featureFactoryClass="de.lmu.dbs.musicalforest.classifier.features.FeatureOnOff"
+		entropyThreshold="0"
+	></Forest>
+
+	<!--  
+		nodedataFilePrefix:        Prefix for the node data files (one will be created for each tree)
+		frequencyTableFile:        Path to the frequency table file, usually located beneath the test data folders. The file
+		                           holds a table of frequencies corresponding to the bins of the spectral transformation output.
+		                    
+		logProgress:               Show/log little progress info while growing.
+		logNodeInfo:               Show/log more details for each node growed on the console.
+		saveGainThresholdDiagrams: Save a gains/thresholds diagram in a png file for each node´s winner feature, 
+		                           up to the given depth. 
+		saveNodeClassifications:   Save classifications for each node after test classification run, up to the 
+		                           given depth. 
+	-->
+	<General
+		logProgress="true"
+		logNodeInfo="true"
+		logWinnerThresholdCandidates="false"
+		logFeatureCandidates="false"
+		
+		saveGainThresholdDiagrams="-1"
+		saveNodeClassifications="-1"
+	></General>
+
+</MusicalForest>

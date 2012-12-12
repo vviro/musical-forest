@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Parameters for Transformation. -->
+<Transformation
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
+	<!--  
+		### CQT Parameters ###
+		binsPerOctave:     Number of frequency bins per octave.
+		fMin:              Minimum frequency.
+		fMax:              Maximum frequency.
+		step:              Samples per frame for windowing.
+		threshold:         See class ConstantQTransformation.
+		spread:            See class ConstantQTransformation.
+		divideFFT:         See class ConstantQTransformation.
+		cqtBufferLocation: Buffer folder for storing cqt kernel buffer files. See class ConstantQTransformation.
+	-->
+	<Transformation
+		binsPerOctave="48"
+		fMin="80"
+		fMax="10000"
+		step="256"
+		threshold="0.05"
+		spread="1.0"
+		divideFFT="4.0"
+		cqtKernelBufferLocation="cqtbuff/"
+	></Transformation>
+
+</Transformation>
