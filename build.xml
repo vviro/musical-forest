@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+
+<project name="de.lmu.dbs.ciaa" default="nodoc" basedir=".">
+	
+	<property name="project-name" value="de.lmu.dbs.ciaa" />
+
+	<property name="builder" value="${user.name}@${os.name}-${os.version}" />
+	
+<!-- ==================================================================================== -->
+	
+	<property name="source-directory" value="src" />
+	<property name="classes-directory" value="bin" />
+	<property name="build-directory" value="build" />
+	<property name="javadoc-directory" value="doc" />
+	<property name="jar-file" value="${project-name}_mi1.jar" />
+	
+	<property name="lib-directory" location="lib" />
+	
+	<property name="main-class" value="${project-name}.ForestLoadedTest" />
+	
+    <path id="classpath_default">
+    	<pathelement path="${lib-directory}/RasmusDSP/rasmusdsp.jar"/>
+    	<pathelement path="${lib-directory}/MidiReference1.0.jar"/>
+    	<pathelement path="${lib-directory}/colt.jar"/>
+    	<pathelement path="${lib-directory}/jdom-2.0.2.jar"/>
+    	<pathelement path="${lib-directory}/commons-io-2.2.jar"/>
+    	<pathelement path="${lib-directory}/trove-3.0.3.jar"/>
+	</path>
+
+	<pathconvert property="jar.classpath" pathsep=" ">
+        <path refid="classpath_default"/>
+        <mapper>
+            <chainedmapper>
+                <flattenmapper/>
+                <globmapper from="*.jar" to="lib/*.jar"/>
+            </chainedmapper>
+        </mapper>
+	</pathconvert>
+
+<!-- ==================================================================================== -->
+
+	<tstamp prefix="build-info">
+		<format property="current-date" pattern="d-MMMM-yyyy" locale="en" />
+		<format property="current-time" pattern="hh:mm:ss a z" locale="en" />
+		<format property="year-month-day" pattern="yyyy-MM-dd" locale="en" />
+	</tstamp>
+
+<!-- ==================================================================================== -->
+
+	<target 
+		name="all" 
+		depends="compile,javadoc,jar,run" 
+		description="Makro: Build and package all." 
+	/>
+	
+	<target 
+		name="nodoc" 
+		depends="compile,jar,run" 
+		description="Makro: Build and package all without docs." 
+	/>
+
+<!-- ==================================================================================== -->
+
+	<target name="compile" description="compiles the class(es)">
+		<mkdir dir="${classes-directory}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${classes-directory}" includes="**/*"/>
+		</delete>
+		<javac srcdir="${source-directory}" destdir="${classes-directory}" debug="true">
+			<classpath refid="classpath_default" />
+		</javac>
+		<copy todir="${classes-directory}/">
+			<fileset dir="${source-directory}">
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="javadoc" description="create javadoc">
+		<mkdir dir="${javadoc-directory}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${javadoc-directory}" includes="**/*"/>
+		</delete>
+		<javadoc
+			excludepackagenames="nothingtoexclude"
+			destdir="${javadoc-directory}"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="${project-name} Java Documentation"
+			Private="true"
+		>
+			<classpath refid="classpath_default" />
+			<fileset dir="${source-directory}" defaultexcludes="yes">
+				<include name="**/*.java"/>
+			</fileset>
+		</javadoc>
+	</target>
+	
+	<target name="jar" description="Compress classes into jar file, copy all dependencies to lib dir beneath jar file">
+		<mkdir dir="${build-directory}" />
+		<jar destfile="${build-directory}/${jar-file}" basedir="${classes-directory}">
+			<manifest>
+				<attribute name="Built-By" value="${builder}" />
+				<attribute name="Built-On" value="${build-info.current-date}" />
+				<attribute name="Built-At" value="${build-info.current-time}" />
+				<attribute name="Main-Class" value="${main-class}" />
+				<attribute name="Class-Path" value="${jar.classpath}"/>
+			</manifest>
+		</jar>
+		<mkdir dir="${build-directory}/lib"/>
+		<copydir dest="${build-directory}/lib" src="${lib-directory}" flatten="true"></copydir>
+	</target>
+
+	<target name="run" description="run the project">    
+		<java jar="${build-directory}/${jar-file}" fork="true">
+			<jvmarg value="-Xmx1g" />
+			<!--
+			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
+			-->
+		</java>
+	</target>
+		
+</project>
