@@ -5,6 +5,7 @@ import de.lmu.dbs.jspectrum.util.RuntimeMeasure;
 import de.lmu.dbs.musicalforest.actions.ClassifyAction;
 import de.lmu.dbs.musicalforest.actions.GenerateDataAction;
 import de.lmu.dbs.musicalforest.actions.MergeForestsAction;
+import de.lmu.dbs.musicalforest.actions.MidiAction;
 import de.lmu.dbs.musicalforest.actions.SpectrumAction;
 import de.lmu.dbs.musicalforest.actions.TestAction;
 import de.lmu.dbs.musicalforest.actions.UpdateAction;
@@ -108,6 +109,8 @@ public class MusicalForest {
 				test(removeFirst(args));
 			} else if (a.equals("generatedata")) {
 				generateData(removeFirst(args));
+			} else if (a.equals("generatemidi")) {
+				generateMidi(removeFirst(args));
 			} else if (a.equals("mergeforests")) {
 				mergeForests(removeFirst(args));
 			} else if (a.equals("spectrum")) {
@@ -204,7 +207,7 @@ public class MusicalForest {
 						"data from. The generation process is then done recursively to any subfolder " + 
 						"of this argument. If there already are Wave files beneath the MIDI, these will be used instead of rendering. " +
 						"This can be important because MIDI to Wave rendering only works with midi2mp3, a proprietary external tool for Mac OS X.").withRequiredArg().required();
-				accepts("sf", "SoundFont file to use for rendering audio files from MIDI.").withRequiredArg().required();
+				accepts("sf", "SoundFont file to use for rendering audio files from MIDI.").withRequiredArg();
 				accepts("scale", "Optional: Parameter for LogScaling. If omitted, no scaling happens.").withRequiredArg();
 				accepts("strippc", "Optional: Strip all bank select and program change events from the MIDI data before rendering.");
 				accepts("stripctrl", "Optional in generating mode: Strip all controller messages.");
@@ -222,6 +225,61 @@ public class MusicalForest {
 		double scaleParam = -1;
 		if (options.has("scale")) scaleParam = Double.parseDouble((String)options.valueOf("scale"));
 		action = new GenerateDataAction(sourceFolder, targetFolder, sf, settingsFile, stripPC, stripControlMessages, maximizeVelocities, scaleParam);
+	}
+
+	/**
+	 * 
+	 * @param removeArg
+	 * @throws Exception 
+	 */
+	private void generateMidi(String[] args) throws Exception {
+		OptionParser parser = new OptionParser() {
+			{
+				accepts("help", "Shows this help screen.").forHelp();
+				accepts("target", "Folder to put the generated MIDI files.").withRequiredArg().required();
+				accepts("numfiles", "Number of files to create.").withRequiredArg().required();
+				accepts("length", "Length of the created files in minutes.").withRequiredArg().required();
+				accepts("grouped", "Without this option, notes are just randomly spread over the file." + 
+						           "Use this flag to generate sequences of random 'chords' or monophonic files instead.");
+				accepts("bpm", "MIDI tempo in beats per minute.").withRequiredArg().required();
+				accepts("maxnote", "Highest note limit (MIDI note number).").withRequiredArg().required();
+				accepts("minnote", "Lowest note limit (MIDI note number).").withRequiredArg().required();
+				accepts("maxduration", "Maximum note duration.").withRequiredArg().required();
+				accepts("minduration", "Minimum note duration.").withRequiredArg().required();
+				accepts("nps", "Only valid in ungrouped mode: Notes per second to generate.").withRequiredArg();
+				accepts("maxvoices", "Only in grouped mode: Maximum number of tones per chord.").withRequiredArg().required();
+				accepts("maxpause", "Only in grouped mode: Maximum silence between chords in milliseconds.").withRequiredArg().required();
+			}
+		};
+		OptionSet options = getOptions(args, parser);
+		String targetFolder = (String)options.valueOf("target");
+		int numOfFiles = Integer.parseInt((String)options.valueOf("numfiles"));
+		boolean grouped = options.has("grouped");
+		int lengthMinutes = Integer.parseInt((String)options.valueOf("length"));
+		int bpm = Integer.parseInt((String)options.valueOf("bpm"));
+		int maxNote = Integer.parseInt((String)options.valueOf("maxnote"));
+		int minNote = Integer.parseInt((String)options.valueOf("minnote"));
+		int maxDuration = Integer.parseInt((String)options.valueOf("maxduration"));
+		int minDuration = Integer.parseInt((String)options.valueOf("minduration"));
+		
+		if (!grouped && !options.has("nps")) {
+			System.out.println("ERROR: No note per second value is set in ungrouped mode, add option -nps");
+			System.exit(ARGS_ERROR_EXIT_CODE);
+		}
+		double nps = 0;
+		if (!grouped) nps = Double.parseDouble((String)options.valueOf("nps"));
+		
+		if (grouped && !options.has("maxvoices") && !options.has("maxpause")) {
+			System.out.println("ERROR: Missing voices and/or maxpause options.");
+			System.exit(ARGS_ERROR_EXIT_CODE);
+		}
+		int voices = 0;
+		int maxPauseBetween = 0;
+		if (grouped) {
+			voices = Integer.parseInt((String)options.valueOf("maxvoices"));
+			maxPauseBetween = Integer.parseInt((String)options.valueOf("maxpause"));
+		}
+		action = new MidiAction(targetFolder, numOfFiles, grouped, lengthMinutes, bpm, maxNote, minNote, nps, voices, maxPauseBetween, maxDuration, minDuration);
 	}
 
 	/**
@@ -430,6 +488,8 @@ public class MusicalForest {
 		System.out.println("                  Generates the spectral (.cqt) files from each audio file, these will");
 		System.out.println("                  be used by the training action to grow the forest. Additionally,");
 		System.out.println("                  an image for checking sync with MIDI is saved for each dataset file.");
+		System.out.println("");
+		System.out.println("    generatemidi: Generate random MIDI files.");
 		System.out.println("");
 		System.out.println("    view:         Display all available meta data of a forest or training dataset.");
 		System.out.println("");

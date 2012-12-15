@@ -59,8 +59,8 @@ public class UpdateAction extends Action {
 		m.measure("Finished threshold calculation, updated thresholds in " + mf);
 		
 		// Print some stats
-		m.measure(" -> Acc. Onset Test: \n" + meta.bestOnsetThresholdTest, true);
-		m.measure(" -> Acc. Offset Test: \n" + meta.bestOffsetThresholdTest, true);
+		m.measure(" -> MIDI Onset Test: \n" + meta.bestOnsetThresholdTest, true);
+		m.measure(" -> MIDI Offset Test: \n" + meta.bestOffsetThresholdTest, true);
 		m.measure(" -> Best Onset threshold: " + meta.bestOnsetThreshold, true);
 		m.measure(" -> Best Offset threshold: " + meta.bestOffsetThreshold, true);
 		

@@ -3,9 +3,11 @@ package de.lmu.dbs.musicalforest.actions;
 import java.io.File;
 
 import de.lmu.dbs.jforest.core.Dataset;
+import de.lmu.dbs.jforest.core.TreeDataset;
 import de.lmu.dbs.jforest.core2d.Forest2d;
 import de.lmu.dbs.jforest.core2d.TreeDataset2d;
 import de.lmu.dbs.jforest.sampler.BootstrapSampler;
+import de.lmu.dbs.jforest.util.Logfile;
 import de.lmu.dbs.jforest.util.MeanShift;
 import de.lmu.dbs.jspectrum.util.ArrayUtils;
 import de.lmu.dbs.jspectrum.util.RuntimeMeasure;
@@ -14,6 +16,7 @@ import de.lmu.dbs.musicalforest.classifier.AccuracyTest;
 import de.lmu.dbs.musicalforest.classifier.DataMeta;
 import de.lmu.dbs.musicalforest.classifier.ForestMeta;
 import de.lmu.dbs.musicalforest.classifier.OnOffMusicalRandomTree;
+import de.lmu.dbs.musicalforest.midi.MIDIAdapter;
 import de.lmu.dbs.musicalforest.util.Harmonics;
 
 /**
@@ -73,6 +76,8 @@ public class TestAction extends Action {
 		int testRadiusY = meta.dataMeta.transformParams.getBinsPerHalfTone();
 		AccuracyTest testOn = new AccuracyTest(testRadiusX, testRadiusY);
 		AccuracyTest testOff = new AccuracyTest(testRadiusX, testRadiusY);
+		AccuracyTest testMidiOn = new AccuracyTest(testRadiusX, testRadiusY);
+		AccuracyTest testMidiOff = new AccuracyTest(testRadiusX, testRadiusY);
 		for(int i=0; i<sampler.getPoolSize(); i++) {
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(i);
 
@@ -91,14 +96,36 @@ public class TestAction extends Action {
 		    MeanShift msOff = new MeanShift(msWindow);
 		    msOff.process(dataForestOffset, (float)meta.bestOffsetThreshold);
 		    
-		    // Accuracy test
+		    // Accuracy test (forest)
 			byte[][] reference = (byte[][])dataset.getReference();
+
 			byte[][] refOn = ArrayUtils.clone(reference);
 			ArrayUtils.filterFirst(refOn);
-			testOn.addData(ms.modeWeights, refOn);
-			byte[][] refOff = reference; 
+			
+		    byte[][] refOff = ArrayUtils.clone(reference);
 			ArrayUtils.filterLast(refOff);
-		    testOn.addData(msOff.modeWeights, refOff);
+
+			testOn.addData(ms.modeWeights, refOn);
+			testOff.addData(msOff.modeWeights, refOff);
+
+			// Create MIDI from results
+		    MIDIAdapter newMidi = new MIDIAdapter(Action.DEFAULT_MIDI_TEMPO);
+		    double millisPerStep = (1000.0 * meta.dataMeta.transformParams.step) / meta.dataMeta.sampleRate;
+		    int frequencyWindow = meta.dataMeta.transformParams.getBinsPerHalfTone();
+		    newMidi.renderFromArrays(ms.modeWeights, msOff.modeWeights, millisPerStep, meta.dataMeta.transformParams.frequencies, frequencyWindow);
+
+		    // Re-render MIDI to array
+		    long duration = MIDIAdapter.calculateDuration(dataForestOnset.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
+		    byte[][] midi = newMidi.toDataArray(dataForestOnset.length, duration, meta.dataMeta.transformParams.frequencies);
+		    
+		    byte[][] refMidiOn = ArrayUtils.clone(midi);
+			ArrayUtils.filterFirst(refMidiOn);
+			
+			byte[][] refMidiOff = midi; 
+			ArrayUtils.filterLast(refOff);
+
+			testMidiOn.addData(refMidiOn, refOn);
+			testMidiOff.addData(refMidiOff, refOff);
 		}		
 		m.measure("Finished mean shift detection and accuracy testing of " + sampler.getPoolSize() + " datasets");
 		
@@ -106,6 +133,32 @@ public class TestAction extends Action {
 		m.measure("############ Results ############", true);
 		m.measure(" -> Onset Test: \n" + testOn, true);
 		m.measure(" -> Offset Test: \n" + testOff, true);
+		m.measure(" -> Onset MIDI Test: \n" + testMidiOn, true);
+		m.measure(" -> Offset MIDI Test: \n" + testMidiOff, true);
+		
+		// Save results to text file in forest folder
+		Logfile l = new Logfile(workingFolder + File.separator + TEST_LOGFILE_NAME_PREFIX + "_" + (new File(dataFolder)).getName() + ".txt");
+		l.write("Results of testing against dataset " + dataFolder + ":");
+		l.write("");
+		for (int i=0; i<sampler.getPoolSize(); i++) {
+			TreeDataset d = (TreeDataset)sampler.get(i);
+			l.write("Dataset " + i + ": " + d.getDataFile());
+		}
+		l.write("");
+		l.write("Forest data: Note onset test results: \n" + testOn);
+		l.write("Forest data: Note offset test results: \n" + testOff);
+		l.write("MIDI Cycle: Note onset test results: \n" + testMidiOn);
+		l.write("MIDI Cycle: Note offset test results: \n" + testMidiOff);
+		l.write("");
+		l.write("CSV:");
+		String c = ", ";
+		l.write(testOn.getCorrectDetection() + c + testOn.getFalseDetection() + c + testMidiOn.getCorrectDetection() + c + testMidiOn.getFalseDetection() + c);
+		l.write(testOff.getCorrectDetection() + c + testOff.getFalseDetection() + c + testMidiOff.getCorrectDetection() + c + testMidiOff.getFalseDetection() + c);
+		l.write("");
+		l.write("");
+		l.write("");
+		l.close();
+		m.measure("Saved results to text file: " + l.getFilename());
 		
 		m.setSilent(false);
 		m.finalMessage("Finished testing forest in");

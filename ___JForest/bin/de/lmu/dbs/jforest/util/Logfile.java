@@ -99,4 +99,13 @@ public class Logfile {
 		out.close();
 		out = null;
 	}
+	
+	/**
+	 * Returns the log file name.
+	 * 
+	 * @return
+	 */
+	public String getFilename() {
+		return filename;
+	}
 }

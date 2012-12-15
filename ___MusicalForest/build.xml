@@ -142,10 +142,11 @@
 		<java jar="${build-directory}/${jar-file}" fork="true">
 			<jvmarg value="-Xmx1g" />
 			
-			<arg line="view -target ../___MusicalForestData/testdata2" />
+			<arg line="generatedata -scale 10 -settings ../___JSpectrum/transformSettings.xml -source ../___MusicalForestData/testdata2t -target ../___MusicalForestData/testdata2t_generatedLogic" />
 			<!--
+			<arg line="train -settings settings.xml -target ../___MusicalForestData/testdataResults/foo1 -source ../___MusicalForestData/testdata2" />
 			<arg line="generatedata -stripctrl -maxvelocity -scale 10 -settings ../___JSpectrum/transformSettings.xml -sf ../___MusicalForest/midi2mp3/acoustic_piano_imis_1.sf2 -source ../___MusicalForestData/testdata3_source -target ../___MusicalForestData/testdata6_generated_noPedal_Log10_noVelo" />
-			<arg line="train -settings settings.xml -target ../___MusicalForestData/testdataResults/foo1 -data ../___MusicalForestData/testdata2" />
+			<arg line="view -target ../___MusicalForestData/testdata2" />
 			<arg line="spectrum -midi ../___MusicalForestData/testdata2/random_grouped0.mid -audio ../___MusicalForestData/testdata2_wavpng/random_grouped0_short.wav -settings ../___MusicalForestData/testdata2/transformSettings.xml" />
 			<arg line="mergeforests -target ../___MusicalForestData/testforests/tmp -data ../___MusicalForestData/testforests/tmp/src" />
 			<arg line="thresholds -target ../___MusicalForestData/testforests/forest8_onoff_200_10_dep30 -data ../___MusicalForestData/testdata2_part" />

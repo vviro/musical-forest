@@ -156,11 +156,11 @@ public class GenerateDataAction extends Action {
 			System.err.println("Transformation settings file does not exist: " + transformParamsFile);
 			System.exit(12);
 		}
-		File sff = new File(soundFont);
+		/*File sff = new File(soundFont);
 		if (!sff.exists()) {
 			System.err.println("Sound font file does not exist: " + soundFont);
 			System.exit(11);
-		}
+		}*/
 		if (!mf.exists() || !mf.isDirectory()) {
 			System.err.println("MIDI source folder " + sourceFolder + " does not exist or is not a directory.");
 			System.exit(9);

@@ -25,7 +25,6 @@ import de.lmu.dbs.jspectrum.util.RuntimeMeasure;
 import de.lmu.dbs.jspectrum.util.Sample;
 import de.lmu.dbs.jspectrum.util.Scale;
 import de.lmu.dbs.jspectrum.util.WaveSample;
-import de.lmu.dbs.musicalforest.actions.TrainingAction;
 import de.lmu.dbs.musicalforest.classifier.ForestMeta;
 import de.lmu.dbs.musicalforest.classifier.ForestMetaException;
 import de.lmu.dbs.musicalforest.classifier.OnOffMusicalRandomTree;
@@ -56,6 +55,11 @@ public abstract class Action {
 	 * Prefix for forest data files.
 	 */
 	public static final String NODEDATA_FILE_PREFIX = "nodedata_tree";
+	
+	/**
+	 * file name prefix for the test output files
+	 */
+	public static final String TEST_LOGFILE_NAME_PREFIX = "foresttest";
 	
 	/**
 	 * Global shift to apply to reference arrays. For synchronization purposes.
