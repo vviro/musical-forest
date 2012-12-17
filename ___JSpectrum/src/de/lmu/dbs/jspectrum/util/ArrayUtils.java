@@ -1,9 +1,12 @@
 package de.lmu.dbs.jspectrum.util;
 
+import gnu.trove.list.TDoubleList;
+
 import java.awt.Color;
 import java.io.File;
 import java.nio.ByteBuffer;
 
+import de.lmu.dbs.jspectrum.util.Scale;
 import de.lmu.dbs.jspectrum.util.ArrayToImage;
 
 
@@ -14,6 +17,39 @@ import de.lmu.dbs.jspectrum.util.ArrayToImage;
  *
  */
 public class ArrayUtils {
+	
+	/**
+	 * Interpolate all zero values in the array between the non-zero entries 
+	 * on the left and right.
+	 * 
+	 * @param in
+	 */
+	public static void interpolate(TDoubleList in) {
+		double start = -1;
+		int startIndex = -1;
+		double end = -1;
+		int endIndex = -1;
+		for(int i=0; i<in.size(); i++) {
+			if (in.get(i) != 0 && startIndex >= 0) {
+				startIndex = -1;
+				endIndex = -1;
+			}
+			if (in.get(i) == 0 && startIndex < 0) {
+				startIndex = i-1;
+				if (startIndex < 0) startIndex = 0;
+				start = in.get(startIndex);
+				endIndex = i;
+				while (in.get(endIndex) == 0 && endIndex < in.size()-1) endIndex++;
+				end = in.get(endIndex);
+				System.out.println(startIndex + " - " + endIndex + "; " + start + " " + end);
+			}
+			if (i > startIndex && i < endIndex) {
+				double fact = (double)(i-startIndex) / (endIndex - startIndex);
+				double n = start + (end - start) * fact; 
+				in.set(i, n);
+			}
+		}
+	}
 	
 	/**
 	 * Shifts the values in the array to the right by num places.
@@ -265,6 +301,69 @@ public class ArrayUtils {
 	}
 	
 	/**
+	 * Return the sum among all elements.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public static double getSum(double[] data) {
+		double sum = 0;
+		for(int i=0; i<data.length; i++) {
+			sum+= data[i];
+		}
+		return sum;
+	}
+	
+	/**
+	 * Normalizes the array so that the sum of 
+	 * all elements is 1. This can be called a discrete density function.
+	 * 
+	 * @param data
+	 */
+	public static void density(double[] data) {
+		double sum = getSum(data);
+		for(int i=0; i<data.length; i++) {
+			data[i]/= sum;
+		}	
+	}
+	
+	/**
+	 * Normalizes the array so that the sum of 
+	 * all elements is 1. This can be called a discrete density function.
+	 * 
+	 * @param data
+	 */
+	public static void density(TDoubleList data) {
+		double sum = getSum(data.toArray());
+		for(int i=0; i<data.size(); i++) {
+			data.set(i, data.get(i)/sum);
+		}	
+	}
+	
+	/**
+	 * Normalizes the array to [0, 1]
+	 * @param data
+	 */
+	public static void normalize(double[] data) {
+		normalize(data, 1);
+	}
+	
+	/**
+	 * Normalizes the array to [0, ceil]
+	 * @param data
+	 */
+	public static void normalize(double[] data, double ceil) {
+		double max = -Double.MAX_VALUE;
+		for(int i=0; i<data.length; i++) {
+			if (data[i] > max) max = data[i];
+		}
+		for(int i=0; i<data.length; i++) {
+			data[i]/= max;
+			if (ceil != 1) data[i]*=ceil;
+		}	
+	}
+	
+	/**
 	 * Normalizes a matrix to [0,1]
 	 * 
 	 * @param in
@@ -312,7 +411,7 @@ public class ArrayUtils {
 	 */
 	public static void normalize(float[][] data, final float ceil) {
 	    // Get maximum
-	    double max = Float.MIN_VALUE;
+	    double max = -Float.MAX_VALUE;
 	    for(int i=0; i<data.length; i++) {
 		    for(int j=0; j<data[i].length; j++) {
 		    	if (data[i][j] > max) max = data[i][j];
@@ -333,13 +432,49 @@ public class ArrayUtils {
 	 * @return
 	 */
 	public static double getMaximum(final double[] in) {
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		for(int i=0; i<in.length; i++) {
 			if(in[i] > max) max = in[i];
 		}
 		return max;
 	}
 
+	/**
+	 * Returns the index of the maximum in in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static int getMaximumIndex(double[] in) {
+		double max = -Double.MAX_VALUE;
+		int ret = -1;
+		for(int i=0; i<in.length; i++) {
+			if(in[i] > max) {
+				max = in[i];
+				ret = i;
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * Returns the index of the minimum in in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static int getMinimumIndex(double[] in) {
+		double min = Double.MAX_VALUE;
+		int ret = -1;
+		for(int i=0; i<in.length; i++) {
+			if(in[i] < min) {
+				min = in[i];
+				ret = i;
+			}
+		}
+		return ret;
+	}
+	
 	/**
 	 * returns the minimum in in.
 	 * 
@@ -876,5 +1011,94 @@ public class ArrayUtils {
 		}
 		return ret;
 	}
+	
+	/**
+	 * Returns the average value of in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static double getAverage(double[] in) {
+		double ret = 0;
+		for(int i=0; i<in.length; i++) {
+			ret+= (double)in[i];
+		}
+		return ret / in.length;
+	}
 
+	/**
+	 * Returns the average value of in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static double getAverage(float[] in) {
+		double ret = 0;
+		for(int i=0; i<in.length; i++) {
+			ret+= (double)in[i];
+		}
+		return ret / in.length;
+	}
+	
+	/**
+	 * Returns the average value of in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static double getAverage(long[] in) {
+		double ret = 0;
+		for(int i=0; i<in.length; i++) {
+			ret+= (double)in[i];
+		}
+		return ret / in.length;
+	}
+	
+	/**
+	 * Returns the average value of in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static double getAverage(int[] in) {
+		double ret = 0;
+		for(int i=0; i<in.length; i++) {
+			ret+= (double)in[i];
+		}
+		return ret / in.length;
+	}
+
+	/**
+	 * Returns the average value of in.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static double getAverage(byte[] in) {
+		double ret = 0;
+		for(int i=0; i<in.length; i++) {
+			ret+= (double)in[i];
+		}
+		return ret / in.length;
+	}
+
+	/**
+	 * Returns the median index in the array.
+	 * 
+	 * @param in
+	 * @return
+	 */
+	public static int getMedianIndex(double[] in) {
+		double acc = 0;
+		for(int i=0; i<in.length; i++) {
+			acc+=in[i];
+		}
+		acc/= 2;
+		double acc2 = 0;
+		for(int i=0; i<in.length; i++) {
+			acc2+=in[i];
+			if (acc2 > acc) return (i>0) ? (i-1) : 0;
+		}
+		return -1;
+	}
 }

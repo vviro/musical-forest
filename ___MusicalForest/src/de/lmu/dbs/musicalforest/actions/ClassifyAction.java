@@ -135,7 +135,7 @@ public class ClassifyAction extends Action {
 	    MIDIAdapter newMidi = new MIDIAdapter(DEFAULT_MIDI_TEMPO);
 	    double millisPerStep = (1000.0 * meta.dataMeta.transformParams.step) / meta.dataMeta.sampleRate;
 	    int frequencyWindow = meta.dataMeta.transformParams.getBinsPerHalfTone();
-	    m.measure("Extracted " + newMidi.renderFromArrays(ms.modeWeights, msOff.modeWeights, millisPerStep, meta.dataMeta.transformParams.frequencies, frequencyWindow) + " MIDI notes from classification output");
+	    m.measure("Extracted " + newMidi.renderFromArrays(ms.modeWeights, msOff.modeWeights, millisPerStep, meta.dataMeta.transformParams.frequencies, frequencyWindow, meta.noteLengthDistribution, (int)meta.noteLengthAvg) + " MIDI notes from classification output");
 	    newMidi.writeFile(newMidiFile);
 	    m.measure("Finished generating MIDI into file " + newMidiFile.getAbsolutePath());
 	    
@@ -149,7 +149,7 @@ public class ClassifyAction extends Action {
 		    // Load MIDI file
 			MIDIAdapter ma = new MIDIAdapter(new File(midiFile));
 			long duration = MIDIAdapter.calculateDuration(data.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
-			reference = ma.toDataArray(data.length, duration, meta.dataMeta.transformParams.frequencies, true);
+			reference = ma.toDataArray(data.length, (int)meta.dataMeta.midiOffset, duration, meta.dataMeta.transformParams.frequencies, true);
 			ArrayUtils.shiftRight(reference, DEFAULT_REFERENCE_SHIFT);
 			m.measure("Loaded MIDI reference file: " + midiFile);
 			
@@ -172,7 +172,7 @@ public class ClassifyAction extends Action {
 
 		    // Test accuracy (MIDI)
 			duration = MIDIAdapter.calculateDuration(data.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
-		    newMidiData = newMidi.toDataArray(data.length, duration, meta.dataMeta.transformParams.frequencies, true);
+		    newMidiData = newMidi.toDataArray(data.length, (int)meta.dataMeta.midiOffset, duration, meta.dataMeta.transformParams.frequencies, true);
 			
 		    refMidiOn = ArrayUtils.clone(newMidiData);
 			ArrayUtils.filterFirst(refMidiOn);

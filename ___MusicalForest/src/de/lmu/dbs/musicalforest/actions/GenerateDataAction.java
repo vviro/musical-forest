@@ -41,7 +41,7 @@ public class GenerateDataAction extends Action {
 	 * image files. This is done because the training algorithm actually doesnt need these,
 	 * they are just stored for evaluation purposes.
 	 */
-	public static final String AUDIO_FOLDER_NAME = "Audio";
+	public static final String IMG_FOLDER_NAME = "Images";
 	
 	/**
 	 * Path to the MIDI to Wave converter (external) program.
@@ -117,10 +117,19 @@ public class GenerateDataAction extends Action {
 	 */
 	private FileIO<byte[][]> cqtIo = new FileIO<byte[][]>();
 
+	/**
+	 * Strip MIDI controller messages
+	 */
 	private boolean stripControlMessages;
 	
+	/**
+	 * Maximize velocities to 127
+	 */
 	private boolean maximizeVelocities;
 	
+	/**
+	 * CQT Params
+	 */
 	private TransformParameters params;
 	
 	/**
@@ -156,11 +165,6 @@ public class GenerateDataAction extends Action {
 			System.err.println("Transformation settings file does not exist: " + transformParamsFile);
 			System.exit(12);
 		}
-		/*File sff = new File(soundFont);
-		if (!sff.exists()) {
-			System.err.println("Sound font file does not exist: " + soundFont);
-			System.exit(11);
-		}*/
 		if (!mf.exists() || !mf.isDirectory()) {
 			System.err.println("MIDI source folder " + sourceFolder + " does not exist or is not a directory.");
 			System.exit(9);
@@ -178,10 +182,12 @@ public class GenerateDataAction extends Action {
 		// Copy settings file and parse it
 		params = new TransformParameters();
 		params.loadParameters(transformParamsFile);
-		//FileUtils.copyFile(new File(transformParamsFile), new File(dataFolder + File.separator + TRANSFORM_SETTINGS_FILENAME));
 
 		// Create folder for wave and image files
-		File waveDir = new File(df.getAbsolutePath() + File.separator + AUDIO_FOLDER_NAME);
+		File waveDir = new File(df.getAbsolutePath() + File.separator + IMG_FOLDER_NAME);
+		if (!waveDir.exists()) {
+			waveDir.mkdirs();
+		}
 		
 		// Get MIDI range
 		MidiReference midiRef = MidiReference.getMidiReference();
@@ -212,9 +218,17 @@ public class GenerateDataAction extends Action {
 			params.frequencies = transformation.getFrequencies();
 			params.check();
 			double scaleParam = (scale != null) ? scale.getWidth() : 0;
-			DataMeta meta = new DataMeta(scaleParam, sampleRate, params);
+			
 			String filename = dataFolder + File.separator + DATA_META_FILENAME;
-			meta.save(filename);
+			File mf = new File(filename);
+			DataMeta meta = new DataMeta(scaleParam, sampleRate, params);
+
+			if (!mf.exists()) {
+				meta.save(filename);
+			} else {
+				DataMeta dm = DataMeta.load(filename);
+				if (!dm.compareTo(meta, true)) throw new Exception("The new datasets do not match to the existsing transform parameters, thus they are incompatible to the data in " + workingFolder);
+			}
 		}
 		return transformation;
 	}
@@ -257,7 +271,20 @@ public class GenerateDataAction extends Action {
 
 		// Load MIDI file and save it to data folder
 		File midiFile = new File(dataFolderFile.getAbsolutePath() + File.separator + basename + FILE_SUFFIX_MIDI);
-		File wavRef = new File(sourceFolder + File.separator + basename + FILE_SUFFIX_AUDIO);
+		File wavRef = new File(midiFileSrc.getParent() + File.separator + basename + FILE_SUFFIX_AUDIO);
+		File wavFile = new File(audioFolderFile.getAbsolutePath() + File.separator + basename + FILE_SUFFIX_AUDIO);
+
+		if (!wavRef.exists()) {
+			if (soundFont == null) {
+				System.err.println("Wave file " + wavRef.getAbsolutePath() + " not found, please specify sound font file to generate it");
+				System.exit(11);
+			}
+			File sff = new File(soundFont);
+			if (!sff.exists()) {
+				System.err.println("Sound font file does not exist: " + soundFont);
+				System.exit(11);
+			}
+		}
 		
 		int i=2;
 		String bn2 = null;
@@ -292,12 +319,12 @@ public class GenerateDataAction extends Action {
 		m.measure(" --> Copied MIDI reference to " + midiFile.getName());
 		
 		// Render WAV file with external tool (to audio folder)
-		File wavFile = new File(audioFolderFile.getAbsolutePath() + File.separator + basename + FILE_SUFFIX_AUDIO);
 		if (wavRef.exists()) {
-			FileUtils.copyFile(wavRef, wavFile);
-			m.measure(" --> Copied WAV file to " + wavFile.getName());
+			//FileUtils.copyFile(wavRef, wavFile);
+			//m.measure(" --> Copied WAV file to " + wavFile.getName());
+			wavFile = wavRef;
 		} else {
-			extTools.exec(MIDI_2_WAV_CONVERTER + " " + midiFile.getAbsolutePath() + " -o " + audioFolderFile.getAbsolutePath() + " -e wave -sf " + soundFont);
+			extTools.exec(MIDI_2_WAV_CONVERTER + " " + midiFile.getAbsolutePath() + " -c 0 -r 0 -o " + audioFolderFile.getAbsolutePath() + " -e wave -sf " + soundFont);
 			File wavFileGen = new File(audioFolderFile.getAbsolutePath() + File.separator + midiFile.getName() + FILE_SUFFIX_AUDIO);
 			FileUtils.moveFile(wavFileGen, wavFile);
 			if (!wavFile.exists() || !wavFile.isFile()) throw new Exception("Error generating audio file: " + wavFile.getAbsolutePath());
@@ -311,7 +338,7 @@ public class GenerateDataAction extends Action {
 		if (scale != null) {
 			ArrayUtils.normalize(data);
 			ArrayUtils.scale(data, scale);
-			m.measure("Scaled CQT data by " + scale.toString(), true);
+			//m.measure(" --> Scaled CQT data by " + scale.toString(), true);
 		}
 		ArrayUtils.normalize(data, (double)Byte.MAX_VALUE);
 		byte[][] byteData = ArrayUtils.toByteArray(data);
@@ -322,7 +349,7 @@ public class GenerateDataAction extends Action {
 		
 		// Save additional images containing the spectrum and MIDI visually for evaluation (to eval folder)
 		long duration = MIDIAdapter.calculateDuration(data.length, params.step, (double)src.getSampleRate()); // Audio length in milliseconds
-		byte[][] midiData = midiSrc.toDataArray(data.length, duration, params.frequencies, true);
+		byte[][] midiData = midiSrc.toDataArray(data.length, 0, duration, params.frequencies, true);
 		ArrayUtils.shiftRight(midiData, DEFAULT_REFERENCE_SHIFT);
 		File imgFile = new File(audioFolderFile.getAbsolutePath() + File.separator + basename + FILE_SUFFIX_IMAGE);
 		ArrayToImage img = new ArrayToImage(data.length, data[0].length, 1);

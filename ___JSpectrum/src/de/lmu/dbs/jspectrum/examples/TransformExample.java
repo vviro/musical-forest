@@ -42,7 +42,7 @@ public class TransformExample {
 		// Feature switches
 		boolean peak = false; // show peaks on top of transformation
 		boolean differential = false; // show differential. This option hides the original transformation.
-		boolean f0 = false; // show basic f0-detection 
+		boolean f0 = true; // show basic f0-detection 
 
 		// PNG parameters
 		String imgFile = (String)options.valueOf("out"); // PNG file to create
@@ -98,7 +98,7 @@ public class TransformExample {
 			out("--> Window size: " + transformation.getWindowSize());
 			
 			// Make mono
-			int[] mono = src.getLeftBuffer();
+			int[] mono = src.getMono();
 			m.measure("Extracted left channel, total samples: " + mono.length);
 
 			// Gate

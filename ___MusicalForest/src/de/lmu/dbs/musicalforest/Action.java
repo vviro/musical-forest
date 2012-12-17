@@ -149,7 +149,7 @@ public abstract class Action {
 		m.measure("Initialized transformation");
 		
 		// Make mono
-		audioSrc = audioSample.getLeftBuffer();
+		audioSrc = audioSample.getMono();
 		double len = (double)audioSrc.length / audioSample.getSampleRate();
 		m.measure("Mono audio Length: " + len + "sec, " + audioSrc.length + " samples");
 

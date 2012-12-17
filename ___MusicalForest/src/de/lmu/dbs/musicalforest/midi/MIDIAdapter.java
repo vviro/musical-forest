@@ -1,5 +1,7 @@
 package de.lmu.dbs.musicalforest.midi;
 
+import gnu.trove.list.TDoubleList;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,8 +155,8 @@ public class MIDIAdapter extends MIDI {
 	 * @return
 	 * @throws Exception 
 	 */
-	public byte[][] toDataArray(final int frames, final long duration, final double[] freqs) throws Exception {
-		return toDataArray(frames, duration, freqs, false);
+	public byte[][] toDataArray(final int frames, int offset, final long duration, final double[] freqs) throws Exception {
+		return toDataArray(frames, offset, duration, freqs, false);
 	}
 
 	/**
@@ -171,10 +173,11 @@ public class MIDIAdapter extends MIDI {
 	 * @return
 	 * @throws Exception 
 	 */
-	public byte[][] toDataArray(final int frames, final long duration, final double[] freqs, boolean ignoreErrors) throws Exception {
-		byte[][] ret = new byte[frames][freqs.length];
+	public byte[][] toDataArray(final int frames, final int offset, final long duration, final double[] freqs, boolean ignoreErrors) throws Exception {
+		byte[][] ret = new byte[frames+offset][freqs.length];
 		double frameDuration = (double)duration/frames; // millis per frame
 		double timePerQuarter = (double)tempoChanges.get(0).getMicrosPerQuarter()/1000.0;
+		int offsetFrames = (int)((double)offset/frameDuration);
 		
 		for (int i=0; i<tracks.length; i++) {
 			Track track = tracks[i];
@@ -205,7 +208,7 @@ public class MIDIAdapter extends MIDI {
 							}
 						}
 						// Write data
-						setNote(freqs, ret, note, event.getTick(), offTick, frameDuration, timePerQuarter, ignoreErrors);
+						setNote(freqs, ret, note, event.getTick(), offTick, frameDuration, timePerQuarter, offsetFrames, ignoreErrors);
 					}
 				}
 			}
@@ -281,9 +284,10 @@ public class MIDIAdapter extends MIDI {
 	 * @param timePerQuarter milliseconds per quarter note (current tempo)
 	 * @throws Exception 
 	 */
-	private void setNote(final double[] freqs, final byte[][] data, final int note, final long tick, final long offTick, final double frameDuration, final double timePerQuarter, boolean ignoreErrors) throws Exception {
-		int startFrame = getFrame(tick, frameDuration, timePerQuarter);
+	private void setNote(final double[] freqs, final byte[][] data, final int note, final long tick, final long offTick, final double frameDuration, final double timePerQuarter, int offsetFrames, boolean ignoreErrors) throws Exception {
+		int startFrame = getFrame(tick, frameDuration, timePerQuarter) + offsetFrames;
 		int endFrame = (offTick >= 0) ? getFrame(offTick, frameDuration, timePerQuarter) : data.length-1;
+		endFrame+= offsetFrames;
 		if (startFrame >= data.length) {
 			if (ignoreErrors) {
 				//System.err.println("Warning: MIDI data is too long");
@@ -368,7 +372,7 @@ public class MIDIAdapter extends MIDI {
 	 * @param frequencies frequencies array holding the frequency of each y coordinate in the arrays
 	 * @throws Exception
 	 */
-	public long renderFromArrays(float[][] ons, float[][] offs, double millisPerFrame, double[] frequencies, int frequencyWindow) throws Exception {
+	public long renderFromArrays(float[][] ons, float[][] offs, double millisPerFrame, double[] frequencies, int frequencyWindow, TDoubleList noteLengthDistribution, int avgLength) throws Exception {
 		if (ons.length != offs.length) throw new Exception("Note on and off arrays have to have the same size");
 		if (ons[0].length != offs[0].length) throw new Exception("Note on and off arrays have to have the same size");
 		double timePerQuarter = (double)tempoChanges.get(0).getMicrosPerQuarter()/1000.0;
@@ -381,7 +385,7 @@ public class MIDIAdapter extends MIDI {
 					// Found note
 					double freq = (float)frequencies[y];
 					int note = midiRef.getNoteFromFrequency((float)freq);
-					int durationTicks = searchOffset(ons, offs, x, y, offWindow, millisPerFrame, timePerTick);
+					int durationTicks = (int)((millisPerFrame * searchOffset(ons, offs, x, y, offWindow, noteLengthDistribution, avgLength)) / timePerTick);
 					if (durationTicks > 0) {
 						int tick = (int)((millisPerFrame * (x+1)) / timePerTick); 
 						int velocity = 127;
@@ -406,6 +410,47 @@ public class MIDIAdapter extends MIDI {
 	 * @param timePerTick
 	 * @return
 	 */
+	private int searchOffset(float[][] ons, float[][] offs, int x, int y, int offWindow, TDoubleList noteLengthDistribution, int avgLength) {
+		double[] ratings = new double[noteLengthDistribution.size()];
+		int onIndex = -1;
+		for(int xo=1; x+xo < offs.length && xo < ratings.length; xo++) {
+			if (onIndex > 0) break;
+			for(int yo = y-offWindow; yo <= y+offWindow && y+yo < offs[0].length; yo++) {
+				if (yo < 0)  yo = 0;
+				if (offs[xo+x][yo] > 0) {
+					// Found note off: rate it
+					ratings[xo] = noteLengthDistribution.get(xo);
+				}
+				if (ons[xo+x][yo] > 0) {
+					// Next onset -> leave
+					onIndex = xo - 1;
+					break;
+				}
+			}
+		}
+		double max = -Double.MAX_VALUE;
+		int index = -1;
+		for(int i=0; i<ratings.length; i++) {
+			if (onIndex >= 0 && i >= onIndex) {
+				break;
+			}
+			if (ratings[i] > 0) {
+				if (ratings[i] > max) {
+					max = ratings[i];
+					index = i;
+				}
+			}
+		}
+		if (index < 0) {
+			if (onIndex >= 0 && avgLength >= onIndex) {
+				return onIndex;
+			}
+			return avgLength;
+		}
+		return index;
+	}
+
+	/*
 	private int searchOffset(float[][] ons, float[][] offs, int x, int y, int offWindow, double millisPerFrame, double timePerTick) {
 		for(int xo=1; x+xo < offs.length; xo++) {
 			for(int yo = y-offWindow; yo <= y+offWindow && y+yo < offs[0].length; yo++) {
@@ -422,5 +467,5 @@ public class MIDIAdapter extends MIDI {
 		}
 		return -1;
 	}
-
+	*/
 }

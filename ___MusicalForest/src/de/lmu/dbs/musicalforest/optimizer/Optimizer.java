@@ -1,20 +1,22 @@
-package de.lmu.dbs.musicalforest.threshold;
+package de.lmu.dbs.musicalforest.optimizer;
+
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import de.lmu.dbs.jforest.core.Dataset;
 import de.lmu.dbs.jforest.core.Forest;
+import de.lmu.dbs.jforest.core.TreeDataset;
 import de.lmu.dbs.jforest.core2d.Forest2d;
 import de.lmu.dbs.jforest.core2d.TreeDataset2d;
 import de.lmu.dbs.jforest.util.MeanShift;
 import de.lmu.dbs.jforest.util.workergroup.ThreadScheduler;
 import de.lmu.dbs.jforest.util.workergroup.Worker;
-import de.lmu.dbs.jspectrum.util.ArrayUtils;
-import de.lmu.dbs.musicalforest.Action;
+import de.lmu.dbs.jforest.util.ArrayUtils;
 import de.lmu.dbs.musicalforest.classifier.AccuracyTest;
 import de.lmu.dbs.musicalforest.classifier.ForestMeta;
-import de.lmu.dbs.musicalforest.midi.MIDIAdapter;
 
 /**
  * Class for detection of optimal thresholds for musical forest.
@@ -22,7 +24,7 @@ import de.lmu.dbs.musicalforest.midi.MIDIAdapter;
  * @author Thomas Weber
  *
  */
-public class ThresholdOptimizer {
+public class Optimizer {
 
 	/**
 	 * Date formatter for debug output.
@@ -56,7 +58,7 @@ public class ThresholdOptimizer {
 	
 	/**
 	 * Meta data from the forest
-	 */
+	 *
 	private ForestMeta meta;
 
 	/**
@@ -66,12 +68,11 @@ public class ThresholdOptimizer {
 	 * @param testRadiusY
 	 * @param meanShiftWindow
 	 */
-	public ThresholdOptimizer(int granularity, int testRadiusX, int testRadiusY, int meanShiftWindow, ForestMeta meta) {
+	public Optimizer(int granularity, int testRadiusX, int testRadiusY, int meanShiftWindow) {
 		this.granularity = granularity;
 		this.testRadiusX = testRadiusX;
 		this.testRadiusY = testRadiusY;
 		this.meanShiftWindow = meanShiftWindow;
-		this.meta = meta;
 	}
 	
 	/**
@@ -82,17 +83,13 @@ public class ThresholdOptimizer {
 	 */
 	public ForestMeta optimize(Forest2d forest, List<Dataset> datasets, int numOfClassifyingThreads) throws Exception {
 		// Init arrays
-		AccuracyTest[][] testsOnset = new AccuracyTest[granularity][granularity];
+		AccuracyTest[] testsOnset = new AccuracyTest[granularity];
 		for(int i=0; i<testsOnset.length; i++) {
-			for(int j=0; j<testsOnset[0].length; j++) {
-				testsOnset[i][j] = new AccuracyTest(testRadiusX, testRadiusY);
-			}
+			testsOnset[i] = new AccuracyTest(testRadiusX, testRadiusY);
 		}
-		AccuracyTest[][] testsOffset = new AccuracyTest[granularity][granularity];
+		AccuracyTest[] testsOffset = new AccuracyTest[granularity];
 		for(int i=0; i<testsOffset.length; i++) {
-			for(int j=0; j<testsOffset[0].length; j++) {
-				testsOffset[i][j] = new AccuracyTest(testRadiusX, testRadiusY);
-			}
+			testsOffset[i] = new AccuracyTest(testRadiusX, testRadiusY);
 		}
 		
 		// Classify all datasets
@@ -108,10 +105,10 @@ public class ThresholdOptimizer {
 		System.out.println("Search best thresholds...");
 		threadScheduler = new ThreadScheduler(datasets.size());
 		synchronized(threadScheduler) {
-			ThresholdWorkerGroup group = new ThresholdWorkerGroup(threadScheduler, Forest.THREAD_POLLING_INTERVAL, true);
+			OptimizerWorkerGroup group = new OptimizerWorkerGroup(threadScheduler, Forest.THREAD_POLLING_INTERVAL, true);
 			for(int i=0; i<datasets.size(); i++) {
 				TreeDataset2d dataset = (TreeDataset2d)datasets.get(i);
-				ThresholdWorker worker = new ThresholdWorker(group, this, forest, dataset, classifications[i], testsOnset, testsOffset, i);
+				OptimizerWorker worker = new OptimizerWorker(group, this, forest, dataset, classifications[i], testsOnset, testsOffset, i);
 				group.add(worker);
 			}
 			group.runGroup();
@@ -120,33 +117,41 @@ public class ThresholdOptimizer {
 		// Find best note on threshold
 		double max = -Double.MAX_VALUE;
 		int bestOnsetIndex = -1;
-		int bestOffsetIndex = -1;
 		for(int i=0; i<granularity; i++) {
-			for(int j=0; j<granularity; j++) {
-				double fdOn = testsOnset[i][j].getFalseDetection();
-				if (fdOn == Double.NaN) fdOn = 0;
-				double tOn = testsOnset[i][j].getCorrectDetection() - fdOn;
+			double fd = testsOnset[i].getFalseDetection();
+			if (fd == Double.NaN) fd = 0;
+			double t = testsOnset[i].getCorrectDetection() - fd;
 
-				double fdOff = testsOffset[i][j].getFalseDetection();
-				if (fdOff == Double.NaN) fdOff = 0;
-				double tOff = testsOffset[i][j].getCorrectDetection() - fdOff;
-
-				double t = tOn + tOff;
-				
-				if (t > max) {
-					max = t;
-					bestOnsetIndex = i;
-					bestOffsetIndex = j;
-				}
+			if (t > max) {
+				max = t;
+				bestOnsetIndex = i;
 			}
 		}
+		
+		// Find best note off threshold
+		max = -Double.MAX_VALUE;
+		int bestOffsetIndex = -1;
+		for(int i=0; i<granularity; i++) {
+			double fd = testsOffset[i].getFalseDetection();
+			if (fd == Double.NaN) fd = 0;
+			double t = testsOffset[i].getCorrectDetection() - fd;
+
+			if (t > max) {
+				max = t;
+				bestOffsetIndex = i;
+			}
+		}
+
+		// Get note length stats
+		TDoubleList noteStats = getNoteLengthDistribution(datasets);
+		int nlavg = ArrayUtils.getMedianIndex(noteStats.toArray());
 		
 		// Return meta object
 		double bestOnsetThreshold = (double)bestOnsetIndex / granularity;
 		double bestOffsetThreshold = (double)bestOffsetIndex / granularity;
-		AccuracyTest bestOnsetTest = testsOnset[bestOnsetIndex][bestOffsetIndex];
-		AccuracyTest bestOffsetTest = testsOffset[bestOnsetIndex][bestOffsetIndex];
-		return new ForestMeta(bestOnsetThreshold, bestOnsetTest, bestOffsetThreshold, bestOffsetTest, null);
+		AccuracyTest bestOnsetTest = testsOnset[bestOnsetIndex];
+		AccuracyTest bestOffsetTest = testsOffset[bestOffsetIndex];
+		return new ForestMeta(bestOnsetThreshold, bestOnsetTest, bestOffsetThreshold, bestOffsetTest, null, noteStats, nlavg);
 
 /*		// Average results from different datasets
 		double acc = 0;
@@ -179,7 +184,7 @@ public class ThresholdOptimizer {
 	 * @param dataset
 	 * @throws Exception
 	 */
-	public void processThreaded(Worker worker, Forest2d forest, TreeDataset2d dataset, float[][][] classification, AccuracyTest[][] testsOnset, AccuracyTest[][] testsOffset, int num) throws Exception {
+	public void processThreaded(Worker worker, Forest2d forest, TreeDataset2d dataset, float[][][] classification, AccuracyTest[] testsOnset, AccuracyTest[] testsOffset, int num) throws Exception {
 		byte[][] reference = (byte[][])dataset.getReference();
 		
 		// Split ons and offs from classification output
@@ -199,7 +204,7 @@ public class ThresholdOptimizer {
 				if (refOn[x][y] != 1) refOn[x][y] = 0; 
 			}
 		}
-		byte[][] refOff = reference; 
+		byte[][] refOff = ArrayUtils.clone(reference); 
 		for (int x=0; x<reference.length; x++) {
 			for (int y=0; y<reference[0].length; y++) {
 				if (refOff[x][y] != 2) refOff[x][y] = 0; 
@@ -212,41 +217,56 @@ public class ThresholdOptimizer {
 			MeanShift ms = new MeanShift(meanShiftWindow);
 			ms.process(dataForestOnset, (float)fThreshold); 
 
-			for(int j=0; j<granularity; j++) {
-			    
-			    // For each onset, find best offset threshold
-				double fThresholdOff = (double)j/granularity;
-			    MeanShift msOff = new MeanShift(meanShiftWindow);
-			    msOff.process(dataForestOffset, (float)fThresholdOff); 
+		    // For each onset, find best offset threshold
+		    MeanShift msOff = new MeanShift(meanShiftWindow);
+		    msOff.process(dataForestOffset, (float)fThreshold); 
 
-			    // Generate MIDI from Mean Shift results
-			    MIDIAdapter newMidi = new MIDIAdapter(Action.DEFAULT_MIDI_TEMPO);
-			    double millisPerStep = (1000.0 * meta.dataMeta.transformParams.step) / meta.dataMeta.sampleRate;
-			    int frequencyWindow = meta.dataMeta.transformParams.getBinsPerHalfTone();
-			    newMidi.renderFromArrays(ms.modeWeights, msOff.modeWeights, millisPerStep, meta.dataMeta.transformParams.frequencies, frequencyWindow);
-
-			    // Re-render MIDI to array
-			    long duration = MIDIAdapter.calculateDuration(dataForestOnset.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
-			    byte[][] midi = newMidi.toDataArray(dataForestOnset.length, duration, meta.dataMeta.transformParams.frequencies);
-			    
-			    byte[][] refMidiOn = ArrayUtils.clone(midi);
-				ArrayUtils.filterFirst(refMidiOn);
-		
-			    byte[][] refMidiOff = ArrayUtils.clone(midi);
-				ArrayUtils.filterLast(refMidiOff);
-
-			    // Test MIDI results
-			    testsOnset[i][j].addData(refMidiOn, refOn);
-			    testsOffset[i][j].addData(refMidiOff, refOff);
-			}
+		    testsOnset[i].addData(ms.modeWeights, refOn);
+		    testsOffset[i].addData(msOff.modeWeights, refOff);
+		    
 			worker.setProgress(fThreshold);
 		}
-		
-		
-		//thresholdsOnset[num] = (double)bestOnsetIndex / granularity;
-		//thresholdsOffset[num] = (double)bestOffsetIndex / granularity;
-		
 		worker.setProgress(1.0);
+	}
+
+	/**
+	 * Returns the note length distribution among the test data sets.
+	 * 
+	 * @param datasets
+	 * @return
+	 * @throws Exception 
+	 */
+	private TDoubleList getNoteLengthDistribution(List<Dataset> datasets) throws Exception {
+		TDoubleList ret = new TDoubleArrayList();
+		double max = -Double.MAX_VALUE;
+		for(int i=0; i<datasets.size(); i++) {
+			TreeDataset dataset = (TreeDataset)datasets.get(i);
+			byte[][] ref = (byte[][])dataset.getReference();
+			for(int x=0; x<ref.length; x++) {
+				for(int y=0; y<ref[0].length; y++) {
+					if (ref[x][y] == 1) {
+						int dx = 0;
+						while(x+dx < ref.length && ref[x+dx][y] != (byte)2) {
+							dx++;
+						}
+						//System.out.println("note: " + x + "/" + y + " dx " + dx);
+						while (ret.size() <= dx) {
+							ret.add(0); 
+						}
+						ret.set(dx, ret.get(dx) + 1);
+						if (ret.get(dx) > max) max = ret.get(dx);
+					}
+				}
+			}
+		}
+		ArrayUtils.interpolate(ret);
+		ArrayUtils.density(ret);
+		// Normalize
+		for(int i=0; i<ret.size(); i++) {
+			ret.set(i, ret.get(i) / max);
+		}
+		
+		return ret;
 	}
 
 	/**

@@ -36,6 +36,12 @@ public class DataMeta implements Serializable {
 	public TransformParameters transformParams;
 	
 	/**
+	 * This is used to synchronize MIDI and WAV/CQT. This is added to the midi
+	 * positions (milliseconds)
+	 */
+	public long midiOffset = 0;
+	
+	/**
 	 * Create new meta object.
 	 * 
 	 * @param scaleParam
@@ -102,7 +108,8 @@ public class DataMeta implements Serializable {
 		return 
 			"Training dataset parameters: \n" + 
 			"  Log Scaling Parameter: " + scaleParam + "\n" + 
-			"  Sample Rate:           " + sampleRate + "\n\n" + 
+			"  Sample Rate:           " + sampleRate + "\n" + 
+			"  MIDI sync offset (ms): " + midiOffset + "\n\n" + 
 			transformParams.toString();
 	}
 }

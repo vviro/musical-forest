@@ -11,11 +11,6 @@ import java.io.File;
 public class MIDIRandomGenerator {
 
 	/**
-	 * Polyphonic or monophonic rendering
-	 */
-	boolean groups = false;
-	
-	/**
 	 * length of generated MIDI files in milliseconds
 	 */
 	long length;
@@ -26,9 +21,9 @@ public class MIDIRandomGenerator {
 	int bpm;
 	
 	/**
-	 * Number of random notes to be generated (only in polyphonic mode)
+	 * Max polyphony per group
 	 */
-	public int notes;
+	public int harmonicComplexity;
 	
 	/**
 	 * lowest note number
@@ -51,41 +46,23 @@ public class MIDIRandomGenerator {
 	public long maxDuration = 500;
 	
 	/**
-	 * Maximum random pause length between notes (monophonic)
+	 * When creating groups, follow the distributions found out by Youngblood (1958) and Hutchinson (1983), taken from
+	 * Carol Krumhansl (Cognitive Foundations of Musical Pitch, Oxford Psychology Series, 2001)
 	 */
-	public long maxPauseBetween;
-	
-	public int harmonicComplexity;
+	public boolean musical = false;
 	
 	/**
-	 * Creates a polyphonic generator instance.
-	 * 
-	 * @param length of piece of "music", in milliseconds
-	 * @param bpm beats per minute
-	 * @param numOfNotes number of random notes to be rendered
-	 * @throws Exception 
+	 * Statistics about intervals generated
 	 */
-	public MIDIRandomGenerator(final long length, final int bpm, final int numOfNotes) throws Exception {
-		if (length <= 0) {
-			throw new Exception("Invalid length: " + length);
-		}
-		if (bpm <= 0) {
-			throw new Exception("Invalid bpm value: " + bpm);
-		}
-		this.length = length;
-		this.bpm = bpm;
-		this.notes = numOfNotes;
-		this.groups = false;
-	}
+	public double[] intervalStats = null;
 	
 	/**
-	 * Creates a monophonic generator instance.
 	 * 
 	 * @param length of piece of "music", in milliseconds
 	 * @param bpm beats per minute
 	 * @throws Exception
 	 */
-	public MIDIRandomGenerator(final long length, final int bpm, final int harmonicComplexity, final long maxPauseBetween) throws Exception {
+	public MIDIRandomGenerator(final long length, final int bpm, final int harmonicComplexity, boolean musical) throws Exception {
 		if (length <= 0) {
 			throw new Exception("Invalid length: " + length);
 		}
@@ -94,9 +71,8 @@ public class MIDIRandomGenerator {
 		}
 		this.length = length;
 		this.bpm = bpm;
-		this.groups = true;
-		this.maxPauseBetween = maxPauseBetween;
 		this.harmonicComplexity = harmonicComplexity;
+		this.musical = musical;
 	}
 
 	/**
@@ -108,7 +84,7 @@ public class MIDIRandomGenerator {
 	 * @param maxDuration highest duration (milliseconds)
 	 * @throws Exception 
 	 */
-	public void setRanges(final int minNote, final int maxNote, final int minDuration, final int maxDuration) throws Exception {
+	public void setRanges(final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
 		if (minNote < MIDI.MIN_NOTE_NUMBER) {
 			throw new Exception("Invalid midi note number: " + minNote);
 		}
@@ -139,18 +115,14 @@ public class MIDIRandomGenerator {
 	 * @param midiFilePostfix
 	 * @throws Exception 
 	 */
-	public long[] process(final int numOfFiles, final String midiFilePrefix, final String midiFilePostfix) throws Exception {	
+	public long[] processNonSequential(final int numOfFiles, final String midiFilePrefix, final String midiFilePostfix, int noteCount) throws Exception {	
 		MIDIAdapter ma = new MIDIAdapter(bpm); 
 		long ticks = (long)(length / ma.getTickLength()); // Num of ticks
 		long[] ret = new long[MIDI.MAX_NOTE_NUMBER - MIDI.MIN_NOTE_NUMBER + 1];
 		long[] not = null;
 		for(int it=0; it<numOfFiles; it++) {
 			ma = new MIDIAdapter(bpm);
-			if (groups) {
-				not = ma.generateRandomNoteGroups(0, ticks, minNote, maxNote, minDuration, maxDuration, maxPauseBetween, harmonicComplexity); // Generate to track 0
-			} else {
-				not = ma.generateRandomNotesPoly(0, ticks, notes, minNote, maxNote, minDuration, maxDuration); // Generate to track 0
-			}
+			not = ma.generateRandomNonSequentialNoteGroups(0, ticks, noteCount, minNote, maxNote, minDuration, maxDuration, harmonicComplexity, musical);
 			String filename = midiFilePrefix + it + midiFilePostfix;
 			ma.writeFile(new File(filename));
 			System.out.println("Created random MIDI file: " + midiFilePrefix + it + midiFilePostfix);
@@ -158,6 +130,38 @@ public class MIDIRandomGenerator {
 				ret[j] += not[j];
 			}
 		}
+		intervalStats = ma.intervalStats;
+		return ret;
+	}
+
+	/**
+	 * Generates the files. File names are created like "midiFilePrefix[index]midiFilePostfix".
+	 * Returns the amount of created notes, in a histogram array over MIDI notes.
+	 * <br><br>
+	 * The generation method used here is sequential. Blocks of notes (random chords) are
+	 * produced without overlapping.
+	 * 
+	 * @param numOfFiles number of files to be created
+	 * @param midiFilePrefix
+	 * @param midiFilePostfix
+	 * @throws Exception 
+	 */
+	public long[] processSequential(final int numOfFiles, final String midiFilePrefix, final String midiFilePostfix, long minPauseBetween, long maxPauseBetween) throws Exception {
+		MIDIAdapter ma = new MIDIAdapter(bpm); 
+		long ticks = (long)(length / ma.getTickLength()); // Num of ticks
+		long[] ret = new long[MIDI.MAX_NOTE_NUMBER - MIDI.MIN_NOTE_NUMBER + 1];
+		long[] not = null;
+		for(int it=0; it<numOfFiles; it++) {
+			ma = new MIDIAdapter(bpm);
+			not = ma.generateRandomSequentialNoteGroups(0, ticks, minNote, maxNote, minDuration, maxDuration, minPauseBetween, maxPauseBetween, harmonicComplexity, musical);
+			String filename = midiFilePrefix + it + midiFilePostfix;
+			ma.writeFile(new File(filename));
+			System.out.println("Created random MIDI file: " + midiFilePrefix + it + midiFilePostfix);
+			for(int j=0; j<not.length; j++) {
+				ret[j] += not[j];
+			}
+		}
+		intervalStats = ma.intervalStats;
 		return ret;
 	}
 }

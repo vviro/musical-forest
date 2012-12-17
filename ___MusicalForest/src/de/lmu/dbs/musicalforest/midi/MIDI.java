@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sound.midi.MetaMessage;
@@ -27,6 +28,15 @@ import de.lmu.dbs.jspectrum.util.RandomUtils;
  */
 public class MIDI {
 
+	/**
+	 * Note distribution for harmonic intervals. Based on the 
+	 * research of Youngblood (1958) and Hutchinson (1983),
+	 * taken from Carol Krumhansl (Cognitive Foundations of Musical 
+	 * Pitch, Oxford Psychology Series, 2001)
+	 * 
+	 */
+	public static double[] musicalIntervalDistribution;
+	
 	/**
 	 * Midi sequence from midi file
 	 */
@@ -74,12 +84,18 @@ public class MIDI {
 	protected MidiReference midiRef = MidiReference.getMidiReference();
 	
 	/**
+	 * Statistics about intervals generated
+	 */
+	public double[] intervalStats = null;
+	
+	/**
 	 * Creates a MIDI instance from a midi file
 	 * 
 	 * @param file
 	 * @throws Exception
 	 */
 	public MIDI(final File file) throws Exception {
+		initStatic();
 		sequence = MidiSystem.getSequence(file);
 		if (sequence == null) {
 			throw new Exception("No sequence data could be extracted from file " + file.getAbsolutePath());
@@ -110,6 +126,7 @@ public class MIDI {
 	 * @throws Exception 
 	 */
 	public MIDI(final double bpm, final int tpq) throws Exception {
+		initStatic();
 		// Create sequence and initial track
 		this.ticksPerQuarter = tpq;
 		sequence = new Sequence(javax.sound.midi.Sequence.PPQ, ticksPerQuarter);
@@ -121,6 +138,31 @@ public class MIDI {
 		// Set initial tempo at tick 0
 		setMetaMessage(0, (byte)0x51, ArrayUtils.longToByteArray(bpmToTpq(bpm), 3));
 		tempoChanges = getTempoChanges();
+	}
+	
+	/**
+	 * Calculates the musical note interval distribution array.
+	 * 
+	 */
+	private void initStatic() {
+		if (musicalIntervalDistribution == null) {
+			double[] md = {
+				3213 + 906,  // 1 / 12
+				194 + 103,   // b2
+				3001 + 550,  // 2
+				352 + 564,   // b3
+				3111 + 124,  // 3
+				1947 + 430,  // 4
+				556 + 117,   // b5
+				3615 + 1042, // 5
+				348 + 343,   // b6
+				1840 + 100,   // 6
+				361 + 259,    // b7
+				1504 + 272   // maj7
+			};
+			ArrayUtils.density(md);
+			musicalIntervalDistribution = md;
+		}
 	}
 	
 	/**
@@ -279,31 +321,6 @@ public class MIDI {
 	}
 	
 	/**
-	 * Generates polyphonic random notes. Returns the amount
-	 * of created notes, in a histogram array over MIDI notes.
-	 * 
-	 * @param track the target track for the notes
-	 * @param length length of sample in ticks
-	 * @param notesCount number of notes to render
-	 * @param minNote lowest note
-	 * @param maxNote highest note
-	 * @param minDuration lowest duration
-	 * @param maxDuration highest duration
-	 * @throws Exception
-	 */
-	public long[] generateRandomNotesPoly(final int track, final long length, final int notesCount, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
-		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
-		for(int i=0; i<notesCount; i++) { 
-			int note = RandomUtils.randomInt(minNote, maxNote);
-			long duration = RandomUtils.randomLong(minDuration, maxDuration);
-			long start = RandomUtils.randomLong(length - duration);
-			setNote(start, duration, note, 127, track);
-			ret[note - MIN_NOTE_NUMBER]++;
-		}
-		return ret;
-	}
-	
-	/**
 	 * Generates polyphonic random note groups. Returns the amount
 	 * of created notes, in a histogram array over MIDI notes.
 	 * 
@@ -316,29 +333,118 @@ public class MIDI {
 	 * @param maxDuration highest duration
 	 * @throws Exception
 	 */
-	public long[] generateRandomNoteGroups(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration, final long maxPauseBetween, final int harmonicComplexity) throws Exception {
+	public long[] generateRandomSequentialNoteGroups(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration, final long minPauseBetween, final long maxPauseBetween, final int harmonicComplexity, boolean musical) throws Exception {
+		intervalStats = new double[12];
 		if (harmonicComplexity < 1) throw new Exception("Harmonic complexity below min value 1: " + harmonicComplexity);
+		if (minPauseBetween < -(maxDuration - minDuration)/2.0) throw new Exception("Pause settings could lead to endless loops. Raise minpause or maxduration, or lower minduration.");
+		
 		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
 		long pos = 0;
 		while(pos < length-1) {
 			long duration = RandomUtils.randomLong(minDuration, maxDuration);
 			if (pos + duration >= length) duration = length - pos - 1;
 			int amt = RandomUtils.randomInt(1, harmonicComplexity);
-			int lastNote = -1;
-			for(int i=0; i<amt; i++) {
-				int note = lastNote;
-				while(note == lastNote) {
-					note = RandomUtils.randomInt(minNote, maxNote);
-				}
-				lastNote = note;
-				setNote(pos, duration, note, 127, track);
-				ret[note - MIN_NOTE_NUMBER]++;
+			int[] noteGroup = generateNoteGroup(amt, minNote, maxNote, musical);
+			for(int i=0; i<noteGroup.length; i++) {
+				setNote(pos, duration, noteGroup[i], 127, track);
+				ret[noteGroup[i] - MIN_NOTE_NUMBER]++;
 			}
-			pos+= duration + RandomUtils.randomLong(maxPauseBetween);
+			pos+= duration + RandomUtils.randomLong(minPauseBetween, maxPauseBetween);
 		}
+		ArrayUtils.density(intervalStats);
 		return ret;
 	}
 	
+	/**
+	 * 
+	 * @param track the target track for the notes
+	 * @param length length of sample in ticks
+	 * @param notesCount number of notes to render
+	 * @param minNote lowest note
+	 * @param maxNote highest note
+	 * @param minDuration lowest duration
+	 * @param maxDuration highest duration
+	 * @throws Exception
+	 */
+	public long[] generateRandomNonSequentialNoteGroups(final int track, final long length, final int notesCount, final int minNote, final int maxNote, final long minDuration, final long maxDuration, final int harmonicComplexity, boolean musical) throws Exception {
+		intervalStats = new double[12];
+		if (harmonicComplexity < 1) throw new Exception("Harmonic complexity below min value 1: " + harmonicComplexity);
+		
+		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
+		for(int i=0; i<notesCount; i++) { 
+			long duration = RandomUtils.randomLong(minDuration, maxDuration);
+			long start = RandomUtils.randomLong(length - duration);
+			int amt = RandomUtils.randomInt(1, harmonicComplexity);
+			
+			int[] noteGroup = generateNoteGroup(amt, minNote, maxNote, musical);
+			for(int k=0; k<noteGroup.length; k++) {
+				setNote(start, duration, noteGroup[k], 127, track);
+				ret[noteGroup[k] - MIN_NOTE_NUMBER]++;
+			}
+		}
+		ArrayUtils.density(intervalStats);
+		return ret;
+	}
+	
+	/**
+	 * Generates a random note group. Returns the MIDI note numbers.
+	 * 
+	 * @param amt amount of notes
+	 * @param musical use musical interval statistics by Krumhansl
+	 * @return
+	 * @throws Exception 
+	 */
+	protected int[] generateNoteGroup(int amount, int minNote, int maxNote, boolean musical) throws Exception {
+		int[] ret = new int[amount];
+		int lastNote = -1;
+		int baseNote = -1;
+		int maxN = maxNote - 12; //minNote + (maxNote - minNote)/2;
+		if (maxN <= minNote) throw new Exception("Less than an octave between minNote and maxNote");
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = lastNote;
+			while(ret[i] == lastNote) {
+				if (musical) {
+					if (baseNote == -1) {
+						ret[i] = RandomUtils.randomInt(minNote, maxN);
+						baseNote = ret[i];
+					} else {
+						ret[i] = getMusicalRandomNote(baseNote, maxNote); 
+					}
+				} else {
+					ret[i] = RandomUtils.randomInt(minNote, maxNote);
+				}
+			}
+			lastNote = ret[i];
+		}
+		// Stats
+		Arrays.sort(ret);
+		for(int i=1; i<ret.length; i++) {
+			intervalStats[(ret[i]-ret[0])%12]++;
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns a musically distributed note, based on tonality baseNote.
+	 * 
+	 * @param baseNote
+	 * @return
+	 * @throws Exception 
+	 */
+	public int getMusicalRandomNote(int baseNote, int maxNote) throws Exception {
+		if (baseNote >= maxNote) throw new Exception("No space for another note: base " + baseNote + " >= max " + maxNote);
+		int ret = Integer.MAX_VALUE;
+		int a = maxNote - baseNote;
+		double octs = (double)a/12;
+		int upoct = (int)Math.floor(octs);
+		while (ret == baseNote || ret > maxNote) {
+			int r = RandomUtils.randomDistributedInt(musicalIntervalDistribution);
+			int oct = (upoct > 0) ? RandomUtils.randomInt(upoct) : 0;
+			ret = baseNote + r + oct*12;
+		}
+		return ret;
+	}
+
 	/**
 	 * Generates monophonic random notes. Divides the length into random chunks. Returns
 	 * the amount of created notes, in a histogram array over MIDI notes.
@@ -351,7 +457,7 @@ public class MIDI {
 	 * @param maxDuration highest duration
 	 * @throws Exception
 	 * @return number of created notes
-	 */
+	 *
 	public long[] generateRandomNotesMono(final int track, final long length, final int minNote, final int maxNote, final long minDuration, final long maxDuration, final long maxPauseBetween) throws Exception {
 		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
 		long pos = 0;
@@ -365,6 +471,32 @@ public class MIDI {
 		}
 		return ret;
 	}
+
+	/**
+	 * Generates polyphonic random notes. Returns the amount
+	 * of created notes, in a histogram array over MIDI notes.
+	 * 
+	 * @param track the target track for the notes
+	 * @param length length of sample in ticks
+	 * @param notesCount number of notes to render
+	 * @param minNote lowest note
+	 * @param maxNote highest note
+	 * @param minDuration lowest duration
+	 * @param maxDuration highest duration
+	 * @throws Exception
+	 *
+	public long[] generateRandomNotesPoly(final int track, final long length, final int notesCount, final int minNote, final int maxNote, final long minDuration, final long maxDuration) throws Exception {
+		long[] ret = new long[MAX_NOTE_NUMBER - MIN_NOTE_NUMBER + 1];
+		for(int i=0; i<notesCount; i++) { 
+			int note = RandomUtils.randomInt(minNote, maxNote);
+			long duration = RandomUtils.randomLong(minDuration, maxDuration);
+			long start = RandomUtils.randomLong(length - duration);
+			setNote(start, duration, note, 127, track);
+			ret[note - MIN_NOTE_NUMBER]++;
+		}
+		return ret;
+	}
+	
 	/**
 	 * Writes the midi data of the instance to a file. MIDI files of type 1 are written exclusively.
 	 * 
@@ -432,7 +564,7 @@ public class MIDI {
 	/**
 	 * Returns the length of one tick in milliseconds
 	 * <br><br>
-	 * TODO: Currently this ignores all tempo change events except for the initial one
+	 * WARNING: Currently this ignores all tempo change events except for the initial one
 	 * 
 	 * @return
 	 */

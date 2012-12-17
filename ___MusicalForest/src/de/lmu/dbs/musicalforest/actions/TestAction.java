@@ -112,11 +112,11 @@ public class TestAction extends Action {
 		    MIDIAdapter newMidi = new MIDIAdapter(Action.DEFAULT_MIDI_TEMPO);
 		    double millisPerStep = (1000.0 * meta.dataMeta.transformParams.step) / meta.dataMeta.sampleRate;
 		    int frequencyWindow = meta.dataMeta.transformParams.getBinsPerHalfTone();
-		    newMidi.renderFromArrays(ms.modeWeights, msOff.modeWeights, millisPerStep, meta.dataMeta.transformParams.frequencies, frequencyWindow);
+		    newMidi.renderFromArrays(ms.modeWeights, msOff.modeWeights, millisPerStep, meta.dataMeta.transformParams.frequencies, frequencyWindow, meta.noteLengthDistribution, (int)meta.noteLengthAvg);
 
 		    // Re-render MIDI to array
 		    long duration = MIDIAdapter.calculateDuration(dataForestOnset.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
-		    byte[][] midi = newMidi.toDataArray(dataForestOnset.length, duration, meta.dataMeta.transformParams.frequencies);
+		    byte[][] midi = newMidi.toDataArray(dataForestOnset.length, (int)meta.dataMeta.midiOffset, duration, meta.dataMeta.transformParams.frequencies, true);
 		    
 		    byte[][] refMidiOn = ArrayUtils.clone(midi);
 			ArrayUtils.filterFirst(refMidiOn);
@@ -131,8 +131,8 @@ public class TestAction extends Action {
 		
 		// Print some stats
 		m.measure("############ Results ############", true);
-		m.measure(" -> Onset Test: \n" + testOn, true);
-		m.measure(" -> Offset Test: \n" + testOff, true);
+		m.measure(" -> Onset Forest Test: \n" + testOn, true);
+		m.measure(" -> Offset Forest Test: \n" + testOff, true);
 		m.measure(" -> Onset MIDI Test: \n" + testMidiOn, true);
 		m.measure(" -> Offset MIDI Test: \n" + testMidiOff, true);
 		

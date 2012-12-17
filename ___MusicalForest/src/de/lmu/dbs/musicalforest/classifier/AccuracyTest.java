@@ -104,12 +104,14 @@ public class AccuracyTest implements Serializable  {
 	 * @return
 	 * @throws Exception 
 	 */
-	public void addData(float[][] detected, byte[][] reference) throws Exception {
-		if (detected.length != reference.length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (X)");
+	public synchronized void addData(float[][] detected, byte[][] reference) throws Exception {
+		//if (detected.length != reference.length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (X)");
 		if (detected[0].length != reference[0].length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (Y)");
 
+		int maxX = (detected.length > reference.length) ? reference.length : detected.length;
+		
 		// Found notes
-	    for(int x=0; x<reference.length; x++) {
+	    for(int x=0; x<maxX; x++) {
 	    	for(int y=0; y<reference[0].length; y++) {
 	    		if (detected[x][y] > 0) {
 	    			detectedThings++;
@@ -136,12 +138,14 @@ public class AccuracyTest implements Serializable  {
 	 * @return
 	 * @throws Exception 
 	 */
-	public void addData(byte[][] detected, byte[][] reference) throws Exception {
-		if (detected.length != reference.length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (X)");
+	public synchronized void addData(byte[][] detected, byte[][] reference) throws Exception {
+		//if (detected.length != reference.length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (X)");
 		if (detected[0].length != reference[0].length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (Y)");
 
+		int maxX = (detected.length > reference.length) ? reference.length : detected.length;
+		
 		// Found notes
-	    for(int x=0; x<reference.length; x++) {
+	    for(int x=0; x<maxX; x++) {
 	    	for(int y=0; y<reference[0].length; y++) {
 	    		if (detected[x][y] > 0) {
 	    			detectedThings++;
@@ -208,7 +212,7 @@ public class AccuracyTest implements Serializable  {
 	 * 
 	 * @throws Exception
 	 */
-	private void check() throws Exception {
+	private synchronized void check() throws Exception {
 		if (detectedNotesRight > detectedThings) throw new Exception("Invalid state: detectedNotesRight = " + detectedNotesRight + " > detectedThings = " + detectedThings);
 		double c = getCorrectDetection();
 		if (c < 0 || c > 1) throw new Exception("Invalid state: correctDetection = " + c);

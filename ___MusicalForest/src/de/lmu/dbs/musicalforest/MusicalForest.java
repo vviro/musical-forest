@@ -1,11 +1,13 @@
 package de.lmu.dbs.musicalforest;
 
 import java.io.IOException;
+
 import de.lmu.dbs.jspectrum.util.RuntimeMeasure;
 import de.lmu.dbs.musicalforest.actions.ClassifyAction;
 import de.lmu.dbs.musicalforest.actions.GenerateDataAction;
 import de.lmu.dbs.musicalforest.actions.MergeForestsAction;
-import de.lmu.dbs.musicalforest.actions.MidiAction;
+import de.lmu.dbs.musicalforest.actions.GenerateMidiAction;
+import de.lmu.dbs.musicalforest.actions.ModifyAction;
 import de.lmu.dbs.musicalforest.actions.SpectrumAction;
 import de.lmu.dbs.musicalforest.actions.TestAction;
 import de.lmu.dbs.musicalforest.actions.UpdateAction;
@@ -117,6 +119,8 @@ public class MusicalForest {
 				spectrum(removeFirst(args));
 			} else if (a.equals("view")) {
 				view(removeFirst(args));
+			} else if (a.equals("modify")) {
+				modify(removeFirst(args));
 			} else {
 				printHelp(args, args[0]);
 				System.exit(ARGS_ERROR_EXIT_CODE);
@@ -171,6 +175,29 @@ public class MusicalForest {
 
 	/**
 	 * 
+	 * @param args
+	 * @throws Exception 
+	 */
+	private void modify(String[] args) throws Exception {
+		OptionParser parser = new OptionParser() {
+			{
+				accepts("help", "Shows this help screen.").forHelp();
+				accepts("target", "Working folder to examine").withRequiredArg().required();
+				accepts("field", "Field name").withRequiredArg().required();
+				accepts("value", "New value for field").withRequiredArg().required();
+				accepts("mode", "0: ForestMeta; 1: DataMeta; 2: ForestMeta.DataMeta").withRequiredArg().required();
+			}
+		};
+		OptionSet options = getOptions(args, parser);
+		String workingFolder = (String)options.valueOf("target");
+		String field = (String)options.valueOf("field");
+		String value = (String)options.valueOf("value");
+		int mode = Integer.parseInt((String)options.valueOf("mode"));
+		action = new ModifyAction(workingFolder, mode, field, value);
+	}
+
+	/**
+	 * 
 	 * @param removeArg
 	 * @throws IOException 
 	 */
@@ -210,8 +237,8 @@ public class MusicalForest {
 				accepts("sf", "SoundFont file to use for rendering audio files from MIDI.").withRequiredArg();
 				accepts("scale", "Optional: Parameter for LogScaling. If omitted, no scaling happens.").withRequiredArg();
 				accepts("strippc", "Optional: Strip all bank select and program change events from the MIDI data before rendering.");
-				accepts("stripctrl", "Optional in generating mode: Strip all controller messages.");
-				accepts("maxvelocity", "Optional in generating mode: Maximize all velocities to 127.");
+				accepts("stripctrl", "Optional: Strip all controller messages.");
+				accepts("maxvelocity", "Optional: Maximize all velocities to 127.");
 			}
 		};
 		OptionSet options = getOptions(args, parser);
@@ -222,6 +249,7 @@ public class MusicalForest {
 		Boolean stripPC = options.has("strippc");
 		Boolean stripControlMessages = options.has("stripctrl");
 		Boolean maximizeVelocities = options.has("maxvelocity");
+		
 		double scaleParam = -1;
 		if (options.has("scale")) scaleParam = Double.parseDouble((String)options.valueOf("scale"));
 		action = new GenerateDataAction(sourceFolder, targetFolder, sf, settingsFile, stripPC, stripControlMessages, maximizeVelocities, scaleParam);
@@ -239,47 +267,57 @@ public class MusicalForest {
 				accepts("target", "Folder to put the generated MIDI files.").withRequiredArg().required();
 				accepts("numfiles", "Number of files to create.").withRequiredArg().required();
 				accepts("length", "Length of the created files in minutes.").withRequiredArg().required();
-				accepts("grouped", "Without this option, notes are just randomly spread over the file." + 
-						           "Use this flag to generate sequences of random 'chords' or monophonic files instead.");
+				accepts("sequential", "Without this option, note blocks are randomly spread over the file." + 
+						             "Use this flag to generate sequences of random 'chords' without overlapping, " +
+						             "or completely monophonic files.");
 				accepts("bpm", "MIDI tempo in beats per minute.").withRequiredArg().required();
 				accepts("maxnote", "Highest note limit (MIDI note number).").withRequiredArg().required();
 				accepts("minnote", "Lowest note limit (MIDI note number).").withRequiredArg().required();
 				accepts("maxduration", "Maximum note duration.").withRequiredArg().required();
 				accepts("minduration", "Minimum note duration.").withRequiredArg().required();
-				accepts("nps", "Only valid in ungrouped mode: Notes per second to generate.").withRequiredArg();
-				accepts("maxvoices", "Only in grouped mode: Maximum number of tones per chord.").withRequiredArg().required();
-				accepts("maxpause", "Only in grouped mode: Maximum silence between chords in milliseconds.").withRequiredArg().required();
+				accepts("maxvoices", "Maximum number of tones per chord.").withRequiredArg().required();
+				accepts("nps", "Mandatory in non-sequential mode: Notes per second to generate.").withRequiredArg();
+				accepts("maxpause", "Optional in sequential mode: Maximum silence between chords in milliseconds.").withRequiredArg();
+				accepts("minpause", "Optional in sequential mode: Minimum silence between chords in milliseconds. " +
+									"Can be negative to produce overlapping, has to be lower than maxpause " +
+									"(absolute) to avoid endless loops.").withRequiredArg();
+				accepts("musical", "Optional: When creating groups, follow the note interval distributions examined " +
+						           "by Youngblood (1958) and Hutchinson (1983), adapted from Carol Krumhansl: " +
+						           "Cognitive Foundations of Musical Pitch, Oxford Psychology Series, 2001.");
+				accepts("prefix", "File name prefix to use.").withRequiredArg().required();
 			}
 		};
 		OptionSet options = getOptions(args, parser);
 		String targetFolder = (String)options.valueOf("target");
+		String filePrefix = (String)options.valueOf("prefix");
 		int numOfFiles = Integer.parseInt((String)options.valueOf("numfiles"));
-		boolean grouped = options.has("grouped");
+		boolean sequential = options.has("sequential");
+		boolean musical = options.has("musical");
 		int lengthMinutes = Integer.parseInt((String)options.valueOf("length"));
 		int bpm = Integer.parseInt((String)options.valueOf("bpm"));
 		int maxNote = Integer.parseInt((String)options.valueOf("maxnote"));
 		int minNote = Integer.parseInt((String)options.valueOf("minnote"));
 		int maxDuration = Integer.parseInt((String)options.valueOf("maxduration"));
 		int minDuration = Integer.parseInt((String)options.valueOf("minduration"));
+		int voices = Integer.parseInt((String)options.valueOf("maxvoices"));
 		
-		if (!grouped && !options.has("nps")) {
-			System.out.println("ERROR: No note per second value is set in ungrouped mode, add option -nps");
+		if (!sequential && !options.has("nps")) {
+			System.out.println("ERROR: No note per second value is set in sequential mode, add option -nps");
 			System.exit(ARGS_ERROR_EXIT_CODE);
 		}
 		double nps = 0;
-		if (!grouped) nps = Double.parseDouble((String)options.valueOf("nps"));
+		if (!sequential) nps = Double.parseDouble((String)options.valueOf("nps"));
 		
-		if (grouped && !options.has("maxvoices") && !options.has("maxpause")) {
-			System.out.println("ERROR: Missing voices and/or maxpause options.");
-			System.exit(ARGS_ERROR_EXIT_CODE);
-		}
-		int voices = 0;
 		int maxPauseBetween = 0;
-		if (grouped) {
-			voices = Integer.parseInt((String)options.valueOf("maxvoices"));
+		if (sequential) {
 			maxPauseBetween = Integer.parseInt((String)options.valueOf("maxpause"));
 		}
-		action = new MidiAction(targetFolder, numOfFiles, grouped, lengthMinutes, bpm, maxNote, minNote, nps, voices, maxPauseBetween, maxDuration, minDuration);
+		int minPauseBetween = 0;
+		if (sequential) {
+			minPauseBetween = Integer.parseInt((String)options.valueOf("minpause"));
+		}
+		
+		action = new GenerateMidiAction(targetFolder, filePrefix, numOfFiles, sequential, musical, lengthMinutes, bpm, maxNote, minNote, nps, voices, minPauseBetween, maxPauseBetween, maxDuration, minDuration);
 	}
 
 	/**

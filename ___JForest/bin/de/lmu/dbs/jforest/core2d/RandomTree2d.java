@@ -251,15 +251,16 @@ public class RandomTree2d extends RandomTree {
 			for(int c=0; c<claSize; c++) {
 				int x = cla.xIndex[c];
 				int y = cla.yIndex[c];
+				int bootstrapCount = dataset.getSampled(cla.xIndex[c]);
 				for(int k=minIndex; k<=maxIndex; k++) {
 					float ev = features[k].evaluate(data, x, y);
 					for(int g=0; g<tcpf; g++) {
 						if (ev >= thresholdsArray[k][g]) {
 							// Left
-							countClassesLeft[k][g][ref[x][y]]++;
+							countClassesLeft[k][g][ref[x][y]]+= bootstrapCount;
 						} else {
 							// Right
-							countClassesRight[k][g][ref[x][y]]++;
+							countClassesRight[k][g][ref[x][y]]+= bootstrapCount;
 						}
 					}
 				}
@@ -289,7 +290,8 @@ public class RandomTree2d extends RandomTree {
 			int claSize = cla.getSize();
 			
 			for(int c=0; c<claSize; c++) {
-				l[ref[cla.xIndex[c]][cla.yIndex[c]]]++;
+				int bootstrapCount = dataset.getSampled(cla.xIndex[c]);
+				l[ref[cla.xIndex[c]][cla.yIndex[c]]]+= bootstrapCount;
 			}
 			all+= claSize;
 		}

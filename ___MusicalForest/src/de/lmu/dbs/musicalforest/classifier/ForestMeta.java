@@ -1,5 +1,7 @@
 package de.lmu.dbs.musicalforest.classifier;
 
+import gnu.trove.list.TDoubleList;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -49,6 +51,17 @@ public class ForestMeta implements Serializable {
 	public AccuracyTest bestOffsetThresholdTest;
 	
 	/**
+	 * Array holding note length occurrences in test data. Index is the note length,
+	 * all values normalized to [0..1]
+	 */
+	public TDoubleList noteLengthDistribution;
+	
+	/**
+	 * Average of noteLengthDistribution;
+	 */
+	public double noteLengthAvg;
+	
+	/**
 	 * Meta data of the training datasets used to grow the forest
 	 */
 	public DataMeta dataMeta;
@@ -70,12 +83,14 @@ public class ForestMeta implements Serializable {
 	 * @param bestThreshold
 	 * @param bestThresholdTest
 	 */
-	public ForestMeta(double bestOnsetThreshold, AccuracyTest bestOnsetThresholdTest, double bestOffsetThreshold, AccuracyTest bestOffsetThresholdTest, DataMeta dataMeta) {
+	public ForestMeta(double bestOnsetThreshold, AccuracyTest bestOnsetThresholdTest, double bestOffsetThreshold, AccuracyTest bestOffsetThresholdTest, DataMeta dataMeta, TDoubleList noteLengthDistribution, double noteLengthAvg) {
 		this.bestOnsetThreshold = bestOnsetThreshold;
 		this.bestOffsetThreshold = bestOffsetThreshold;
 		this.bestOnsetThresholdTest = bestOnsetThresholdTest;
 		this.bestOffsetThresholdTest = bestOffsetThresholdTest;
 		this.dataMeta = dataMeta;
+		this.noteLengthDistribution = noteLengthDistribution;
+		this.noteLengthAvg = noteLengthAvg;
 	}
 
 	/**
@@ -97,6 +112,8 @@ public class ForestMeta implements Serializable {
 		if (bestOffsetThresholdTest == null) throw new Exception("No offset test (null)");
 		if (bestOnsetThreshold < 0 || bestOnsetThreshold > 1) throw new Exception("Invalid onset threshold: " + bestOnsetThreshold);
 		if (bestOffsetThreshold < 0 || bestOffsetThreshold > 1) throw new Exception("Invalid offset threshold: " + bestOffsetThreshold);
+		if (noteLengthDistribution == null || noteLengthDistribution.size() == 0) throw new Exception("Invalid note length statistic: " + noteLengthDistribution);
+		if (noteLengthAvg <= 0) throw new Exception("Invalid note length average: " + noteLengthAvg); 
 	}
 	
 	/**
@@ -170,6 +187,38 @@ public class ForestMeta implements Serializable {
 		return "Best onset threshold: " + this.bestOnsetThreshold + "; Best offset threshold: " + this.bestOffsetThreshold + 
 			   "Best onset test: " + this.bestOnsetThresholdTest + "; Best offset test: " + this.bestOffsetThresholdTest;
 	}
+	
+	/**
+	 * Returns a readable representation of the note length distribution.
+	 * 
+	 * @return
+	 */
+	public String getNoteLengthDistributionString(int width) {
+		String ret = "";
+		if (this.noteLengthDistribution == null) return "null\n";
+		for(int i=0; i<noteLengthDistribution.size(); i++) {
+			ret+= i + ": (" + noteLengthDistribution.get(i) + ") ";
+			for(int j=0; j<noteLengthDistribution.get(i)*width; j++) {
+				ret+= "#";
+			}
+			ret+= "\n";
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns a readable representation of the note length distribution.
+	 * 
+	 * @return
+	 */
+	public String getNoteLengthDistributionString() {
+		String ret = "";
+		if (this.noteLengthDistribution == null) return "null\n";
+		for(int i=0; i<noteLengthDistribution.size(); i++) {
+			ret+= i + ": " + noteLengthDistribution.get(i) + "\n";
+		}
+		return ret;
+	}
 
 	/**
 	 * Compares this object to another. (Only data params have to match)
@@ -227,6 +276,8 @@ public class ForestMeta implements Serializable {
 		ret+= "  Best Offset Threshold:               " + bestOffsetThreshold + "\n";
 		ret+= "  Best Onset Threshold Accuracy Test: \n" + bestOnsetThresholdTest + "";
 		ret+= "  Best Offset Threshold Accuracy Test: \n" + bestOffsetThresholdTest + "\n";
+		ret+= "Note length distribution: " + this.getNoteLengthDistributionString(20);
+		ret+= "Note length average: " + this.noteLengthAvg + "\n";
 		if (forestParams != null) ret+= forestParams.toString() + "\n";
 		ret+= dataMeta.toString() + "\n";
 		return ret; 

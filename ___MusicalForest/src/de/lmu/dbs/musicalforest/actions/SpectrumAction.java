@@ -52,7 +52,7 @@ public class SpectrumAction extends Action {
 		if (midiFile != null) {
 			MIDIAdapter ma = new MIDIAdapter(new File(midiFile));
 			long duration = MIDIAdapter.calculateDuration(data.length, tparams.step, (double)this.audioSample.getSampleRate());
-			byte[][] midi = ma.toDataArray(data.length, duration, tparams.frequencies, true);
+			byte[][] midi = ma.toDataArray(data.length, 0, duration, tparams.frequencies, true);
 			ArrayUtils.shiftRight(midi, DEFAULT_REFERENCE_SHIFT);
 			img.add(midi, Color.BLUE, null, 0);
 			m.measure("Loaded MIDI file: " + midiFile);

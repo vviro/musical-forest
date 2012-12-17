@@ -147,7 +147,7 @@ public class OnOffMusicalTreeDataset extends TreeDataset2d {
 		// MIDI  
 		MIDIAdapter ma = new MIDIAdapter(referenceFile);
 		long duration = MIDIAdapter.calculateDuration(((byte[][])data).length, step, (double)meta.sampleRate);
-		byte[][] midiOn = ma.toDataArray(((byte[][])data).length, duration, frequencies, true);
+		byte[][] midiOn = ma.toDataArray(((byte[][])data).length, (int)meta.midiOffset, duration, frequencies, true);
 		ArrayUtils.shiftRight(midiOn, Action.DEFAULT_REFERENCE_SHIFT);
 		byte[][] midiOff = ArrayUtils.clone(midiOn);
 		
@@ -168,7 +168,8 @@ public class OnOffMusicalTreeDataset extends TreeDataset2d {
 		
 		// Debugging option
 		if (testSync) {
-			ArrayToImage img = new ArrayToImage(midiOn.length, midiOn[0].length, 1);
+			byte[][] d = (byte[][])data;
+			ArrayToImage img = new ArrayToImage(d.length, d[0].length, 1);
 			img.add((byte[][])data, Color.WHITE, null);
 			img.add((byte[][])reference, Color.RED, null, 0);
 			img.save(new File("SyncTest_" + dataFile.getName() + ".png"));

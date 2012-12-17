@@ -1,13 +1,13 @@
-package de.lmu.dbs.musicalforest.threshold;
+package de.lmu.dbs.musicalforest.optimizer;
 
 import java.util.Date;
 
 import de.lmu.dbs.jforest.util.workergroup.ThreadScheduler;
 import de.lmu.dbs.jforest.util.workergroup.WorkerGroup;
 
-public class ThresholdWorkerGroup extends WorkerGroup {
+public class OptimizerWorkerGroup extends WorkerGroup {
 
-	public ThresholdWorkerGroup(ThreadScheduler scheduler, long waitTime, boolean verbose) {
+	public OptimizerWorkerGroup(ThreadScheduler scheduler, long waitTime, boolean verbose) {
 		super(scheduler, waitTime, verbose);
 	}
 

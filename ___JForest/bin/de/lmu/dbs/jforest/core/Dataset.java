@@ -12,7 +12,7 @@ public abstract class Dataset {
 
 	/**
 	 * Represents the sampling state of all samples in the dataset.
-	 * -1 means the sample is not in the sample, >= 0 the opposite.
+	 * Represents the number of times the sample has been sampled.
 	 */
 	private int[] samples = null;
 
@@ -23,7 +23,8 @@ public abstract class Dataset {
 	 * @throws Exception
 	 */
 	private void init() throws Exception {
-		samples = new int[getLength()];		
+		samples = new int[getLength()];	
+		includeAll();
 	}
 	
 	/**
@@ -40,7 +41,7 @@ public abstract class Dataset {
 	 * 
 	 * @return
 	 * @throws Exception 
-	 */
+	 *
 	public int[] getSamples() throws Exception {
 		if (samples == null) init();
 		return samples;
@@ -63,7 +64,7 @@ public abstract class Dataset {
 	 */
 	public void includeSample(int s) throws Exception {
 		if (samples == null) init();
-		samples[s] = 0;
+		samples[s]++; // = 0;
 	}
 	
 	/**
@@ -74,7 +75,7 @@ public abstract class Dataset {
 	 */
 	public void excludeSample(int s) throws Exception {
 		if (samples == null) init();
-		samples[s] = -1;
+		samples[s] = 0;
 	}
 	
 	/**
@@ -83,10 +84,7 @@ public abstract class Dataset {
 	 * @throws Exception 
 	 */
 	public void excludeAll() throws Exception {
-		if (samples == null) init();
-		for(int i=0; i<samples.length; i++) {
-			samples[i] = -1;
-		}
+		samples = new int[getLength()];
 	}
 	
 	/**
@@ -95,7 +93,11 @@ public abstract class Dataset {
 	 * @throws Exception 
 	 */
 	public void includeAll() throws Exception {
-		samples = new int[getLength()];
+		if (samples == null) init();
+		for(int i=0; i<samples.length; i++) {
+			includeSample(i);
+		}
+
 	}
 
 	/**
@@ -107,7 +109,19 @@ public abstract class Dataset {
 	 */
 	public boolean isSampled(int index) throws Exception {
 		if (samples == null) init();
-		return samples[index] >= 0;
+		return samples[index] > 0;
+	}
+	
+	/**
+	 * Returns how often the sample has been included.
+	 * 
+	 * @param index
+	 * @return
+	 * @throws Exception
+	 */
+	public int getSampled(int index) throws Exception {
+		if (samples == null) init();
+		return samples[index];
 	}
 	
 	/**

@@ -10,7 +10,7 @@ import de.lmu.dbs.musicalforest.Action;
 import de.lmu.dbs.musicalforest.classifier.DataMeta;
 import de.lmu.dbs.musicalforest.classifier.ForestMeta;
 import de.lmu.dbs.musicalforest.classifier.OnOffMusicalRandomTree;
-import de.lmu.dbs.musicalforest.threshold.ThresholdOptimizer;
+import de.lmu.dbs.musicalforest.optimizer.Optimizer;
 import de.lmu.dbs.musicalforest.util.Harmonics;
 
 /**
@@ -46,7 +46,7 @@ public class UpdateAction extends Action {
 
 		// Calculate optimal thresholds
 		int binsPerHalftone = metad.transformParams.getBinsPerHalfTone();
-		ThresholdOptimizer tc = new ThresholdOptimizer(THRESHOLD_ANALYSIS_GRANULARITY, TEST_TIME_WINDOW, binsPerHalftone, binsPerHalftone, meta); 
+		Optimizer tc = new Optimizer(THRESHOLD_ANALYSIS_GRANULARITY, TEST_TIME_WINDOW, binsPerHalftone, binsPerHalftone); 
 		ForestMeta metaT = tc.optimize(forest, sampler.getData(), numOfThreads);
 		
 		// Update meta data file
@@ -54,13 +54,18 @@ public class UpdateAction extends Action {
 		meta.bestOffsetThreshold = metaT.bestOffsetThreshold;
 		meta.bestOnsetThresholdTest = metaT.bestOnsetThresholdTest;
 		meta.bestOffsetThresholdTest = metaT.bestOffsetThresholdTest;
+		meta.noteLengthDistribution = metaT.noteLengthDistribution;
+		meta.noteLengthAvg = metaT.noteLengthAvg;
 		String mf = workingFolder + File.separator + FOREST_META_FILENAME;
 		meta.save(mf);
 		m.measure("Finished threshold calculation, updated thresholds in " + mf);
 		
 		// Print some stats
-		m.measure(" -> MIDI Onset Test: \n" + meta.bestOnsetThresholdTest, true);
-		m.measure(" -> MIDI Offset Test: \n" + meta.bestOffsetThresholdTest, true);
+		//m.measure("Note length distribution: \n" + meta.getNoteLengthDistributionString(20), true);
+		m.measure("Note length average: " + meta.noteLengthAvg, true);
+		
+		m.measure(" -> Best Onset Test: \n" + meta.bestOnsetThresholdTest, true);
+		m.measure(" -> Best Offset Test: \n" + meta.bestOffsetThresholdTest, true);
 		m.measure(" -> Best Onset threshold: " + meta.bestOnsetThreshold, true);
 		m.measure(" -> Best Offset threshold: " + meta.bestOffsetThreshold, true);
 		
