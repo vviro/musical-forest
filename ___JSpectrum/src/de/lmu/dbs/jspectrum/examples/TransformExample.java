@@ -42,7 +42,7 @@ public class TransformExample {
 		// Feature switches
 		boolean peak = false; // show peaks on top of transformation
 		boolean differential = false; // show differential. This option hides the original transformation.
-		boolean f0 = true; // show basic f0-detection 
+		boolean f0 = false; // show basic f0-detection 
 
 		// PNG parameters
 		String imgFile = (String)options.valueOf("out"); // PNG file to create
@@ -63,7 +63,7 @@ public class TransformExample {
 		// Signal processing options (for additional analyzers, deactivated by default)
 		int gateInputThreshold = 0; // Gate input signal before transform. Set 0 to disable.
 		boolean limit = false; // Limit coefficients after transform to maxCoeff
-		double maxCoeff = 1000; // Maximum coefficient for limiting, if limiting is switched on
+		double maxCoeff = 100000; // Maximum coefficient for limiting, if limiting is switched on
 		boolean normalize = false; // Normalize after transform 
 		int f0voices = 5; // Max voices(iterations) of f0 detection
 
@@ -76,10 +76,12 @@ public class TransformExample {
 			params.loadParameters(settingsFile);
 
 			// Create buffer location
-			File buffLoc = new File(params.cqtKernelBufferLocation);
-			if (!buffLoc.exists()) {
-				buffLoc.mkdirs();
-				m.measure("Created cqt kernel buffer location: " + params.cqtKernelBufferLocation);
+			if (mode == Transformations.CQT) {
+				File buffLoc = new File(params.cqtKernelBufferLocation);
+				if (!buffLoc.exists()) {
+					buffLoc.mkdirs();
+					m.measure("Created cqt kernel buffer location: " + params.cqtKernelBufferLocation);
+				}
 			}
 			
 			// Load sample
@@ -87,11 +89,11 @@ public class TransformExample {
 			m.measure("Loaded sample");
 
 			// Init transformation
-			Transform transformation = null;
+			ShortTimeTransform transformation = null;
 			if (mode == Transformations.FFT) {
-				transformation = new FFTransform((double)src.getSampleRate(), fftlen, zoomOutput);	
+				transformation = new ShortTimeFFTransform((double)src.getSampleRate(), fftlen, zoomOutput);	
 			} else {
-				transformation = new ConstantQTransform((double)src.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtKernelBufferLocation);
+				transformation = new ShortTimeConstantQTransform((double)src.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtKernelBufferLocation);
 			}
 			
 			m.measure("Initialized transformation");
@@ -123,8 +125,6 @@ public class TransformExample {
 				m.measure("Normalized transformation data");
 			}
 
-			//ArrayUtils.gate(data, 2.0/127.0);
-			
 			// Overtone peak detection
 			double[][] dataPeak = new double[data.length][];
 			DifferentialAnalyzer p = new DifferentialAnalyzer();
@@ -144,7 +144,7 @@ public class TransformExample {
 				m.measure("Finished differential transform");
 			}
 			
-			// basic f0 detection
+			// Basic f0 detection after Anssi Klapuri´s iterative algorithm
 			double[][] dataF0 = new double[data.length][];
 			if (f0) {
 				ArrayUtils.normalize(dataPeak);

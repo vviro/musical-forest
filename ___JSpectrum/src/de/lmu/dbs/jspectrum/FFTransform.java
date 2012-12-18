@@ -1,102 +1,74 @@
 package de.lmu.dbs.jspectrum;
 
-import de.lmu.dbs.jspectrum.util.Window;
+import rasmus.interpreter.sampled.util.FFT;
 
 /**
- * FFT Transformation.
+ * Short-Time FFT; Wrapper for the RasmusDSP FFT class (rasmus.interpreter.sampled.util.FFT).
  * 
  * @author Thomas Weber
  *
  */
-public class FFTransform extends Transform {
+public class FFTransform implements Transform {
 
 	/**
-	 * FFT size
+	 * External FFT processor
+	 */
+	private FFT fft;
+	
+	/**
+	 * Window Size
 	 */
 	private int fftlen;
 	
 	/**
 	 * 
+	 * @param fftlen
 	 */
-	private ShortTimeFFTransform stfft; 
-	
-	/**
-	 * zooms in towards the low frequencies if > 1.0
-	 */
-	private double zoomOutput = 1.0;
-
-	/**
-	 * Audio sample rate (to calculate frequencies)
-	 */
-	private double sampleRate;
-	
-	/**
-	 * FFT Transformation
-	 * 
-	 * @param sampleRate audio sample rate (to calculate frequencies)
-	 * @param fftlen FFT window size
-	 * @param zoomOutput zooms in towards the low frequencies if > 1.0
-	 */
-	public FFTransform(double sampleRate, int fftlen, double zoomOutput) {
-		this.fftlen = fftlen;
-		this.zoomOutput = zoomOutput;
-		this.sampleRate = sampleRate;
-		stfft = new ShortTimeFFTransform(fftlen);
+	public FFTransform(int fftlen) {
+		fft = new FFT(fftlen);
 	}
-
+	
 	/**
-	 * Returns a matrix containing fft data of the given audio sample. The data is stepped through and 
-	 * the windowed to get the 2d matrix output representing the spectrum over time.
-	 * 
-	 * @param samples audio samples 
-	 * @param step the amount of samples of one analysis step (each step calculates one window)
-	 * @param windowFunction the windowing function used
-	 * @return data matrix (shape: [frame][fftlen, filled with magnitude values])
-	 */
-	@Override
-	public double[][] calculate(int[] samples, int step, Window windowFunction) {
-		int frames = (samples.length) / step - 1; 
-		double[][] data = new double[frames][(int)(fftlen*zoomOutput/2)]; 
-		double[] frameBuffer = new double[fftlen];
-		int beg;
-		for(int frame=0; frame<frames; frame++) {
-			beg = frame*step;
-			for(int h=0; h<fftlen; h++) {
-				if (beg < samples.length) frameBuffer[h] = (double)samples[beg];
-				beg++;
-			}
-			windowFunction.apply(frameBuffer);
-			stfft.calcMagnitude(frameBuffer, data[frame]);
+    *
+    * Take a buff_in of plain audio samples and calculate the FFT coeffs.
+    * <br><br>
+    * Output format:<br>
+    * Indexes i*2: real<br>
+    * Indexes i*2+1: imaginary<br>
+    *
+    * @param buff_in
+    * @param buff_out length: windowSize, holds complex 
+    *        representation of each coeff (real and imaginary)
+    */
+	public void calc(double[] buffIn, double[] buffOut) {
+		fft.calcReal(buffIn, -1);
+		for(int i=0; i<buffIn.length; i++) {
+			if (i < buffOut.length) buffOut[i] = buffIn[i];
 		}
-		return data;
 	}
 
 	/**
-	 * Returns the FFT window size (not the step!).
+     * Take a buff_in of plain audio samples and calculate the FFT coeffs,
+     * optimized for ready-to-use output format (non-complex).
+     *
+     * @param buff_in
+     * @param buff_out length: number of frequency bins, holds magnitude of each coeff
+     */
+	public void calcMagnitude(double[] buffIn, double[] buffOut) {
+		fft.calcReal(buffIn, -1);
+		for(int i=0; i<buffIn.length; i+=2) {
+			if (buffOut.length <= i/2) return;
+			buffOut[i/2] = Math.sqrt(buffIn[i]*buffIn[i] + buffIn[i+1]*buffIn[i+1]);
+		}
+	}
+
+	/**
+	 * Returns FFT window size
 	 * 
 	 * @return
 	 */
-	@Override
 	public int getWindowSize() {
 		return fftlen;
 	}
 
-	/**
-	 * Returns the frequencies in hertz, corresponding to the second level of the 
-	 * data matrix returned by calculate(..).
-	 * <br><br>
-	 * <b>WARNING:</b> Untested for FFT!
-	 * 
-	 * @return 
-	 */
-	@Override
-	public double[] getFrequencies() {
-		double[] ret = new double[fftlen];
-		double fmax = sampleRate/2; // Nyquist frequency
-		double step = fmax/fftlen;
-		for(int i=0; i<ret.length; i++) {
-			ret[i] = i*step;
-		}
-		return ret;
-	}
 }

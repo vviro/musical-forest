@@ -1,107 +1,39 @@
 package de.lmu.dbs.jspectrum;
 
-import de.lmu.dbs.jspectrum.util.Window;
-
 /**
- * Base class for time-domain -> time/freq-domain transformations
+ * Interface for short time transformations from time domain to time/freq domain.
  * 
  * @author Thomas Weber
  *
  */
-public abstract class Transform {
+public interface Transform {
 
 	/**
-	 * Calculate the transformation
+     * Take a buff_in of plain audio samples and calculate the transformation coeffs.
+     * <br><br>
+     * Output format:<br>
+     * Indexes i*2: real<br>
+     * Indexes i*2+1: imaginary<br>
+     *
+     * @param buff_in
+     * @param buff_out holds complex representation of each coeff (real and imaginary)
+     */
+	public void calc(final double[] buff_in, final double[] buff_out);
+
+	/**
+     * Take a buff_in of plain audio samples and calculate the transformation coeffs,
+     * optimized for ready-to-use output format (non-complex).
+     *
+     * @param buff_in
+     * @param buff_out 
+     */
+	public void calcMagnitude(final double[] buff_in, final double[] buff_out);
+
+	/**
+	 * Returns the window length
 	 * 
-	 * @param samples input data (time domain)
-	 * @param step samples per frame
-	 * @param windowFunction windowing function object 
 	 * @return
 	 */
-	public abstract double[][] calculate(final int[] samples, final int step, final Window windowFunction);
+	public int getWindowSize();
 
-	/**
-	 * Return window size of transformation 
-	 * 
-	 * @return
-	 */
-	public abstract int getWindowSize();
-
-	/**
-	 * Returns the frequencies in hertz, corresponding to the second level of the 
-	 * data matrix returned by calculate(..).
-	 * 
-	 * @return 
-	 */
-	public abstract double[] getFrequencies();
-
-	/**
-	 * Adds zeroes at the beginning of in.
-	 * 
-	 * @param in
-	 * @param samples amount of zeroes to add
-	 * @return
-	 */
-	public int[] addLeadingZeroes(final int[] in, final int samples) {
-		int[] ret = new int[in.length + samples];
-		for(int i=0; i<in.length; i++) {
-			ret[i+samples] = in[i];
-		}
-		return ret;
-	}
-	
-	/**
-	 * Everything in the array above max will be interpolated between 
-	 * the next samples in frequency axis.
-	 * 
-	 * @param in data array
-	 * @param max maximum permitted value
-	 * @return amount of interpolated samples
-	 */
-	public int limit(final double[][] in, final double max) {
-		int ret = 0;
-		for(int i=0; i<in.length; i++) {
-			for(int j=0; j<in[i].length; j++) {
-				if (in[i][j] > max) {
-					interpolate(in[i], j, max);
-					ret++;
-				}
-			}
-		}
-		return ret;
-	}
-
-	/**
-	 * Search left and right of in[index] and interpolate index between the nearest found samples < max.
-	 * 
-	 * @param in
-	 * @param index
-	 * @param max
-	 */
-	private void interpolate(double[] in, int index, double max) {
-		int l = index;
-		int h = index;
-		while (in[l] > max && l>0) l--;
-		while (in[h] > max && h<in.length-1) h++;
-		double low = (in[l] < max) ? in[l] : max;
-		double high = (in[h] < max) ? in[h] : max;
-		in[index] = (low + high) / 2; 
-	}
-	
-	/**
-	 * Normalize the frames to [0,1] independently per frame.
-	 * 
-	 * @param in data array
-	 */
-	public void normalizePerFrame(double[][] in) {
-		for(int i=0; i<in.length; i++) {
-			double max = Double.MIN_VALUE;
-			for(int j=0; j<in[i].length; j++) {
-				if (in[i][j] > max) max = in[i][j];
-			}
-			for(int j=0; j<in[i].length; j++) {
-				in[i][j]/=max;
-			}
-		}
-	}
 }

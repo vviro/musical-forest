@@ -149,7 +149,7 @@ public class ClassifyAction extends Action {
 		    // Load MIDI file
 			MIDIAdapter ma = new MIDIAdapter(new File(midiFile));
 			long duration = MIDIAdapter.calculateDuration(data.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
-			reference = ma.toDataArray(data.length, (int)meta.dataMeta.midiOffset, duration, meta.dataMeta.transformParams.frequencies, true);
+			reference = ma.toDataArray(data.length, 0, duration, meta.dataMeta.transformParams.frequencies, true);
 			ArrayUtils.shiftRight(reference, DEFAULT_REFERENCE_SHIFT);
 			m.measure("Loaded MIDI reference file: " + midiFile);
 			
@@ -172,7 +172,7 @@ public class ClassifyAction extends Action {
 
 		    // Test accuracy (MIDI)
 			duration = MIDIAdapter.calculateDuration(data.length, meta.dataMeta.transformParams.step, meta.dataMeta.sampleRate);
-		    newMidiData = newMidi.toDataArray(data.length, (int)meta.dataMeta.midiOffset, duration, meta.dataMeta.transformParams.frequencies, true);
+		    newMidiData = newMidi.toDataArray(data.length, 0, duration, meta.dataMeta.transformParams.frequencies, true);
 			
 		    refMidiOn = ArrayUtils.clone(newMidiData);
 			ArrayUtils.filterFirst(refMidiOn);

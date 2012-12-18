@@ -8,6 +8,8 @@ import midiReference.MidiReference;
 import org.apache.commons.io.FileUtils;
 
 import de.lmu.dbs.jspectrum.ConstantQTransform;
+import de.lmu.dbs.jspectrum.ShortTimeConstantQTransform;
+import de.lmu.dbs.jspectrum.ShortTimeTransform;
 import de.lmu.dbs.jspectrum.Transform;
 import de.lmu.dbs.jspectrum.TransformParameters;
 import de.lmu.dbs.jspectrum.util.ArrayToImage;
@@ -100,7 +102,7 @@ public class GenerateDataAction extends Action {
 	/**
 	 * Transformation instance that does the CQT.
 	 */
-	private Transform transformation = null; 
+	private ShortTimeTransform transformation = null; 
 
 	/**
 	 * Transformation window function
@@ -209,10 +211,10 @@ public class GenerateDataAction extends Action {
 	 * @return
 	 * @throws Exception
 	 */
-	public Transform getTransformation(double sampleRate) throws Exception {
+	public ShortTimeTransform getTransformation(double sampleRate) throws Exception {
 		if (transformation == null) {
 			// Init transformation
-			transformation = new ConstantQTransform(sampleRate, params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtKernelBufferLocation);
+			transformation = new ShortTimeConstantQTransform(sampleRate, params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtKernelBufferLocation);
 			transformationWindow = new HammingWindow(transformation.getWindowSize());
 			// Save meta file
 			params.frequencies = transformation.getFrequencies();

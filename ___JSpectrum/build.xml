@@ -119,7 +119,8 @@
 
 	<target name="run" description="run the project">    
 		<java jar="${build-directory}/${jar-file}" fork="true">
-			<arg line="-in ../___MusicalForestData/WaveFiles/Test8_Mix.wav -out test.png" />
+			<jvmarg value="-Xmx512m" />
+			<arg line="-in ../___MusicalForestData/WaveFiles/Test4_Mix.wav -out cqt.png" />
 			<!--
 			<jvmarg value="-agentpath:/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib/deployed/jdk15/mac/libprofilerinterface.jnilib=/Applications/Developer/NetBeans/NetBeans6.5.app/Contents/Resources/NetBeans/profiler3/lib,5140" />
 			-->

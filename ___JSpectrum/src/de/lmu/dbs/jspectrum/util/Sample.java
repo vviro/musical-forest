@@ -299,6 +299,21 @@ public class Sample {
 		return ret;
 	}
 
+	/**
+	 * Adds zeroes at the beginning of in.
+	 * 
+	 * @param in
+	 * @param samples amount of zeroes to add
+	 * @return
+	 */
+	public static int[] addLeadingZeroes(final int[] in, final int samples) {
+		int[] ret = new int[in.length + samples];
+		for(int i=0; i<in.length; i++) {
+			ret[i+samples] = in[i];
+		}
+		return ret;
+	}
+
 	/* ***************************************************************************************************************************** */ 
 	/* ***************************************************************************************************************************** */ 
 	

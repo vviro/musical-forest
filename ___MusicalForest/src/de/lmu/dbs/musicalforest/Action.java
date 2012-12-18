@@ -16,6 +16,8 @@ import de.lmu.dbs.jforest.sampler.BootstrapSampler;
 import de.lmu.dbs.jforest.sampler.Sampler;
 import de.lmu.dbs.jforest.util.Logfile;
 import de.lmu.dbs.jspectrum.ConstantQTransform;
+import de.lmu.dbs.jspectrum.ShortTimeConstantQTransform;
+import de.lmu.dbs.jspectrum.ShortTimeTransform;
 import de.lmu.dbs.jspectrum.Transform;
 import de.lmu.dbs.jspectrum.TransformParameters;
 import de.lmu.dbs.jspectrum.util.ArrayUtils;
@@ -145,7 +147,7 @@ public abstract class Action {
 		audioSample = new WaveSample(new File(file));
 		m.measure("Loaded audio data from file " + file);
 
-		Transform transformation = new ConstantQTransform((double)audioSample.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtKernelBufferLocation);
+		ShortTimeTransform transformation = new ShortTimeConstantQTransform((double)audioSample.getSampleRate(), params.fMin, params.fMax, params.binsPerOctave, params.threshold, params.spread, params.divideFFT, params.cqtKernelBufferLocation);
 		m.measure("Initialized transformation");
 		
 		// Make mono
