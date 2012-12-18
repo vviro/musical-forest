@@ -100,7 +100,7 @@ public class TransformExample {
 			out("--> Window size: " + transformation.getWindowSize());
 			
 			// Make mono
-			int[] mono = src.getMono();
+			int[] mono = Sample.addLeadingZeroes(src.getMono(), transformation.getWindowSize()/2);
 			m.measure("Extracted left channel, total samples: " + mono.length);
 
 			// Gate
