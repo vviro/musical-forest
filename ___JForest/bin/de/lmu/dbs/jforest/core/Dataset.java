@@ -1,5 +1,7 @@
 package de.lmu.dbs.jforest.core;
 
+import de.lmu.dbs.jforest.util.FileIO;
+
 /**
  * Dataset base class. Supports basic sampling of samples.
  * Samples can also be multi-dimensional, this just delivers the
@@ -16,6 +18,15 @@ public abstract class Dataset {
 	 */
 	private int[] samples = null;
 
+	/**
+	 * Set a new sampling array, i.e. if loaded from buffer file
+	 * 
+	 * @param s new array
+	 */
+	public void setData(int[] s) {
+		samples = s;
+	}
+	
 	/**
 	 * Initialize the sample array. By default, all
 	 * samples are included in the sample.
@@ -146,4 +157,14 @@ public abstract class Dataset {
 	 * @throws Exception 
 	 */
 	public abstract Dataset getClone() throws Exception;
+
+	/**
+	 * 
+	 * @param filename
+	 * @throws Exception 
+	 */
+	public void saveSampling(String filename) throws Exception {
+		FileIO<int[]> io = new FileIO<int[]>();
+		io.save(filename, this.samples);
+	}
 }

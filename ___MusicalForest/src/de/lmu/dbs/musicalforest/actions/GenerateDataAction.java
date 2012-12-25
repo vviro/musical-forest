@@ -7,10 +7,8 @@ import midiReference.MidiReference;
 
 import org.apache.commons.io.FileUtils;
 
-import de.lmu.dbs.jspectrum.ConstantQTransform;
 import de.lmu.dbs.jspectrum.ShortTimeConstantQTransform;
 import de.lmu.dbs.jspectrum.ShortTimeTransform;
-import de.lmu.dbs.jspectrum.Transform;
 import de.lmu.dbs.jspectrum.TransformParameters;
 import de.lmu.dbs.jspectrum.util.ArrayToImage;
 import de.lmu.dbs.jspectrum.util.ArrayUtils;
@@ -135,11 +133,16 @@ public class GenerateDataAction extends Action {
 	private TransformParameters params;
 	
 	/**
+	 * Just render MIDI, no audio or CQT files
+	 */
+	private boolean midi;
+	
+	/**
 	 * 
 	 * @param dataFolder
 	 * @throws Exception 
 	 */
-	public GenerateDataAction(String midiFolder, String dataFolder, String soundFont, String transformParamsFile, boolean stripPC, boolean stripControlMessages, boolean maximizeVelocities, double scaleParam) throws Exception {
+	public GenerateDataAction(String midiFolder, String dataFolder, String soundFont, String transformParamsFile, boolean stripPC, boolean stripControlMessages, boolean maximizeVelocities, double scaleParam, boolean midi) throws Exception {
 		this.dataFolder = dataFolder;
 		this.sourceFolder = midiFolder;
 		this.soundFont = soundFont;
@@ -150,6 +153,7 @@ public class GenerateDataAction extends Action {
 		if (scaleParam > 0) {
 			this.scale = new LogScale(scaleParam);
 		}
+		this.midi = midi;
 	}
 
 	/**
@@ -276,7 +280,7 @@ public class GenerateDataAction extends Action {
 		File wavRef = new File(midiFileSrc.getParent() + File.separator + basename + FILE_SUFFIX_AUDIO);
 		File wavFile = new File(audioFolderFile.getAbsolutePath() + File.separator + basename + FILE_SUFFIX_AUDIO);
 
-		if (!wavRef.exists()) {
+		if (!midi && !wavRef.exists()) {
 			if (soundFont == null) {
 				System.err.println("Wave file " + wavRef.getAbsolutePath() + " not found, please specify sound font file to generate it");
 				System.exit(11);
@@ -302,7 +306,7 @@ public class GenerateDataAction extends Action {
 		MIDIAdapter midiSrc = new MIDIAdapter(midiFileSrc);
 		midiSrc.limitBandwidth(minNote, maxNote);
 		
-		if (!wavRef.exists()) {
+		if (midi || !wavRef.exists()) {
 			// Only alter MIDI data if the wav file will be rendered, too
 			if (stripPC) {
 				m.measure("Stripping program changes...", true);
@@ -319,6 +323,8 @@ public class GenerateDataAction extends Action {
 		}
 		midiSrc.writeFile(midiFile);
 		m.measure(" --> Copied MIDI reference to " + midiFile.getName());
+		
+		if (midi) return true;
 		
 		// Render WAV file with external tool (to audio folder)
 		if (wavRef.exists()) {

@@ -113,12 +113,29 @@ public abstract class Forest {
 	 * @throws Exception
 	 */
 	public void grow(final Sampler<Dataset> sampler) throws Exception {
+		grow(sampler, null);
+	}
+
+	/**
+	 * Grows the forest. 
+	 * 
+	 * @param sampler data provider
+	 * @throws Exception
+	 */
+	public void grow(final Sampler<Dataset> sampler, String bootstrapFilePrefix) throws Exception {
 		
 		for(int i=0; i<trees.size(); i++) {
 			System.out.println("Growing tree " + i + " to depth " + params.maxDepth);
 			startTime = System.currentTimeMillis();
 
-			trees.get(i).grow(sampler.getSample(), params.maxDepth);
+			Sampler<Dataset> sample = sampler.getSample();
+			if (bootstrapFilePrefix != null) {
+				// Save boostrap arrays
+				sample.saveSampling(bootstrapFilePrefix + "tree_" + i);
+				System.out.println("Saved bootstrapping arrays for tree " + i);
+			}
+			
+			trees.get(i).grow(sample, params.maxDepth);
 			//trees.get(i).grow((trees.size() == 1) ? sampler : sampler.getSample(), params.maxDepth);
 		}
 		if (nodeScheduler.getMaxThreads() > 0) {
@@ -178,11 +195,11 @@ public abstract class Forest {
 	 * @return
 	 * @throws Exception 
 	 */
-	public float[] classify(final Object data, final int x, final int y) throws Exception {
+	public float[] classify(final Object data, final int x, final int y, int maxDepth) throws Exception {
 		int numOfClasses = trees.get(0).getNumOfClasses();
 		float[] ret = new float[numOfClasses];
 		for(int i=0; i<trees.size(); i++) {
-			float[] cl = trees.get(i).classify(data, x, y);
+			float[] cl = trees.get(i).classify(data, x, y, maxDepth);
 			for(int c=0; c<numOfClasses; c++) {
 				ret[c] += cl[c]; 
 			}
@@ -200,12 +217,32 @@ public abstract class Forest {
 	 * @param dataForest
 	 * @throws Exception 
 	 */
-	public void classifyThreaded(Worker worker, byte[][] data, float[][][] dataForest, int start, int end) throws Exception {
+	public void classifyThreaded(Worker worker, byte[][] data, float[][][] dataForest, int start, int end, int maxDepth) throws Exception {
 		for(int x=0; x<data.length; x++) {
 			if (worker != null && x%20 == 0) worker.setProgress((double)x/data.length);
 			for(int y=start; y<=end; y++) {
-				dataForest[x][y] = classify(data, x, y);
+				dataForest[x][y] = classify(data, x, y, maxDepth);
 			}
+		}
+	}
+	
+	/**
+	 * Expands the forest so that every node has probabiliy arrays. Useful for generating stats.
+	 * 
+	 * @param sampler
+	 * @throws Exception 
+	 */
+	public void expand(Sampler<Dataset> sampler, String bootstrapFilePrefix) throws Exception {
+		int numOfWork = trees.size();
+		ThreadScheduler ts = new ThreadScheduler(numOfWork);
+		synchronized(ts) {
+			ExpansionWorkerGroup group = new ExpansionWorkerGroup(ts, numOfWork, true);
+			for(int i=0; i<numOfWork; i++) {
+				Sampler<Dataset> s = sampler.loadDistribution(bootstrapFilePrefix + "tree_" + i);
+				ExpansionWorker worker = new ExpansionWorker(group, trees.get(i), s);
+				group.add(worker);
+			}
+			group.runGroup();
 		}
 	}
 	

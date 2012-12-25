@@ -56,6 +56,8 @@ public class Optimizer {
 	 */
 	private int meanShiftWindow;
 	
+	private int maxDepth;
+	
 	/**
 	 * Meta data from the forest
 	 *
@@ -68,11 +70,12 @@ public class Optimizer {
 	 * @param testRadiusY
 	 * @param meanShiftWindow
 	 */
-	public Optimizer(int granularity, int testRadiusX, int testRadiusY, int meanShiftWindow) {
+	public Optimizer(int granularity, int testRadiusX, int testRadiusY, int meanShiftWindow, int maxDepth) {
 		this.granularity = granularity;
 		this.testRadiusX = testRadiusX;
 		this.testRadiusY = testRadiusY;
 		this.meanShiftWindow = meanShiftWindow;
+		this.maxDepth = maxDepth;
 	}
 	
 	/**
@@ -98,7 +101,7 @@ public class Optimizer {
 			TreeDataset2d dataset = (TreeDataset2d)datasets.get(i);
 			byte[][] data = (byte[][])dataset.getData();
 			System.out.println("Classifying dataset " + (i+1) + "/ " + datasets.size() + ":");
-			classifications[i] = forest.classify2d(data, numOfClassifyingThreads, true);
+			classifications[i] = forest.classify2d(data, numOfClassifyingThreads, true, maxDepth);
 		}
 		
 		// Multithreaded thresholds search
@@ -152,29 +155,6 @@ public class Optimizer {
 		AccuracyTest bestOnsetTest = testsOnset[bestOnsetIndex];
 		AccuracyTest bestOffsetTest = testsOffset[bestOffsetIndex];
 		return new ForestMeta(bestOnsetThreshold, bestOnsetTest, bestOffsetThreshold, bestOffsetTest, null, noteStats, nlavg);
-
-/*		// Average results from different datasets
-		double acc = 0;
-		for (int i=0; i<datasets.size(); i++) {
-			acc+= bestOnsetThresholds[i];
-		}
-		double bestOnsetThreshold = acc / datasets.size();
-		int biOnset = (int)(bestOnsetThreshold * granularity);
-
-		acc = 0;
-		for (int i=0; i<datasets.size(); i++) {
-			acc+= bestOffsetThresholds[i];
-		}
-		double bestOffsetThreshold = acc / datasets.size();
-		int biOffset = (int)(bestOffsetThreshold * granularity);
-		
-		// Return meta object
-		int biOnset = (int)(bestOnsetThreshold * granularity);
-		int biOffset = (int)(bestOffsetThreshold * granularity);
-		AccuracyTest bestOnsetTest = testsOnset[biOnset][biOffset];
-		AccuracyTest bestOffsetTest = testsOffset[biOnset][biOffset];
-		return new ForestMeta(bestOnsetThreshold, bestOnsetTest, bestOffsetThreshold, bestOffsetTest, null);
- */	
 	}
 	
 	/**

@@ -80,6 +80,11 @@ public class ForestMeta implements Serializable {
 	
 	/**
 	 * 
+	 */
+	public int maxDepth = -1;
+	
+	/**
+	 * 
 	 * @param bestThreshold
 	 * @param bestThresholdTest
 	 */
@@ -172,9 +177,7 @@ public class ForestMeta implements Serializable {
 		File hf = new File(filename).getParentFile();
 		if (!force) {
 			ret.check();
-			if (!ret.checkHash(hf)) throw new ForestMetaException("Forest meta data in " + hf.getAbsolutePath() + " needs to be updated, try running update action");
-			//if (!force) throw new ForestMetaException("Forest meta data in " + hf.getAbsolutePath() + "needs to be updated, try running update action: " + ret.hash);
-			//else System.err.println("WARNING: Forest meta data in " + hf.getAbsolutePath() + " does not match tree files: " + ret.hash);
+			//if (!ret.checkHash(hf)) throw new ForestMetaException("Forest meta data in " + hf.getAbsolutePath() + " needs to be updated, try running update action");
 		}
 		return ret;
 	}
@@ -272,11 +275,12 @@ public class ForestMeta implements Serializable {
 	public String toString() {
 		String ret = "Forest meta data: \n";
 		ret+= "  Tree File Hash:                      " + hash + "\n";
+		ret+= "  Max Depth:                           " + maxDepth + "\n";
 		ret+= "  Best Onset Threshold:                " + bestOnsetThreshold + "\n";
 		ret+= "  Best Offset Threshold:               " + bestOffsetThreshold + "\n";
 		ret+= "  Best Onset Threshold Accuracy Test: \n" + bestOnsetThresholdTest + "";
 		ret+= "  Best Offset Threshold Accuracy Test: \n" + bestOffsetThresholdTest + "\n";
-		ret+= "Note length distribution: " + this.getNoteLengthDistributionString(20);
+		//ret+= "Note length distribution: " + this.getNoteLengthDistributionString(20);
 		ret+= "Note length average: " + this.noteLengthAvg + "\n";
 		if (forestParams != null) ret+= forestParams.toString() + "\n";
 		ret+= dataMeta.toString() + "\n";

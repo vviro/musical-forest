@@ -235,7 +235,7 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @return
 	 * @throws Exception
 	 */
-	public abstract float[] classify(final Object data, final int x, final int y) throws Exception;
+	public abstract float[] classify(final Object data, final int x, final int y, int maxDepth) throws Exception;
 		
 	/**
 	 * Build first classification array (from bootstrapping samples and random values per sampled frame)
@@ -245,6 +245,15 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @throws Exception 
 	 */
 	protected abstract List<Classification> getPreClassification(Sampler<Dataset> sampler) throws Exception;
+
+	/**
+	 * Build first classification array (from bootstrapping samples and random values per sampled frame)
+	 * 
+	 * @param sampler
+	 * @return
+	 * @throws Exception 
+	 */
+	protected abstract List<Classification> getPreClassification(Sampler<Dataset> sampler, double vpf) throws Exception;
 
 	/**
 	 * This does the actual evaluation work.
@@ -264,6 +273,77 @@ public abstract class RandomTree extends ScheduledThread {
 	 * @throws Exception
 	 */
 	public abstract void evaluateFeatures(RandomTreeWorker worker, Sampler<Dataset> sampler, int minIndex, int maxIndex, List<Object> paramSet, List<Classification> classification, int mode, Object thresholds, long[][][] countClassesLeft, long[][][] countClassesRight) throws Exception;
+
+	/**
+	 * Expands the forest so that every node has probabiliy arrays. Useful for generating stats.
+	 * 
+	 * @param sampler
+	 * @throws Exception 
+	 */
+	public void expand(Sampler<Dataset> sampler, ExpansionWorker w) throws Exception {
+		// Preclassify
+		List<Classification> classification = getPreClassification(sampler, 1.0);
+		System.out.println("Finished pre-classification for tree " + num + ", start expanding...");
+		w.setProgress(0.01);
+		
+		initialCount = 0;
+		for(int i=0; i<classification.size(); i++) {
+			initialCount+= classification.get(i).getSize();
+		}
+
+		expandRec(sampler, classification, initialCount, tree, 0, 0, w);
+	}
+
+	/**
+	 * 
+	 * @param sampler
+	 * @param classification
+	 * @param initialCount
+	 * @param node
+	 * @param mode
+	 * @param depth
+	 * @throws Exception 
+	 */
+	private void expandRec(Sampler<Dataset> sampler, List<Classification> classification, long initialCount, Node node, int mode, int depth, ExpansionWorker w) throws Exception {
+		w.addProgressNode();
+		if (node.isLeaf()) {
+			//System.out.println("Leaf at depth " + depth + ", node " + node.id + ": Stopped expansion");
+			return;
+		}
+		
+		//System.out.println("Expanding node " + node.id + " at depth " + depth + "; Heap: " + getHeapMB() + "MB");
+		
+		// Get probs for all nodes
+		node.probabilities = calculateLeaf(sampler, classification, mode, depth);
+
+		// Split values
+		long[] counts = new long[2];
+		List<Classification> classificationNextL = new ArrayList<Classification>();
+		List<Classification> classificationNextR = new ArrayList<Classification>();
+		splitValues(sampler, classification, classificationNextL, classificationNextR, mode, node, counts);
+		
+		// Shred classifications for garbage collector before recursion
+		for(int c=0; c<classification.size(); c++) {
+			classification.get(c).clear();
+		}
+		classification.clear(); 
+		classification = null;
+		
+		//System.out.println("Finished expanding node " + node.id + " at depth " + depth);
+		
+		// Recursion to left and right
+		expandRec(sampler, classificationNextL, counts[0], node.left, 1, depth+1, w);
+		expandRec(sampler, classificationNextR, counts[1], node.right, 2, depth+1, w);
+	}
+
+	/**
+	 * Returns the JVM heap size in megabytes.
+	 * 
+	 * @return
+	 */
+	public int getHeapMB() {
+		return (int)Math.round((Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()) / (1024.0*1024.0));
+	}
 
 	/**
 	 * Grows the tree. 
@@ -692,5 +772,32 @@ public abstract class RandomTree extends ScheduledThread {
 	public long getInitialCount() {
 		return initialCount;
 	}
+	
+	/**
+	 * Returns the amount of nodes in the forest
+	 * 
+	 * @return
+	 * @throws Exception 
+	 */
+	public int getNodeCount() {
+		return getNodeCountRec(tree); 
+	}
+
+	/**
+	 * Internal
+	 * 
+	 * @param node
+	 * @param counts
+	 * @param depth
+	 */
+	private int getNodeCountRec(Node node) {
+		int ret = 1;
+		if (!node.isLeaf()) {
+			ret += getNodeCountRec(node.left);
+			ret += getNodeCountRec(node.right);
+		}
+		return ret;
+	}
+	
 
 }

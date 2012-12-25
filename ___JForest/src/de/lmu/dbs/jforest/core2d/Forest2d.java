@@ -48,7 +48,7 @@ public class Forest2d extends Forest {
 	 * @throws Exception
 	 */
 	public float[][][] classify2d(Object data) throws Exception {
-		return classify2d(data, 1, false);
+		return classify2d(data, 1, false, -1);
 	}
 	
 	/**
@@ -59,7 +59,7 @@ public class Forest2d extends Forest {
 	 * @return
 	 * @throws Exception
 	 */
-	public float[][][] classify2d(Object dataO, int numOfThreads, boolean verbose) throws Exception {
+	public float[][][] classify2d(Object dataO, int numOfThreads, boolean verbose, int maxDepth) throws Exception {
 		check();	
 		byte[][] data = (byte[][])dataO;
 		float[][][] dataForest = new float[data.length][data[0].length][];
@@ -68,7 +68,7 @@ public class Forest2d extends Forest {
 		// No multithreading
 		if (numOfThreads <= 1) {
 			if (verbose) System.out.println("No multithreading in classification, too few threads: " + numOfThreads);
-			this.classifyThreaded(null, data, dataForest, 0, numOfWork-1);
+			classifyThreaded(null, data, dataForest, 0, numOfWork-1, maxDepth);
 			return dataForest;
 		}
 		
@@ -80,7 +80,7 @@ public class Forest2d extends Forest {
 		synchronized(ts) {
 			ClassificationWorkerGroup group = new ClassificationWorkerGroup(ts, numOfWork, THREAD_POLLING_INTERVAL, true);
 			for(int i=0; i<numOfThreads; i++) {
-				ClassificationWorker worker = new ClassificationWorker(group, this, data, dataForest);
+				ClassificationWorker worker = new ClassificationWorker(group, this, data, dataForest, maxDepth);
 				group.add(worker);
 			}
 			group.runGroup();

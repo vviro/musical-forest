@@ -31,11 +31,14 @@ public class TestAction extends Action {
 	
 	private boolean force;
 	
-	public TestAction(String workingFolder, String dataFolder, int threads, boolean force) {
+	private String csvFile;
+	
+	public TestAction(String workingFolder, String dataFolder, int threads, boolean force, String csvFile) {
 		this.dataFolder = dataFolder;
 		this.workingFolder = workingFolder;
 		this.numOfThreads = threads;
 		this.force = force;
+		this.csvFile = csvFile;
 	}
 	
 	@Override
@@ -67,13 +70,13 @@ public class TestAction extends Action {
 			TreeDataset2d dataset = (TreeDataset2d)sampler.get(i);
 			byte[][] data = (byte[][])dataset.getData();
 			System.out.println("Classifying dataset " + (i+1) + "/ " + sampler.getPoolSize() + ":");
-			classifications[i] = forest.classify2d(data, numOfThreads, true);
+			classifications[i] = forest.classify2d(data, numOfThreads, true, meta.maxDepth);
 		}
 		m.measure("Finished classification of " + sampler.getPoolSize() + " datasets");
 
 		// Mean shifting
-		int testRadiusX = TEST_TIME_WINDOW;
 		int testRadiusY = meta.dataMeta.transformParams.getBinsPerHalfTone();
+		int testRadiusX = TEST_TIME_WINDOW;
 		AccuracyTest testOn = new AccuracyTest(testRadiusX, testRadiusY);
 		AccuracyTest testOff = new AccuracyTest(testRadiusX, testRadiusY);
 		AccuracyTest testMidiOn = new AccuracyTest(testRadiusX, testRadiusY);
@@ -90,7 +93,7 @@ public class TestAction extends Action {
 					dataForestOffset[x][y] = classifications[i][x][y][2];
 				}
 			}
-			int msWindow = meta.dataMeta.transformParams.getBinsPerHalfTone() * 2;
+			int msWindow = meta.dataMeta.transformParams.getBinsPerHalfTone();
 			MeanShift ms = new MeanShift(msWindow);
 		    ms.process(dataForestOnset, (float)meta.bestOnsetThreshold); 
 		    MeanShift msOff = new MeanShift(msWindow);
@@ -99,12 +102,26 @@ public class TestAction extends Action {
 		    // Accuracy test (forest)
 			byte[][] reference = (byte[][])dataset.getReference();
 
+			// Separate ons and offs in classification output
 			byte[][] refOn = ArrayUtils.clone(reference);
+			for (int x=0; x<reference.length; x++) {
+				for (int y=0; y<reference[0].length; y++) {
+					if (refOn[x][y] != 1) refOn[x][y] = 0; 
+				}
+			}
+			byte[][] refOff = ArrayUtils.clone(reference); 
+			for (int x=0; x<reference.length; x++) {
+				for (int y=0; y<reference[0].length; y++) {
+					if (refOff[x][y] != 2) refOff[x][y] = 0; 
+				}
+			}
+			
+/*			byte[][] refOn = ArrayUtils.clone(reference);
 			ArrayUtils.filterFirst(refOn);
 			
 		    byte[][] refOff = ArrayUtils.clone(reference);
 			ArrayUtils.filterLast(refOff);
-
+*/
 			testOn.addData(ms.modeWeights, refOn);
 			testOff.addData(msOff.modeWeights, refOff);
 
@@ -150,15 +167,16 @@ public class TestAction extends Action {
 		l.write("MIDI Cycle: Note onset test results: \n" + testMidiOn);
 		l.write("MIDI Cycle: Note offset test results: \n" + testMidiOff);
 		l.write("");
-		l.write("CSV:");
-		String c = ", ";
-		l.write(testOn.getCorrectDetection() + c + testOn.getFalseDetection() + c + testMidiOn.getCorrectDetection() + c + testMidiOn.getFalseDetection() + c);
-		l.write(testOff.getCorrectDetection() + c + testOff.getFalseDetection() + c + testMidiOff.getCorrectDetection() + c + testMidiOff.getFalseDetection() + c);
-		l.write("");
-		l.write("");
-		l.write("");
 		l.close();
 		m.measure("Saved results to text file: " + l.getFilename());
+		
+		if (csvFile != null) {
+			ForestMeta fm = new ForestMeta();
+			fm.bestOnsetThresholdTest = testOn;
+			fm.bestOffsetThresholdTest = testOff;
+			writeCSV(fm, new File(workingFolder), csvFile, true, meta.maxDepth);
+			m.measure("Saved stats to CSV file: " + csvFile);
+		}
 		
 		m.setSilent(false);
 		m.finalMessage("Finished testing forest in");

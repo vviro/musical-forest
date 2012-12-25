@@ -23,10 +23,13 @@ public class UpdateAction extends Action {
 
 	private int numOfThreads = -1;
 	
-	public UpdateAction(String workingFolder, String dataFolder, int threads) {
+	private int maxDepth;
+	
+	public UpdateAction(String workingFolder, String dataFolder, int threads, int maxDepth) {
 		this.dataFolder = dataFolder;
 		this.workingFolder = workingFolder;
 		this.numOfThreads = threads;
+		this.maxDepth = maxDepth;
 	}
 	
 	@Override
@@ -46,7 +49,7 @@ public class UpdateAction extends Action {
 
 		// Calculate optimal thresholds
 		int binsPerHalftone = metad.transformParams.getBinsPerHalfTone();
-		Optimizer tc = new Optimizer(THRESHOLD_ANALYSIS_GRANULARITY, TEST_TIME_WINDOW, binsPerHalftone, binsPerHalftone); 
+		Optimizer tc = new Optimizer(THRESHOLD_ANALYSIS_GRANULARITY, TEST_TIME_WINDOW, binsPerHalftone, binsPerHalftone, maxDepth); 
 		ForestMeta metaT = tc.optimize(forest, sampler.getData(), numOfThreads);
 		
 		// Update meta data file
@@ -56,6 +59,7 @@ public class UpdateAction extends Action {
 		meta.bestOffsetThresholdTest = metaT.bestOffsetThresholdTest;
 		meta.noteLengthDistribution = metaT.noteLengthDistribution;
 		meta.noteLengthAvg = metaT.noteLengthAvg;
+		meta.maxDepth = maxDepth;
 		String mf = workingFolder + File.separator + FOREST_META_FILENAME;
 		meta.save(mf);
 		m.measure("Finished threshold calculation, updated thresholds in " + mf);

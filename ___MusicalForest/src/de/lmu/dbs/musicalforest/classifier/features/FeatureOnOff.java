@@ -96,7 +96,7 @@ public class FeatureOnOff extends Feature2d {
 			if (ny >= data[0].length) break; 
 			harmOwn+= (float)(data[x][ny]); 
 		}
-		harmOwn *= d2; 
+		//harmOwn *= d2; 
 		
 		float harmForeignUp = 0;
 		for(int j=0; j<Harmonics.harmonics.length; j++) {
@@ -106,7 +106,7 @@ public class FeatureOnOff extends Feature2d {
 				harmForeignUp+= (float)(data[x][ny]); 
 			}
 		}
-		harmForeignUp *= d2 * foreignHarmonicsUpWeight;
+		harmForeignUp *= foreignHarmonicsUpWeight; //d2 * foreignHarmonicsUpWeight;
 		
 		float harmForeignDn = 0;
 		for(int j=0; j<Harmonics.harmonics.length; j++) {
@@ -114,9 +114,9 @@ public class FeatureOnOff extends Feature2d {
 			if (ny < 0) break; 
 			harmForeignDn+= (float)(data[x][ny]); 
 		}
-		harmForeignDn *= d2 * foreignHarmonicsDnWeight;
+		harmForeignDn *= foreignHarmonicsDnWeight; //d2 * foreignHarmonicsDnWeight;
 		
-		return harmOwn - harmForeignUp - harmForeignDn; 
+		return d2 * (harmOwn - harmForeignUp - harmForeignDn); 
 	}
 	
 	/**
@@ -145,7 +145,7 @@ public class FeatureOnOff extends Feature2d {
 			if (ny >= data[0].length) break; 
 			harmOwn+= (float)(data[x][ny]); 
 		}
-		harmOwn *= d2; 
+		//harmOwn *= d2; 
 		
 		float harmForeignUp = 0;
 		for(int j=0; j<Harmonics.harmonics.length; j++) {
@@ -155,7 +155,7 @@ public class FeatureOnOff extends Feature2d {
 				harmForeignUp+= (float)(data[x][ny]); 
 			}
 		}
-		harmForeignUp *= d2 * foreignHarmonicsUpWeight;
+		harmForeignUp *= foreignHarmonicsUpWeight; //d2 * foreignHarmonicsUpWeight;
 		
 		float harmForeignDn = 0;
 		for(int j=0; j<Harmonics.harmonics.length; j++) {
@@ -163,9 +163,9 @@ public class FeatureOnOff extends Feature2d {
 			if (ny < 0) break; 
 			harmForeignDn+= (float)(data[x][ny]);
 		}
-		harmForeignDn *= d2 * foreignHarmonicsDnWeight;
+		harmForeignDn *= foreignHarmonicsDnWeight; //d2 * foreignHarmonicsDnWeight;
 		
-		return harmOwn - harmForeignUp - harmForeignDn; 
+		return d2 * (harmOwn - harmForeignUp - harmForeignDn); 
 	}
 
 	/**

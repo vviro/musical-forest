@@ -1,6 +1,8 @@
 package de.lmu.dbs.musicalforest;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +17,8 @@ import de.lmu.dbs.jforest.core2d.RandomTree2d;
 import de.lmu.dbs.jforest.sampler.BootstrapSampler;
 import de.lmu.dbs.jforest.sampler.Sampler;
 import de.lmu.dbs.jforest.util.Logfile;
-import de.lmu.dbs.jspectrum.ConstantQTransform;
 import de.lmu.dbs.jspectrum.ShortTimeConstantQTransform;
 import de.lmu.dbs.jspectrum.ShortTimeTransform;
-import de.lmu.dbs.jspectrum.Transform;
 import de.lmu.dbs.jspectrum.TransformParameters;
 import de.lmu.dbs.jspectrum.util.ArrayUtils;
 import de.lmu.dbs.jspectrum.util.HammingWindow;
@@ -216,12 +216,17 @@ public abstract class Action {
 		}
 		Logfile forestlog = new Logfile(workingFolder + File.separator + "Forest_Stats.txt");
 		Forest2d forest = new Forest2d(trees, fparams, forestlog, maxNumOfEvalThreads, maxNumOfNodeThreads, nodeThreadingThreshold);
-		forest.grow(sampler);
+		forest.grow(sampler, workingFolder + File.separator + "bootstrap_");
 		m.measure("Finished growing random forest");
 
 		forest.save(workingFolder + File.separator + NODEDATA_FILE_PREFIX);
 		m.measure("Finished saving forest to folder: " + workingFolder);
 
+		// Save bootstrapping arrays
+		//for(int i=0; i<trees.size(); i++) {
+			//trees.get(i).saveBootstrapArray(workingFolder + File.separator + "bootstrap_" + i);
+		//}
+		
 		forest.logStats();
 		m.measure("Finished logging forest stats");
 
@@ -316,4 +321,80 @@ public abstract class Action {
 	public void checkFolder(File dir) throws Exception {
 		if (!dir.exists() || !dir.isDirectory()) throw new Exception(dir.getAbsolutePath() + " does not exist or is no directory");
 	}
+	
+	/**
+	 * Writes CSV containing accuracy rates.
+	 * @param fmeta 
+	 * 
+	 * @param fmeta
+	 * @param csvFile2
+	 * @throws Exception 
+	 */
+	public void writeCSV(ForestMeta meta, File fmeta, String filename, boolean perc, int maxDepth) throws Exception {
+		FileWriter fstream = new FileWriter(filename, true);
+		BufferedWriter out = new BufferedWriter(fstream);
+		
+		String sep = ",";
+		String sepLine = "\n";
+		
+		if (!perc) {
+			out.write(
+				fmeta.getAbsolutePath() + 
+				sep + 
+				maxDepth + 
+				sep + 
+				meta.bestOnsetThresholdTest.getCorrectDetection() + 
+				sep + 
+				meta.bestOnsetThresholdTest.getFalseDetection() + 
+				sep + 
+				meta.bestOffsetThresholdTest.getCorrectDetection() + 
+				sep + 
+				meta.bestOffsetThresholdTest.getFalseDetection() +
+				sepLine
+			);
+		} else {
+			out.write(
+					fmeta.getAbsolutePath() + 
+					sep + 
+					maxDepth + 
+					sep + 
+					Math.round(meta.bestOnsetThresholdTest.getCorrectDetection()*100) + 
+					sep + 
+					Math.round(meta.bestOnsetThresholdTest.getFalseDetection()*100) + 
+					sep + 
+					Math.round(meta.bestOffsetThresholdTest.getCorrectDetection()*100) + 
+					sep + 
+					Math.round(meta.bestOffsetThresholdTest.getFalseDetection()*100) +
+					sepLine
+				);
+		}
+		out.close();		
+	}
+
+	/**
+	 * Writes CSV containing accuracy rates.
+	 * @param fmeta 
+	 * 
+	 * @param fmeta
+	 * @param csvFile2
+	 * @throws Exception 
+	 */
+	public void writeCSVLen(ForestMeta meta, String filename, boolean perc) throws Exception {
+		FileWriter fstream = new FileWriter(filename, false);
+		BufferedWriter out = new BufferedWriter(fstream);
+		
+		String sep = ",";
+		String sepLine = "\n";
+		
+		for(int i=0; i<meta.noteLengthDistribution.size(); i++) {
+			out.write(
+					i + 
+					sep +
+					(perc ? Math.round(meta.noteLengthDistribution.get(i)*100) : meta.noteLengthDistribution.get(i)) + 
+					sepLine
+			);
+		}
+		out.close();		
+	}
+
 }

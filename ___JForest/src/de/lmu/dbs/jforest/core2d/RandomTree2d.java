@@ -84,8 +84,8 @@ public class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	public float[] classify(final Object data, final int x, final int y) throws Exception {
-		return classifyRec((byte[][])data, tree, 0, 0, x, y);
+	public float[] classify(final Object data, final int x, final int y, int maxDepth) throws Exception {
+		return classifyRec((byte[][])data, tree, 0, 0, x, y, maxDepth);
 	}
 	
 	/**
@@ -98,18 +98,23 @@ public class RandomTree2d extends RandomTree {
 	 * @return
 	 * @throws Exception
 	 */
-	protected float[] classifyRec(final byte[][] data, final Node node, int mode, int depth, final int x, final int y) throws Exception {
+	protected float[] classifyRec(final byte[][] data, final Node node, int mode, int depth, final int x, final int y, int maxDepth) throws Exception {
 		if (node.isLeaf()) {
 			return node.probabilities;
 		} else {
+			if (maxDepth > 0 && depth >= maxDepth) {
+				if (node.probabilities == null) throw new Exception("T" + num + ": Cannot classify to maxdepth " + maxDepth + ", expand the tree first");
+				return node.probabilities;
+			}
+			
 			//if (params.saveNodeClassifications > depth-1 && node.debugObject == null) node.debugObject = new int[data.length][data[0].length]; // TMP
 			
 			if (((Feature2d)node.feature).evaluate(data, x, y) >= node.feature.threshold) {
 				//if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 1;
-				return classifyRec(data, node.left, 1, depth+1, x, y);
+				return classifyRec(data, node.left, 1, depth+1, x, y, maxDepth);
 			} else {
 				//if (params.saveNodeClassifications > depth-1) ((int[][])node.debugObject)[x][y] = 2;
-				return classifyRec(data, node.right, 2, depth+1, x, y);
+				return classifyRec(data, node.right, 2, depth+1, x, y, maxDepth);
 			}
 		}
 	}
@@ -126,6 +131,36 @@ public class RandomTree2d extends RandomTree {
 			TreeDataset2d d = (TreeDataset2d)sampler.get(i);
 			int vpf = (int)(params.percentageOfRandomValuesPerFrame * d.getHeight()); // values per frame
 			Classification cl = d.getInitialClassification(vpf); // Drop some of the values by classifying them to -1
+			classification.add(cl);
+		}
+		
+		// TMP: Save classifications to PNGs
+		/*
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			System.out.println("Visualize " + i);
+			String fname = params.workingFolder + File.separator + "T" + num + "_Index_" + i + "_InitialClassification.png";
+			Classification2d cl = (Classification2d)classification.get(i);
+			TreeDataset2d d = (TreeDataset2d)sampler.get(i);
+			byte[][] cc = cl.toByteArray(d.getLength(), d.getHeight());
+			ArrayUtils.toImage(fname, cc, Color.YELLOW);
+		}
+		System.exit(0);
+		//*/
+		return classification;
+	}
+	
+	/**
+	 * Returns the initial classification array for this dataset.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Classification> getPreClassification(Sampler<Dataset> sampler, double vpf) throws Exception {
+		List<Classification> classification = new ArrayList<Classification>(); // Classification arrays for each dataset in the sampler, same index as in sampler
+		for(int i=0; i<sampler.getPoolSize(); i++) {
+			TreeDataset2d d = (TreeDataset2d)sampler.get(i);
+			int vpf2 = (int)(vpf * d.getHeight()); // values per frame
+			Classification cl = d.getInitialClassification(vpf2); // Drop some of the values by classifying them to -1
 			classification.add(cl);
 		}
 		

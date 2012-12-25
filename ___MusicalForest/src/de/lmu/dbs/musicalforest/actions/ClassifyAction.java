@@ -101,7 +101,7 @@ public class ClassifyAction extends Action {
 		
 		// Classify CQT array with forest
 		Harmonics.init(OnOffMusicalRandomTree.NUM_OF_OVERTONES, meta.dataMeta.transformParams.binsPerOctave);
-		float[][][] dataForestCl = forest.classify2d(byteData, numberOfThreads, true);
+		float[][][] dataForestCl = forest.classify2d(byteData, numberOfThreads, true, meta.maxDepth);
 		m.measure("Finished classification");
 		
 		// Convert format of forest output

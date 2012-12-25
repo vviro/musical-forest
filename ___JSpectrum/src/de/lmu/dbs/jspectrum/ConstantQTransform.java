@@ -74,6 +74,7 @@ import rasmus.interpreter.sampled.util.FFT;
  * - added divideFFT parameter to lower FFT window (to increase performance)<br>
  * - buffer generated kernels to file(s) (if bufferLocation folder path is given)<br>
  * <br><br>
+ * 
  * @author Karl Helgason, P. J. Leonard, Thomas Weber
  */
 public class ConstantQTransform implements Transform {

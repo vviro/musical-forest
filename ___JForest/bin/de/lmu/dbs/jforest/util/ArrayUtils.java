@@ -41,7 +41,7 @@ public class ArrayUtils {
 				endIndex = i;
 				while (in.get(endIndex) == 0 && endIndex < in.size()-1) endIndex++;
 				end = in.get(endIndex);
-				System.out.println(startIndex + " - " + endIndex + "; " + start + " " + end);
+				//System.out.println(startIndex + " - " + endIndex + "; " + start + " " + end);
 			}
 			if (i > startIndex && i < endIndex) {
 				double fact = (double)(i-startIndex) / (endIndex - startIndex);

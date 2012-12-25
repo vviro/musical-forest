@@ -1,10 +1,13 @@
 package de.lmu.dbs.jforest.sampler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.lmu.dbs.jforest.core.Dataset;
+import de.lmu.dbs.jforest.util.FileIO;
+import de.lmu.dbs.jforest.util.RandomUtils;
 
 /**
  * Generic base class for implementing sampling algorithms.
@@ -134,5 +137,40 @@ public abstract class Sampler<T extends Dataset> {
 			ret.add(sampler);
 		}
 		return ret;
+	}
+	
+	/**
+	 * 
+	 * @param filename
+	 * @throws Exception 
+	 */
+	public void saveSampling(String filename) throws Exception {
+		for (int i=0; i<getPoolSize(); i++) {
+			get(i).saveSampling(filename + "dataset_" + i);
+		}
+	}
+
+	/**
+	 * 
+	 * @param string
+	 * @return
+	 * @throws Exception 
+	 */
+	public Sampler<T> loadDistribution(String filename) throws Exception {
+		FileIO<int[]> io = new FileIO<int[]>();
+		
+		// Clone datasets
+		List<T> ret = new ArrayList<T>();
+		int size = getPoolSize();
+		for(int i=0; i<size; i++) {
+			T clone = (T)datasets.get(i).getClone();
+			File f = new File(filename + "dataset_" + i);
+			if (!f.exists() || !f.isFile()) throw new Exception("No sampling array found: " + f.getAbsolutePath());
+			int[] d = io.load(filename + "dataset_" + i);
+			clone.setData(d);
+			ret.add(clone);
+			System.out.println("Loaded sampling from " + f.getName());
+		}
+		return newInstance(ret);
 	}
 }

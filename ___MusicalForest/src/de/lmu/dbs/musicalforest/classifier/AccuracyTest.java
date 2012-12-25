@@ -3,6 +3,7 @@ package de.lmu.dbs.musicalforest.classifier;
 import java.io.Serializable;
 
 import gnu.trove.list.TDoubleList;
+import de.lmu.dbs.jforest.util.ArrayUtils;
 import de.lmu.dbs.jforest.util.Statistic;
 
 /**
@@ -108,6 +109,8 @@ public class AccuracyTest implements Serializable  {
 		//if (detected.length != reference.length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (X)");
 		if (detected[0].length != reference[0].length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (Y)");
 
+		float[][] detclone = ArrayUtils.clone(detected);
+		
 		int maxX = (detected.length > reference.length) ? reference.length : detected.length;
 		
 		// Found notes
@@ -118,7 +121,7 @@ public class AccuracyTest implements Serializable  {
 	    		}
 	    		if (reference[x][y] > 0) {
 	    			referenceNotes++;
-	    			double dist = searchNeighbor(detected, x, y);
+	    			double dist = searchNeighbor(detclone, x, y);
 	    			if (dist >= 0) {
 	    				// Detected a note
 	    				detectedNotesRight++;
@@ -142,6 +145,8 @@ public class AccuracyTest implements Serializable  {
 		//if (detected.length != reference.length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (X)");
 		if (detected[0].length != reference[0].length) throw new Exception("To test accuracy, the input arrays have to have the same dimensions (Y)");
 
+		byte[][] detclone = ArrayUtils.clone(detected);
+
 		int maxX = (detected.length > reference.length) ? reference.length : detected.length;
 		
 		// Found notes
@@ -152,7 +157,7 @@ public class AccuracyTest implements Serializable  {
 	    		}
 	    		if (reference[x][y] > 0) {
 	    			referenceNotes++;
-	    			double dist = searchNeighbor(detected, x, y);
+	    			double dist = searchNeighbor(detclone, x, y);
 	    			if (dist >= 0) {
 	    				// Detected a note
 	    				detectedNotesRight++;
@@ -179,6 +184,7 @@ public class AccuracyTest implements Serializable  {
 	    	for(int j=y-winY; j<y+winY && j<detected[0].length; j++) {
 	    		while(j<0) j++;
 	    		if (detected[i][j] > 0) {
+	    			detected[i][j] = 0;
 	    			return Math.sqrt((x-i)*(x-i) + (y-j)*(y-j));
 	    		}
 	    	}
@@ -201,6 +207,7 @@ public class AccuracyTest implements Serializable  {
 	    	for(int j=y-winY; j<y+winY && j<detected[0].length; j++) {
 	    		while(j<0) j++;
 	    		if (detected[i][j] > 0) {
+	    			detected[i][j] = 0;
 	    			return Math.sqrt((x-i)*(x-i) + (y-j)*(y-j));
 	    		}
 	    	}

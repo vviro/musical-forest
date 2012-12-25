@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import de.lmu.dbs.jspectrum.util.RuntimeMeasure;
 import de.lmu.dbs.musicalforest.actions.ClassifyAction;
+import de.lmu.dbs.musicalforest.actions.ExpandAction;
 import de.lmu.dbs.musicalforest.actions.GenerateDataAction;
 import de.lmu.dbs.musicalforest.actions.MergeForestsAction;
 import de.lmu.dbs.musicalforest.actions.GenerateMidiAction;
@@ -121,6 +122,8 @@ public class MusicalForest {
 				view(removeFirst(args));
 			} else if (a.equals("modify")) {
 				modify(removeFirst(args));
+			} else if (a.equals("expand")) {
+				expand(removeFirst(args));
 			} else {
 				printHelp(args, args[0]);
 				System.exit(ARGS_ERROR_EXIT_CODE);
@@ -166,11 +169,19 @@ public class MusicalForest {
 			{
 				accepts("help", "Shows this help screen.").forHelp();
 				accepts("target", "Working folder to examine").withRequiredArg().required();
+				accepts("export", "Export note on and off accuracy rates to this CSV file (append).").withRequiredArg();
+				accepts("lengths", "Export note length distribution to this CSV file.").withRequiredArg();
+				accepts("rec", "Traverse target recursively.");
+				accepts("percentage", "If export option is used, multiply values with 100 and round them.");
 			}
 		};
 		OptionSet options = getOptions(args, parser);
 		String workingFolder = (String)options.valueOf("target");
-		action = new ViewAction(workingFolder);
+		String csvFile = null;
+		if (options.has("export")) csvFile = (String)options.valueOf("export");
+		String lenFile = null;
+		if (options.has("lengths")) lenFile = (String)options.valueOf("lengths");
+		action = new ViewAction(workingFolder, csvFile, lenFile, options.has("rec"), options.has("percentage"));
 	}
 
 	/**
@@ -233,12 +244,14 @@ public class MusicalForest {
 				accepts("source", "This folder has to provide the MIDI files to generate test " +
 						"data from. The generation process is then done recursively to any subfolder " + 
 						"of this argument. If there already are Wave files beneath the MIDI, these will be used instead of rendering. " +
-						"This can be important because MIDI to Wave rendering only works with midi2mp3, a proprietary external tool for Mac OS X.").withRequiredArg().required();
+						"This can be important because MIDI to Wave rendering only works with midi2mp3, a proprietary external tool for Mac OS X. " + 
+						"Also be sure to have MIDI file suffixes in lower case (.mid instead of i.e. .MID), else the file(s) will not be processed.").withRequiredArg().required();
 				accepts("sf", "SoundFont file to use for rendering audio files from MIDI.").withRequiredArg();
 				accepts("scale", "Optional: Parameter for LogScaling. If omitted, no scaling happens.").withRequiredArg();
 				accepts("strippc", "Optional: Strip all bank select and program change events from the MIDI data before rendering.");
 				accepts("stripctrl", "Optional: Strip all controller messages.");
 				accepts("maxvelocity", "Optional: Maximize all velocities to 127.");
+				accepts("midi", "Optional: Just process MIDI files, dont generate any Audio or CQT files.");
 			}
 		};
 		OptionSet options = getOptions(args, parser);
@@ -246,13 +259,14 @@ public class MusicalForest {
 		String sourceFolder = (String)options.valueOf("source");
 		String settingsFile = (String)options.valueOf("settings");
 		String sf = (String)options.valueOf("sf");
-		Boolean stripPC = options.has("strippc");
-		Boolean stripControlMessages = options.has("stripctrl");
-		Boolean maximizeVelocities = options.has("maxvelocity");
+		boolean stripPC = options.has("strippc");
+		boolean stripControlMessages = options.has("stripctrl");
+		boolean maximizeVelocities = options.has("maxvelocity");
+		boolean midi = options.has("midi");
 		
 		double scaleParam = -1;
 		if (options.has("scale")) scaleParam = Double.parseDouble((String)options.valueOf("scale"));
-		action = new GenerateDataAction(sourceFolder, targetFolder, sf, settingsFile, stripPC, stripControlMessages, maximizeVelocities, scaleParam);
+		action = new GenerateDataAction(sourceFolder, targetFolder, sf, settingsFile, stripPC, stripControlMessages, maximizeVelocities, scaleParam, midi);
 	}
 
 	/**
@@ -332,6 +346,7 @@ public class MusicalForest {
 				accepts("target", "Working folder containing the forest data.").withRequiredArg().required();
 				accepts("data", "Test/reference data folder.").withRequiredArg().required();
 				accepts("threads", "Optional: Thread number used to process classification. (Accuracy testing will always run with one thread per dataset)").withRequiredArg();
+				accepts("maxdepth", "Optional: Limit forest depth. The forest has to be expanded to use this.").withRequiredArg();
 			}
 		};
 		
@@ -341,8 +356,10 @@ public class MusicalForest {
 		String workingFolder = (String)options.valueOf("target");
 		int threads = -1;
 		if (options.has("threads")) threads = Integer.parseInt((String)options.valueOf("threads"));
+		int maxDepth = -1;
+		if (options.has("maxdepth")) maxDepth = Integer.parseInt((String)options.valueOf("maxdepth"));
 
-		action = new UpdateAction(workingFolder, dataFolder, threads);
+		action = new UpdateAction(workingFolder, dataFolder, threads, maxDepth);
 	}
 
 	/**
@@ -358,6 +375,7 @@ public class MusicalForest {
 				accepts("data", "Test/reference data folder.").withRequiredArg().required();
 				accepts("threads", "Optional: Thread number used to process classification. (Accuracy testing will always run with one thread per dataset)").withRequiredArg();
 				accepts("force", "Ignore if the given test data has different meta specifications than the forest.");
+				accepts("csv", "Append main test results to this CSV file.").withRequiredArg();
 			}
 		};
 		
@@ -368,7 +386,10 @@ public class MusicalForest {
 		int threads = -1;
 		if (options.has("threads")) threads = Integer.parseInt((String)options.valueOf("threads"));
 		boolean force = options.has("force");
-		action = new TestAction(workingFolder, dataFolder, threads, force);
+		String csvFile = null;
+		if (options.has("csv")) csvFile = (String)options.valueOf("csv");
+
+		action = new TestAction(workingFolder, dataFolder, threads, force, csvFile);
 	}
 
 	/**
@@ -390,6 +411,7 @@ public class MusicalForest {
 				accepts("offsensitivity", "Optional: Overrides the statistically determined optimal note offset sensitivity threshold (In classification mode).").withRequiredArg();
 				accepts("threads", "Optional: Thread number used to perform the worker threading (in training mode: evaluation threading)").withRequiredArg();
 				accepts("silent", "Optional: Dont output any messages.");
+				accepts("maxdepth", "Optional: Limit forest depth. The forest has to be expanded to use this.").withRequiredArg();
 			}
 		};
 		OptionSet options = getOptions(args, parser);
@@ -421,9 +443,7 @@ public class MusicalForest {
 						"created and filled with the generated forest data, plus some stats and log files.").withRequiredArg().required();
 				accepts("settings", "Forest settings stored in a XML file.").withRequiredArg().required();
 				accepts("source", "Training data folder. This folder will be searched recursively, all sets of corresponding MIDI and CQT files " +
-						"will be added for training. Also, " +
-						"the \"frequencies\" file (which contains the frequencies of each bin in the spectrum) " +
-						"must lie in this directory.").withRequiredArg().required();
+						"will be added for training. ").withRequiredArg().required();
 				
 				accepts("threads", "Maximum thread number used for evaluation threading inside nodes.").withRequiredArg();
 				accepts("nodethreads", "Maximum number of threads for per-node threading.)").withRequiredArg();
@@ -449,6 +469,32 @@ public class MusicalForest {
 		((TrainingAction)action).setThreadingParams(evalThreads, nodeThreads, nodeThreadingThreshold);
 	}
 
+	/**
+	 * 
+	 * @param args
+	 * @throws IOException 
+	 */
+	private void expand(String[] args) throws IOException {
+		OptionParser parser = new OptionParser() {
+			{
+				accepts("help", "Shows this help screen.").forHelp();
+				accepts("target", "Working folder. Will be " + 
+						"created and filled with the expanded forest data.").withRequiredArg().required();
+				accepts("data", "Training data folder. This folder will be searched recursively, all sets of corresponding MIDI and CQT files " +
+						"will be added for training. ").withRequiredArg().required();
+				accepts("source", "Forest folder to expand. Will not be modified by this action.").withRequiredArg().required();
+				
+				//accepts("threads", "Maximum thread number used for evaluation threading inside nodes.").withRequiredArg();
+			}
+		};
+		OptionSet options = getOptions(args, parser);
+		String workingFolder = (String)options.valueOf("target");
+		String dataFolder = (String)options.valueOf("data");
+		String sourceFolder = (String)options.valueOf("source");
+		
+		action = new ExpandAction(workingFolder, dataFolder, sourceFolder, -1);
+	}
+	
 	/**
 	 * Parse options.
 	 * 
@@ -522,6 +568,10 @@ public class MusicalForest {
 		System.out.println("                  MeanShift thresholds, do new accuracy tests and update meta data for");
 		System.out.println("                  classification.");
 		System.out.println("");
+		System.out.println("    expand:       Creates a copy of a forest with node probabilities present in all ");
+		System.out.println("                  nodes. After this action, maxDepth can be set during classification");
+		System.out.println("                  to evaluate forest behaviour at lower depths.");
+		System.out.println("");
 		System.out.println("    generatedata: Batch generate training data sets from MIDI and/or Wave Audio files.");
 		System.out.println("                  Generates the spectral (.cqt) files from each audio file, these will");
 		System.out.println("                  be used by the training action to grow the forest. Additionally,");
@@ -530,6 +580,7 @@ public class MusicalForest {
 		System.out.println("    generatemidi: Generate random MIDI files.");
 		System.out.println("");
 		System.out.println("    view:         Display all available meta data of a forest or training dataset.");
+		System.out.println("                  Can also export accuracy stats from meta file to CSV.");
 		System.out.println("");
 		System.out.println("    spectrum:     CQT transformation of an audio file into a PNG image, optionally ");
 		System.out.println("                  overlayed with a MIDI file for checking synchronisation.");
